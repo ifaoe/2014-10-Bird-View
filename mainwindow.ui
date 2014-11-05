@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>680</height>
+    <width>1045</width>
+    <height>811</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -24,30 +24,10 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1" rowspan="3">
-     <widget class="QScrollArea" name="scrArea">
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="wdgImage">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>342</width>
-         <height>660</height>
-        </rect>
-       </property>
-       <zorder>frame_2</zorder>
-       <zorder>frame_2</zorder>
-       <zorder>frame_2</zorder>
-      </widget>
-     </widget>
-    </item>
     <item row="0" column="0">
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="frmSession">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -68,26 +48,6 @@
        <item row="0" column="0">
         <widget class="QComboBox" name="cmbSession"/>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QTableWidget" name="tblObjects">
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOn</enum>
-         </property>
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-         <property name="columnCount">
-          <number>1</number>
-         </property>
-         <attribute name="horizontalHeaderCascadingSectionResizes">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <column/>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="btnSession">
          <property name="sizePolicy">
@@ -101,13 +61,58 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QTableWidget" name="tblObjects">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>200</height>
+          </size>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>5</number>
+         </property>
+         <attribute name="horizontalHeaderCascadingSectionResizes">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderHighlightSections">
+          <bool>true</bool>
+         </attribute>
+         <column/>
+         <column/>
+         <column/>
+         <column/>
+         <column/>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
     <item row="1" column="0">
      <widget class="QTabWidget" name="wdgTabTypes">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -115,7 +120,7 @@
       <property name="minimumSize">
        <size>
         <width>480</width>
-        <height>420</height>
+        <height>0</height>
        </size>
       </property>
       <property name="currentIndex">
@@ -125,9 +130,9 @@
        <attribute name="title">
         <string>Vogel</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QScrollArea" name="scrollArea">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QScrollArea" name="sclBird">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -140,16 +145,22 @@
             <height>0</height>
            </size>
           </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_3">
+          <widget class="QWidget" name="sclBirdContent">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>444</width>
-             <height>480</height>
+             <width>446</width>
+             <height>650</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -161,214 +172,325 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>480</height>
+             <height>650</height>
             </size>
            </property>
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>120</y>
-              <width>421</width>
-              <height>60</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="autoFillBackground">
-             <bool>false</bool>
-            </property>
-            <property name="title">
-             <string>Geschlecht</string>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QRadioButton" name="rbMaleMB">
-               <property name="text">
-                <string>männlich</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdGnd</string>
-               </attribute>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="rbFemaleMB">
-               <property name="text">
-                <string>weiblich</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdGnd</string>
-               </attribute>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QPushButton" name="btnReady">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>450</y>
-              <width>421</width>
-              <height>23</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Fertig</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>300</y>
-              <width>421</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Bermerkungen:</string>
-            </property>
-           </widget>
-           <widget class="QGroupBox" name="groupBox">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>190</y>
-              <width>421</width>
-              <height>100</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="title">
-             <string>Verhalten</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout">
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="rbFlyMB">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>fliegend</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdBhv</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QRadioButton" name="rbSwimMB">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>schwimmend</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdBhv</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QRadioButton" name="radioButton_3">
-               <property name="text">
-                <string>anderes</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdBhv</string>
-               </attribute>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QGroupBox" name="groupBox_3">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>421</width>
-              <height>101</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="title">
-             <string>Typ</string>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="0" column="1">
-              <widget class="QRadioButton" name="radioButton_2">
-               <property name="text">
-                <string>Zugvogel</string>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="radioButton">
-               <property name="text">
-                <string>Rastvogel</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <attribute name="buttonGroup">
-                <string notr="true">btngBirdType</string>
-               </attribute>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="QFontComboBox" name="fontComboBox"/>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QPlainTextEdit" name="txtRemarksMB">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>330</y>
-              <width>421</width>
-              <height>111</height>
-             </rect>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QGroupBox" name="gbxBirdType">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Typ</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_5">
+               <item row="1" column="0" colspan="2">
+                <widget class="QComboBox" name="cmbBird">
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbBirdZug">
+                 <property name="text">
+                  <string>Zugvogel</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdType</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbBirdRast">
+                 <property name="text">
+                  <string>Rastvogel</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdType</string>
+                 </attribute>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="gbxBirdQuality">
+              <property name="title">
+               <string>Bestimmungsqualität</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbQual1">
+                 <property name="text">
+                  <string>sicher</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="rbQual4">
+                 <property name="text">
+                  <string>potenziell</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QRadioButton" name="rbQual3">
+                 <property name="text">
+                  <string>möglich</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbQual2">
+                 <property name="text">
+                  <string>sehr wahrscheinlich</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="gbxBirdBehavior">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Verhalten</string>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbBirdBehaveFly">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>fliegend</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdBhv</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbBirdBehaveSwim">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>schwimmend</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdBhv</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QRadioButton" name="rbBirdBehaveMig">
+                 <property name="text">
+                  <string>ziehend</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdBhv</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="rbBirdBehaveDive">
+                 <property name="text">
+                  <string>tauchend</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="gbxBirdGender">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="title">
+               <string>Geschlecht</string>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item>
+                <widget class="QRadioButton" name="rbMaleMB">
+                 <property name="text">
+                  <string>männlich</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdGnd</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="rbFemaleMB">
+                 <property name="text">
+                  <string>weiblich</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdGnd</string>
+                 </attribute>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="gbxBirdAge">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Alter</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbBirdAgeAdult">
+                 <property name="text">
+                  <string>adult</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbBirdAgeImmat">
+                 <property name="text">
+                  <string>immatur</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QRadioButton" name="rbBirdAgeJuv">
+                 <property name="text">
+                  <string>juvenil</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QRadioButton" name="rbBirdAgeK1">
+                 <property name="text">
+                  <string>K1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QRadioButton" name="rbBirdAgeK2">
+                 <property name="text">
+                  <string>K2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QRadioButton" name="rbBirdAgeK3">
+                 <property name="text">
+                  <string>K3</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QRadioButton" name="rbBirdAgeK4">
+                 <property name="text">
+                  <string>K4</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lblBirdRemarks">
+              <property name="text">
+               <string>Bermerkungen:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="txtBirdRemarks">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>50</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnBirdReady">
+              <property name="text">
+               <string>Fertig</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -378,7 +500,228 @@
        <attribute name="title">
         <string>Meeressäuger</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QScrollArea" name="sclMammal">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>460</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="sclMammalContent">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>460</width>
+             <height>481</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>450</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QGroupBox" name="gbxMammalType">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Deutscher Artname</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QComboBox" name="cmbMammal">
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="gbxMammalQuality">
+              <property name="title">
+               <string>Bestimmungsqualität</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbMammalQual1">
+                 <property name="text">
+                  <string>sicher</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QRadioButton" name="rbMammalQual3">
+                 <property name="text">
+                  <string>möglich</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="rbMammalQual4">
+                 <property name="text">
+                  <string>potenziell</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbMammalQual2">
+                 <property name="text">
+                  <string>sehr wahrscheinlich</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="grbMammalBehaviour">
+              <property name="title">
+               <string>Verhalten</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_9">
+               <item row="1" column="0">
+                <widget class="QRadioButton" name="rbBehaveCloseUnder">
+                 <property name="text">
+                  <string>knapp unter W.o.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbBehavePartOver">
+                 <property name="text">
+                  <string>teilweise über W.o.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbBehaveFullOver">
+                 <property name="text">
+                  <string>vollst. über W.o.</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="rbBehaveFarUnder">
+                 <property name="text">
+                  <string>weit unter W.o.</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="gbxMammalAge">
+              <property name="title">
+               <string>Alter</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_8">
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="rbMammalAgeAdult">
+                 <property name="text">
+                  <string>adult</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="rbMammalAgeJuv">
+                 <property name="text">
+                  <string>juvenil</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lblMammalRemarks">
+              <property name="text">
+               <string>Bermerkungen:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="txtMammalRemarks"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMammalReady">
+              <property name="text">
+               <string>Fertig</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="2">
+     <widget class="QWidget" name="wdgImg" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>300</width>
+        <height>400</height>
+       </size>
+      </property>
      </widget>
     </item>
    </layout>
@@ -388,8 +731,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btngBirdBhv"/>
-  <buttongroup name="btngBirdType"/>
   <buttongroup name="btngBirdGnd"/>
+  <buttongroup name="btngBirdType"/>
+  <buttongroup name="btngBirdBhv"/>
  </buttongroups>
 </ui>
