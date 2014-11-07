@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QScrollArea>
+#include <QWebView>
 #include <qgsproviderregistry.h>
 #include <qgsmaplayerregistry.h>
 #include "ImgCanvas.h"
@@ -27,6 +28,8 @@ private slots:
 	void handleBirdSave();
 	void handleMammalSave();
 	void objectUpdateSelection();
+	void handleMapToolButton();
+	void handleNoSightingButton();
 
 private:
 	QgsProviderRegistry *prvRegistry = 0;
@@ -37,11 +40,14 @@ private:
     Ui::MainWindow *ui;
     QItemSelectionModel *objSelector;
     QString session = "";
-
+    census * curObj;
     int currentRow = -1;
+    int mapMode = 0;
+    QVBoxLayout *lytFrmImg;
+    QWebView * geoMap;
 
-    void populateObjectTable();
-
+    void selectButtonByString(QButtonGroup * btnGrp, QString str);
+    void colorTableReady(int censor);
 };
 
 #endif // MAINWINDOW_H
