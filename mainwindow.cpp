@@ -11,10 +11,10 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg,QWidget *p
 
 	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "TP" <<"CAM" << "IMG" << "USER");
 	ui->tblObjects->setColumnWidth(0, 75);
-	ui->tblObjects->setColumnWidth(1, 40);
+	ui->tblObjects->setColumnWidth(1, 80);
 	ui->tblObjects->setColumnWidth(2, 40);
 	ui->tblObjects->setColumnWidth(3, 80);
-	ui->tblObjects->setColumnWidth(4, 90);
+	ui->tblObjects->setColumnWidth(4, 50);
 
     prvRegistry = QgsProviderRegistry::instance();
     lyrRegistry = QgsMapLayerRegistry::instance();
@@ -42,6 +42,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg,QWidget *p
 	}
 
 	ui->cmbSession->addItems(db->getSessionList());
+//	db->getBirdTypeList(ui->cmbBird);
+	ui->cmbBird->addItems(db->getBirdTypeList());
+	ui->cmbMammal->addItems(cfg->mmList);
 
 	objSelector = ui->tblObjects->selectionModel();
 	ui->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -59,6 +62,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg,QWidget *p
     connect(ui->btnBirdReady, SIGNAL(released()), this, SLOT(handleBirdSave()));
     connect(ui->btnMammalReady, SIGNAL(released()), this, SLOT(handleMammalSave()));
     connect(ui->btnMapMode, SIGNAL(released()), this, SLOT(handleMapToolButton()));
+    connect(ui->btnNoSightReady, SIGNAL(released()), this, SLOT(handleNoSightingButton()));
 }
 
 MainWindow::~MainWindow()
@@ -73,7 +77,12 @@ void MainWindow::handleSessionButton() {
 	int row = 0;
 	while(query->next()) {
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
-		QTableWidgetItem * type = new QTableWidgetItem(query->value(1).toString());
+		QTableWidgetItem * type;
+		if (query->value(6).toString() == "") {
+			type = new QTableWidgetItem(query->value(1).toString());
+		} else {
+			type = new QTableWidgetItem(query->value(6).toString());
+		}
 		QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
 		QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
 		QTableWidgetItem * user = new QTableWidgetItem(query->value(4).toString());
@@ -126,21 +135,27 @@ void MainWindow::objectUpdateSelection() {
 
 	if(curObj->type.left(1) == "B" ) { // Bird Tab
 		ui->wdgTabTypes->setCurrentIndex(0);
-		selectButtonByString(ui->btngBirdType, curObj->type);
+		int index = ui->cmbBird->findText(curObj->name);
+		ui->cmbBird->setCurrentIndex(index);
 		selectButtonByString(ui->btngBirdQual, QString::number(curObj->quality));
 		selectButtonByString(ui->btngBirdBhv, curObj->behavior);
 		selectButtonByString(ui->btngBirdGnd, curObj->gender);
 		selectButtonByString(ui->btngBirdAge, curObj->age);
-		ui->cmbBird->setEditText(curObj->name);
+//		ui->cmbBird->setEditText(curObj->name);
 		ui->txtBirdRemarks->setPlainText(curObj->remarks);
 	} else if (curObj->type.left(1) == "M") { // Mammal Tab
 		ui->wdgTabTypes->setCurrentIndex(1);
-		selectButtonByString(ui->btngMammalType, curObj->type);
+		int index = ui->cmbMammal->findText(curObj->name);
+		ui->cmbMammal->setCurrentIndex(index);
 		selectButtonByString(ui->btngMammalQual, QString::number(curObj->quality));
 		selectButtonByString(ui->btngMammalBhv, curObj->behavior);
 		selectButtonByString(ui->btngMammalAge, curObj->age);
-		ui->cmbMammal->setEditText(curObj->name);
+//		ui->cmbMammal->setEditText(curObj->name);
 		ui->txtMammalRemarks->setPlainText(curObj->remarks);
+	} else {
+		ui->wdgTabTypes->setCurrentIndex(2);
+		selectButtonByString(ui->btngNoSightQual, QString::number(curObj->quality));
+		ui->txtNoSightRemarks->setPlainText(curObj->remarks);
 	}
 
 	QString file = cfg->imgPath + "/" + prjDir + "/cam" + cam + "/geo/" + img + ".tif";
@@ -150,7 +165,7 @@ void MainWindow::objectUpdateSelection() {
 
 void MainWindow::handleBirdSave() {
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
-	curObj->type = ui->btngBirdType->checkedButton()->property("dbvalue").toString();
+	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 	curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
 	curObj->behavior = ui->btngBirdBhv->checkedButton()->property("dbvalue").toString();
 	if (ui->gbxBirdGender->isChecked())
@@ -159,19 +174,29 @@ void MainWindow::handleBirdSave() {
 		curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
 	curObj->remarks = ui->txtBirdRemarks->toPlainText();
 	curObj->name = ui->cmbBird->currentText();
-	curObj->censor++;
+//	curObj->name = ui->cmbBird->itemData(ui->cmbBird->currentIndex()).toString();
+	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+
+	// write object data to db
 	db->writeCensus(curObj);
+	// refresh object table
 	colorTableReady(curObj->censor);
-
+	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 4)->setText(curObj->usr);
+	// delete object structure
 	delete curObj;
-
-	QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
-	objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	// clear remark box
+	ui->txtBirdRemarks->clear();
+	// select next object in table
+	if(currentRow < ui->tblObjects->rowCount()) {
+		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
+		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	}
 }
 
 void MainWindow::handleMammalSave() {
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
-	curObj->type = ui->btngMammalType->checkedButton()->property("dbvalue").toString();
+	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 	curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
 	curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
 	curObj->gender = "";
@@ -179,13 +204,37 @@ void MainWindow::handleMammalSave() {
 		curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
 	curObj->remarks = ui->txtMammalRemarks->toPlainText();
 	curObj->name = ui->cmbMammal->currentText();
-	curObj->censor++;
+//	curObj->name = ui->cmbMammal->itemData(ui->cmbMammal->currentIndex()).toString();
+	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
+	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 4)->setText(curObj->usr);
 	delete curObj;
+	ui->txtMammalRemarks->clear();
+	if(currentRow < ui->tblObjects->rowCount()) {
+		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
+		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	}
+}
 
-	QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
-	objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+void MainWindow::handleNoSightingButton() {
+	QString objId = ui->tblObjects->item(currentRow, 0)->text();
+	curObj->type = "NOSIGHT";
+	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+	curObj->quality = ui->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
+	curObj->remarks = ui->txtNoSightRemarks->toPlainText();
+	db->writeCensus(curObj);
+	colorTableReady(curObj->censor);
+	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 4)->setText(curObj->usr);
+
+	delete curObj;
+	ui->txtNoSightRemarks->clear();
+	if(currentRow < ui->tblObjects->rowCount()) {
+		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
+		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	}
 }
 
 void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
@@ -201,10 +250,14 @@ void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
 }
 
 void MainWindow::handleMapToolButton() {
+	// Show Geo Location on Map
+	// TODO: Use proper map API
+	// TODO: Google or OpenStreetMaps ?
 	QString scale="8";
 	QString url = "";
 	url += "http://www.openstreetmap.org/?mlat=" + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
 	url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
+//	url += "http://maps.google.com/maps?q=" + QString::number(curObj->ly) + "," + QString::number(curObj->lx);
 	if (mapMode == 0) {
 		mapMode = 1;
 		qDebug() << "Load URL: " << url;
@@ -218,11 +271,6 @@ void MainWindow::handleMapToolButton() {
 		lytFrmImg->addWidget(imgcvs);
 		geoMap->hide();
 	}
-}
-
-void MainWindow::handleNoSightingButton() {
-	QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
-	objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
 void MainWindow::colorTableReady(int censor) {
