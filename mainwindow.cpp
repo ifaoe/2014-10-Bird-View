@@ -1,11 +1,26 @@
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ImgCanvas.h"
 #include <QSqlQuery>
+#include <QMotifStyle>
+#include <QMessageBox>
 
-MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg,QWidget *parent) :
-	ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg) ,QMainWindow(0)
+MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
+	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
 {
 	ui->setupUi(this);
 
@@ -50,19 +65,21 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg,QWidget *p
 	ui->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
 	ui->tblObjects->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    imgcvs = new ImgCanvas(ui->wdgImg, ui);
-    geoMap = new QWebView(ui->wdgImg);
-    lytFrmImg = new QVBoxLayout;
-    lytFrmImg->setMargin(0);
-    lytFrmImg->addWidget(imgcvs);
-    ui->wdgImg->setLayout(lytFrmImg);
+	initMapView();
 
+    // connect signals
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(objectUpdateSelection()));
     connect(ui->btnSession, SIGNAL(released()), this, SLOT(handleSessionButton()));
     connect(ui->btnBirdReady, SIGNAL(released()), this, SLOT(handleBirdSave()));
     connect(ui->btnMammalReady, SIGNAL(released()), this, SLOT(handleMammalSave()));
-    connect(ui->btnMapMode, SIGNAL(released()), this, SLOT(handleMapToolButton()));
+    connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
+    connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
     connect(ui->btnNoSightReady, SIGNAL(released()), this, SLOT(handleNoSightingButton()));
+    connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
+    connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
+
+    // TODO: Button for "agree" -> next object (spacebar?)
+
 }
 
 MainWindow::~MainWindow()
@@ -116,12 +133,25 @@ void MainWindow::handleSessionButton() {
 }
 
 void MainWindow::objectUpdateSelection() {
+	// TODO: Cleanup.
+	ui->lblMsmTool->setText("Zum Beginn der Messung ersten Punkt anklicken.");
 	currentRow = objSelector->selectedRows().at(0).row();
 	QString prjDir = "";
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
 	QString img = ui->tblObjects->item(currentRow, 3)->text();
+	QString shTp = ui->tblObjects->item(currentRow,1)->text().left(1);
 	curObj = db->getRawObjectData(objId);
+	if (curObj->direction >= 0 ) {
+		dirDial->setValue((curObj->direction+180)%360);
+	} else {
+		dirDial->setValue(180);
+	}
+	if (curObj->imageQuality > 0) {
+		ui->chbImgQuality->setChecked(true);
+	} else {
+		ui->chbImgQuality->setChecked(false);
+	}
 	QString date = session.left(10);
 	QDir base = QDir(cfg->imgPath);
 	base.setFilter(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -133,24 +163,37 @@ void MainWindow::objectUpdateSelection() {
 		}
 	}
 
-	if(curObj->type.left(1) == "B" ) { // Bird Tab
+	if(curObj->type.left(1) == "B" || shTp == "V" ) { // Bird Tab
 		ui->wdgTabTypes->setCurrentIndex(0);
 		int index = ui->cmbBird->findText(curObj->name);
 		ui->cmbBird->setCurrentIndex(index);
 		selectButtonByString(ui->btngBirdQual, QString::number(curObj->quality));
 		selectButtonByString(ui->btngBirdBhv, curObj->behavior);
-		selectButtonByString(ui->btngBirdGnd, curObj->gender);
-		selectButtonByString(ui->btngBirdAge, curObj->age);
-//		ui->cmbBird->setEditText(curObj->name);
+		if(curObj->gender != "") {
+			ui->gbxBirdGender->setChecked(true);
+			selectButtonByString(ui->btngBirdGnd, curObj->gender);
+		} else {
+			ui->gbxBirdGender->setChecked(false);
+		}
+		if(curObj->age != "") {
+			ui->gbxBirdAge->setChecked(true);
+			selectButtonByString(ui->btngBirdAge, curObj->age);
+		} else {
+			ui->gbxBirdAge->setChecked(false);
+		}
 		ui->txtBirdRemarks->setPlainText(curObj->remarks);
-	} else if (curObj->type.left(1) == "M") { // Mammal Tab
+	} else if (curObj->type.left(1) == "M" || shTp == "M") { // Mammal Tab
 		ui->wdgTabTypes->setCurrentIndex(1);
 		int index = ui->cmbMammal->findText(curObj->name);
 		ui->cmbMammal->setCurrentIndex(index);
 		selectButtonByString(ui->btngMammalQual, QString::number(curObj->quality));
 		selectButtonByString(ui->btngMammalBhv, curObj->behavior);
-		selectButtonByString(ui->btngMammalAge, curObj->age);
-//		ui->cmbMammal->setEditText(curObj->name);
+		if (curObj->age != "") {
+			ui->gbxMammalAge->setChecked(true);
+			selectButtonByString(ui->btngMammalAge, curObj->age);
+		} else {
+			ui->gbxMammalAge->setChecked(false);
+		}
 		ui->txtMammalRemarks->setPlainText(curObj->remarks);
 	} else {
 		ui->wdgTabTypes->setCurrentIndex(2);
@@ -164,6 +207,17 @@ void MainWindow::objectUpdateSelection() {
 
 
 void MainWindow::handleBirdSave() {
+	if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY" && curObj->direction < 0) {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen."));
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		if(msgBox->clickedButton() == nextButton) {
+			return;
+		}
+	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
+		curObj->direction = -1;
+	}
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 	curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
@@ -176,7 +230,8 @@ void MainWindow::handleBirdSave() {
 	curObj->name = ui->cmbBird->currentText();
 //	curObj->name = ui->cmbBird->itemData(ui->cmbBird->currentIndex()).toString();
 	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
-
+	if (ui->chbImgQuality->isChecked())
+		curObj->imageQuality = 1;
 	// write object data to db
 	db->writeCensus(curObj);
 	// refresh object table
@@ -202,10 +257,13 @@ void MainWindow::handleMammalSave() {
 	curObj->gender = "";
 	if (ui->gbxMammalAge->isChecked())
 		curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
+	if (ui->chbImgQuality->isChecked())
+		curObj->imageQuality = 1;
 	curObj->remarks = ui->txtMammalRemarks->toPlainText();
 	curObj->name = ui->cmbMammal->currentText();
 //	curObj->name = ui->cmbMammal->itemData(ui->cmbMammal->currentIndex()).toString();
 	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
@@ -250,6 +308,7 @@ void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
 }
 
 void MainWindow::handleMapToolButton() {
+	if (curObj == 0) return;
 	// Show Geo Location on Map
 	// TODO: Use proper map API
 	// TODO: Google or OpenStreetMaps ?
@@ -258,15 +317,13 @@ void MainWindow::handleMapToolButton() {
 	url += "http://www.openstreetmap.org/?mlat=" + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
 	url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
 //	url += "http://maps.google.com/maps?q=" + QString::number(curObj->ly) + "," + QString::number(curObj->lx);
-	if (mapMode == 0) {
-		mapMode = 1;
+	if (sender() == btnMapModeImg) {
 		qDebug() << "Load URL: " << url;
 		geoMap->load(QUrl(url));
 		geoMap->show();
 		lytFrmImg->removeWidget(imgcvs);
 		lytFrmImg->addWidget(geoMap);
 	} else {
-		mapMode = 0;
 		lytFrmImg->removeWidget(geoMap);
 		lytFrmImg->addWidget(imgcvs);
 		geoMap->hide();
@@ -287,4 +344,52 @@ void MainWindow::colorTableReady(int censor) {
 		ui->tblObjects->item(currentRow, 3)->setBackgroundColor(Qt::green);
 		ui->tblObjects->item(currentRow, 4)->setBackgroundColor(Qt::green);
 	}
+}
+
+void MainWindow::handleOneToOneZoom() {
+	imgcvs->centerOnWorldPosition(curObj->ux, curObj->uy, 1.0);
+}
+
+void MainWindow::initMapView() {
+	// Setup image and map
+	imgcvs = new ImgCanvas(ui->wdgImg, ui);
+	geoMap = new QWebView(ui->wdgImg);
+	lytFrmImg = new QVBoxLayout;
+	lytFrmImg->setMargin(0);
+	lytFrmImg->addWidget(imgcvs);
+	ui->wdgImg->setLayout(lytFrmImg);
+
+	// Setup buttons
+	btnMapModeImg = new QPushButton(imgcvs);
+	btnMapModeImg->setText("Karte");
+
+
+	btnMapModeGeo = new QPushButton(geoMap);
+	btnMapModeGeo->setText("Bild");
+
+
+	btnZoomOneOne = new QPushButton(imgcvs);
+	btnZoomOneOne->setText("1:1");
+
+	dirDial = new QDial(imgcvs);
+	dirDial->setFixedSize(80,80);
+	dirDial->move(10,10);
+	dirDial->setMaximum(359);
+	dirDial->setMinimum(0);
+	dirDial->setWrapping(true);
+	dirDial->setNotchesVisible(false);
+	dirDial->setStyle(new QMotifStyle);
+}
+
+void MainWindow::resizeEvent(QResizeEvent * event) {
+
+	int wdgSizeX = ui->wdgImg->size().width();
+	int wdgSizeY = ui->wdgImg->size().height();
+	btnMapModeImg->move(wdgSizeX-100,40);
+	btnMapModeGeo->move(wdgSizeX-160,80);
+	btnZoomOneOne->move(wdgSizeX-100,10);
+}
+
+void MainWindow::handleDirDial() {
+	curObj->direction = (dirDial->value() + 180)%360;
 }

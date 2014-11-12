@@ -24,23 +24,7 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1" rowspan="3">
-     <widget class="QWidget" name="wdgImg" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>300</width>
-        <height>400</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
+    <item row="0" column="0" rowspan="2">
      <widget class="QFrame" name="frmSession">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -122,17 +106,10 @@
        <item row="0" column="0" colspan="2">
         <widget class="QComboBox" name="cmbSession"/>
        </item>
-       <item row="2" column="2">
-        <widget class="QPushButton" name="btnMapMode">
-         <property name="text">
-          <string>Karte</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QFrame" name="gbxCensor">
       <layout class="QGridLayout" name="gridLayout_12">
        <item row="0" column="1">
@@ -167,7 +144,7 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="4" column="0">
      <widget class="QTabWidget" name="wdgTabTypes">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -180,6 +157,9 @@
         <width>480</width>
         <height>0</height>
        </size>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
        <number>0</number>
@@ -219,7 +199,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-88</y>
+             <y>-56</y>
              <width>446</width>
              <height>580</height>
             </rect>
@@ -406,6 +386,9 @@
                  <property name="dbvalue" stdset="0">
                   <string>DIVE</string>
                  </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">btngBirdBhv</string>
+                 </attribute>
                 </widget>
                </item>
               </layout>
@@ -658,7 +641,7 @@
              <x>0</x>
              <y>0</y>
              <width>460</width>
-             <height>492</height>
+             <height>491</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -938,7 +921,7 @@
              <x>0</x>
              <y>0</y>
              <width>460</width>
-             <height>492</height>
+             <height>491</height>
             </rect>
            </property>
            <property name="minimumSize">
@@ -1044,6 +1027,36 @@
       </widget>
      </widget>
     </item>
+    <item row="5" column="0">
+     <widget class="QCheckBox" name="chbImgQuality">
+      <property name="text">
+       <string>Hohe Qualität (Beispielbild)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="5" colspan="2">
+     <widget class="QWidget" name="wdgImg" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1" colspan="2">
+     <widget class="QLabel" name="lblMsmTool">
+      <property name="text">
+       <string>Entfernungsmessung: Bitte erst Objekt laden!</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
@@ -1057,8 +1070,8 @@
   <buttongroup name="btngMammalAge"/>
   <buttongroup name="btngMammalBhv"/>
   <buttongroup name="btngBirdBhv"/>
-  <buttongroup name="btngMammalQual"/>
   <buttongroup name="btngCensor"/>
   <buttongroup name="btngNoSightQual"/>
+  <buttongroup name="btngMammalQual"/>
  </buttongroups>
 </ui>
