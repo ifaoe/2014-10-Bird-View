@@ -46,6 +46,7 @@ private slots:
 	void handleNoSightingButton();
 	void handleOneToOneZoom();
 	void handleDirDial();
+	void handleUsrSelect();
 
 private:
 	QgsProviderRegistry *prvRegistry = 0;
@@ -70,6 +71,7 @@ private:
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableReady(int censor);
     void initMapView();
+    void uiPreSelection(census * cobj);
 protected:
     void resizeEvent(QResizeEvent *event);
 };

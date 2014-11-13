@@ -28,9 +28,6 @@ HEADERS  += mainwindow.h\
 
 FORMS    += mainwindow.ui
 
-CONFIG+=link_pkgconfig
-PKGCONFIG+=opencv
-
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis
 DEPENDPATH += /usr/include
@@ -43,8 +40,4 @@ unix: LIBS += -L/usr/lib/\
  -lqgis_core\
  -lqgis_gui\
  -lboost_program_options\
- -L/usr/local/lib\
- /usr/local/lib/libopencv_core.so\
- /usr/local/lib/libopencv_highgui.so\
- /usr/local/lib/libopencv_imgproc.so
  

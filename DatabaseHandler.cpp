@@ -80,6 +80,21 @@ void DatabaseHandler::populateBirdList(QComboBox * cmb) {
 	}
 }
 
+QStringList DatabaseHandler::getUserList(QString objId) {
+	qDebug() << "Getting user list from database.";
+	QStringList userList;
+	userList.append(QString::fromStdString(getenv("USER")));
+	QSqlQuery query("SELECT usr FROM censur WHERE rcns_id=" + objId);
+	QString user;
+	if (query.size() == -1) return userList;
+	while(query.next()) {
+		user = query.value(0).toString();
+		if (!userList.contains(user))
+			userList.append(user);
+	}
+	qDebug() << "Done";
+}
+
 QSqlQuery * DatabaseHandler::getObjectResult(QString session) {
 	// get object data for population of object list
 	QString qstr = "SELECT raw_census.rcns_id, raw_census.tp, raw_census.cam, raw_census.img, census.usr, census.censor, census.tp FROM raw_census"
@@ -103,9 +118,10 @@ double * DatabaseHandler::getObjectPosition(QString objId) {
 	return pos;
 }
 
-census * DatabaseHandler::getRawObjectData(QString objId) {
+census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	qDebug() << "Getting raw object data for object ID: " << objId;
-	QString qstr = "SELECT rcns_id, session, epsg, cam, img, tp, px, py, ux, uy, lx, ly FROM raw_census WHERE rcns_id=" + objId;
+	QString qstr = "SELECT rcns_id, session, epsg, cam, img, tp, px, py, ux, uy, lx, ly FROM raw_census WHERE rcns_id=" + objId
+			+ " AND usr='" + usr + "'";
 	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	census *obj = new census;
@@ -124,7 +140,7 @@ census * DatabaseHandler::getRawObjectData(QString objId) {
 	obj->uy = query->value(9).toDouble();
 	obj->lx = query->value(10).toDouble();
 	obj->ly = query->value(11).toDouble();
-	obj->usr = QString::fromStdString(getenv("USER"));
+	obj->usr = usr;
 	delete query;
 	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId;
 	// if there is already an entry in census db-table,
@@ -151,7 +167,7 @@ void DatabaseHandler::writeCensus(census * obj) {
 	qDebug() << "Writing object data to database.";
 	QSqlTableModel table;
 	table.setTable("census");
-	table.setFilter("rcns_id=" + QString::number(obj->id));
+	table.setFilter("rcns_id=" + QString::number(obj->id) + " AND usr=" + obj->usr);
 	table.select();
 	// get record structure from db
 	QSqlRecord record(table.record());

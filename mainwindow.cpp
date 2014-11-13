@@ -77,6 +77,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(ui->btnNoSightReady, SIGNAL(released()), this, SLOT(handleNoSightingButton()));
     connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
+    connect(ui->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
 
     // TODO: Button for "agree" -> next object (spacebar?)
 
@@ -140,18 +141,10 @@ void MainWindow::objectUpdateSelection() {
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
 	QString img = ui->tblObjects->item(currentRow, 3)->text();
-	QString shTp = ui->tblObjects->item(currentRow,1)->text().left(1);
-	curObj = db->getRawObjectData(objId);
-	if (curObj->direction >= 0 ) {
-		dirDial->setValue((curObj->direction+180)%360);
-	} else {
-		dirDial->setValue(180);
-	}
-	if (curObj->imageQuality > 0) {
-		ui->chbImgQuality->setChecked(true);
-	} else {
-		ui->chbImgQuality->setChecked(false);
-	}
+	ui->cmbUsers->clear();
+	ui->cmbUsers->addItems(db->getUserList(objId));
+	curObj = db->getRawObjectData(objId, QString::fromStdString(getenv("USER")));
+	uiPreSelection(curObj);
 	QString date = session.left(10);
 	QDir base = QDir(cfg->imgPath);
 	base.setFilter(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -161,46 +154,6 @@ void MainWindow::objectUpdateSelection() {
 			prjDir = subdirs.at(i);
 			break;
 		}
-	}
-
-	if(curObj->type.left(1) == "B" || shTp == "V" ) { // Bird Tab
-		ui->wdgTabTypes->setCurrentIndex(0);
-		int index = ui->cmbBird->findText(curObj->name);
-		ui->cmbBird->setCurrentIndex(index);
-		selectButtonByString(ui->btngBirdQual, QString::number(curObj->quality));
-		selectButtonByString(ui->btngBirdBhv, curObj->behavior);
-		if(curObj->gender != "") {
-			ui->gbxBirdGender->setChecked(true);
-			selectButtonByString(ui->btngBirdGnd, curObj->gender);
-		} else {
-			ui->gbxBirdGender->setChecked(false);
-		}
-		if(curObj->age != "") {
-			ui->gbxBirdAge->setChecked(true);
-			selectButtonByString(ui->btngBirdAge, curObj->age);
-		} else {
-			ui->gbxBirdAge->setChecked(false);
-		}
-		ui->txtBirdRemarks->setPlainText(curObj->remarks);
-		ui->cmbBird->setFocus();
-	} else if (curObj->type.left(1) == "M" || shTp == "M") { // Mammal Tab
-		ui->wdgTabTypes->setCurrentIndex(1);
-		int index = ui->cmbMammal->findText(curObj->name);
-		ui->cmbMammal->setCurrentIndex(index);
-		selectButtonByString(ui->btngMammalQual, QString::number(curObj->quality));
-		selectButtonByString(ui->btngMammalBhv, curObj->behavior);
-		if (curObj->age != "") {
-			ui->gbxMammalAge->setChecked(true);
-			selectButtonByString(ui->btngMammalAge, curObj->age);
-		} else {
-			ui->gbxMammalAge->setChecked(false);
-		}
-		ui->txtMammalRemarks->setPlainText(curObj->remarks);
-		ui->cmbMammal->setFocus();
-	} else {
-		ui->wdgTabTypes->setCurrentIndex(2);
-		selectButtonByString(ui->btngNoSightQual, QString::number(curObj->quality));
-		ui->txtNoSightRemarks->setPlainText(curObj->remarks);
 	}
 
 	QString file = cfg->imgPath + "/" + prjDir + "/cam" + cam + "/geo/" + img + ".tif";
@@ -396,4 +349,64 @@ void MainWindow::resizeEvent(QResizeEvent * event) {
 
 void MainWindow::handleDirDial() {
 	curObj->direction = (dirDial->value() + 180)%360;
+}
+
+void MainWindow::uiPreSelection(census * cobj) {
+	if (cobj->direction >= 0 ) {
+		dirDial->setValue((cobj->direction+180)%360);
+	} else {
+		dirDial->setValue(180);
+	}
+	if (cobj->imageQuality > 0) {
+		ui->chbImgQuality->setChecked(true);
+	} else {
+		ui->chbImgQuality->setChecked(false);
+	}
+	QString shTp = ui->tblObjects->item(currentRow,1)->text().left(1);
+	if(cobj->type.left(1) == "B" || shTp == "V" ) { // Bird Tab
+			ui->wdgTabTypes->setCurrentIndex(0);
+			int index = ui->cmbBird->findText(cobj->name);
+			ui->cmbBird->setCurrentIndex(index);
+			selectButtonByString(ui->btngBirdQual, QString::number(cobj->quality));
+			selectButtonByString(ui->btngBirdBhv, cobj->behavior);
+			if(cobj->gender != "") {
+				ui->gbxBirdGender->setChecked(true);
+				selectButtonByString(ui->btngBirdGnd, cobj->gender);
+			} else {
+				ui->gbxBirdGender->setChecked(false);
+			}
+			if(cobj->age != "") {
+				ui->gbxBirdAge->setChecked(true);
+				selectButtonByString(ui->btngBirdAge, cobj->age);
+			} else {
+				ui->gbxBirdAge->setChecked(false);
+			}
+			ui->txtBirdRemarks->setPlainText(cobj->remarks);
+			ui->cmbBird->setFocus();
+		} else if (cobj->type.left(1) == "M" || shTp == "M") { // Mammal Tab
+			ui->wdgTabTypes->setCurrentIndex(1);
+			int index = ui->cmbMammal->findText(cobj->name);
+			ui->cmbMammal->setCurrentIndex(index);
+			selectButtonByString(ui->btngMammalQual, QString::number(cobj->quality));
+			selectButtonByString(ui->btngMammalBhv, cobj->behavior);
+			if (cobj->age != "") {
+				ui->gbxMammalAge->setChecked(true);
+				selectButtonByString(ui->btngMammalAge, cobj->age);
+			} else {
+				ui->gbxMammalAge->setChecked(false);
+			}
+			ui->txtMammalRemarks->setPlainText(cobj->remarks);
+			ui->cmbMammal->setFocus();
+		} else {
+			ui->wdgTabTypes->setCurrentIndex(2);
+			selectButtonByString(ui->btngNoSightQual, QString::number(cobj->quality));
+			ui->txtNoSightRemarks->setPlainText(cobj->remarks);
+		}
+}
+
+void MainWindow::handleUsrSelect() {
+	census * obj;
+	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
+	uiPreSelection(obj);
+	delete obj;
 }

@@ -27,10 +27,11 @@ public:
 	virtual ~DatabaseHandler();
 	QStringList getSessionList();
 	QSqlQuery * getObjectResult(QString session);
-	census * getRawObjectData(QString objId);
+	census * getRawObjectData(QString objId, QString usr);
 	double * getObjectPosition(QString objId);
 	QStringList getBirdTypeList();
 	void populateBirdList(QComboBox * cmb);
+	QStringList getUserList(QString objId);
 	void writeCensus(census * obj);
 private:
 	QSqlDatabase *db;
