@@ -199,9 +199,9 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-56</y>
+             <y>-9</y>
              <width>446</width>
-             <height>580</height>
+             <height>500</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -213,30 +213,15 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>580</height>
+             <height>500</height>
             </size>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QGroupBox" name="gbxBirdType">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <widget class="QComboBox" name="cmbBird">
+              <property name="editable">
+               <bool>false</bool>
               </property>
-              <property name="title">
-               <string>Deutscher Artname</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_5">
-               <item row="0" column="0" colspan="2">
-                <widget class="QComboBox" name="cmbBird">
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </widget>
             </item>
             <item>
@@ -248,7 +233,7 @@
                <item row="0" column="0">
                 <widget class="QRadioButton" name="rbBirdQual1">
                  <property name="text">
-                  <string comment="1">sicher</string>
+                  <string comment="1">1 - sicher</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -264,7 +249,7 @@
                <item row="1" column="1">
                 <widget class="QRadioButton" name="rbBirdQual4">
                  <property name="text">
-                  <string comment="4">potenziell</string>
+                  <string comment="4">4 - potenziell</string>
                  </property>
                  <property name="dbvalue" stdset="0">
                   <string>4</string>
@@ -277,7 +262,7 @@
                <item row="1" column="0">
                 <widget class="QRadioButton" name="rbBirdQual3">
                  <property name="text">
-                  <string comment="3">möglich</string>
+                  <string comment="3">3 - möglich</string>
                  </property>
                  <property name="dbvalue" stdset="0">
                   <string>3</string>
@@ -290,7 +275,7 @@
                <item row="0" column="1">
                 <widget class="QRadioButton" name="rbBirdQual2">
                  <property name="text">
-                  <string comment="2">sehr wahrscheinlich</string>
+                  <string comment="2">2 - sehr wahrscheinlich</string>
                  </property>
                  <property name="dbvalue" stdset="0">
                   <string>2</string>
@@ -583,7 +568,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>15</height>
+                <height>35</height>
                </size>
               </property>
              </widget>
@@ -653,30 +638,15 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>450</height>
+             <height>350</height>
             </size>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="QGroupBox" name="gbxMammalType">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <widget class="QComboBox" name="cmbMammal">
+              <property name="editable">
+               <bool>false</bool>
               </property>
-              <property name="title">
-               <string>Deutscher Artname</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_10">
-               <item row="0" column="0" colspan="2">
-                <widget class="QComboBox" name="cmbMammal">
-                 <property name="editable">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </widget>
             </item>
             <item>
@@ -688,7 +658,7 @@
                <item row="0" column="0">
                 <widget class="QRadioButton" name="rbMammalQual1">
                  <property name="text">
-                  <string comment="1">sicher</string>
+                  <string comment="1">1 - sicher</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -704,7 +674,7 @@
                <item row="1" column="0">
                 <widget class="QRadioButton" name="rbMammalQual3">
                  <property name="text">
-                  <string comment="3">möglich</string>
+                  <string comment="3">3 - möglich</string>
                  </property>
                  <property name="dbvalue" stdset="0">
                   <string>3</string>
@@ -717,7 +687,7 @@
                <item row="1" column="1">
                 <widget class="QRadioButton" name="rbMammalQual4">
                  <property name="text">
-                  <string comment="4">potenziell</string>
+                  <string comment="4">4 - potenziell</string>
                  </property>
                  <property name="dbvalue" stdset="0">
                   <string>4</string>
@@ -730,7 +700,7 @@
                <item row="0" column="1">
                 <widget class="QRadioButton" name="rbMammalQual2">
                  <property name="text">
-                  <string comment="2">sehr wahrscheinlich</string>
+                  <string comment="2">2 - sehr wahrscheinlich</string>
                  </property>
                  <property name="dbvalue" stdset="0">
                   <string>2</string>
@@ -863,7 +833,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>30</height>
+                <height>35</height>
                </size>
               </property>
              </widget>
@@ -915,7 +885,7 @@
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
+          <widget class="QWidget" name="sclNoSightContent">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -927,7 +897,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>400</height>
+             <height>300</height>
             </size>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -1007,7 +977,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>30</height>
+                <height>35</height>
                </size>
               </property>
              </widget>

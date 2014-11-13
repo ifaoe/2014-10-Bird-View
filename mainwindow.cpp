@@ -282,6 +282,7 @@ void MainWindow::handleNoSightingButton() {
 	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
 	curObj->quality = ui->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
 	curObj->remarks = ui->txtNoSightRemarks->toPlainText();
+	curObj->direction = -1;
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
