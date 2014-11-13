@@ -348,6 +348,7 @@ void MainWindow::colorTableReady(int censor) {
 }
 
 void MainWindow::handleOneToOneZoom() {
+	if (curObj == 0) return;
 	imgcvs->centerOnWorldPosition(curObj->ux, curObj->uy, 1.0);
 }
 
