@@ -182,6 +182,7 @@ void MainWindow::objectUpdateSelection() {
 			ui->gbxBirdAge->setChecked(false);
 		}
 		ui->txtBirdRemarks->setPlainText(curObj->remarks);
+		ui->cmbBird->setFocus();
 	} else if (curObj->type.left(1) == "M" || shTp == "M") { // Mammal Tab
 		ui->wdgTabTypes->setCurrentIndex(1);
 		int index = ui->cmbMammal->findText(curObj->name);
@@ -195,6 +196,7 @@ void MainWindow::objectUpdateSelection() {
 			ui->gbxMammalAge->setChecked(false);
 		}
 		ui->txtMammalRemarks->setPlainText(curObj->remarks);
+		ui->cmbMammal->setFocus();
 	} else {
 		ui->wdgTabTypes->setCurrentIndex(2);
 		selectButtonByString(ui->btngNoSightQual, QString::number(curObj->quality));
