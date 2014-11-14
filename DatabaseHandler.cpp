@@ -155,10 +155,14 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 		obj->gender = query->value(5).toString();
 		obj->direction = query->value(6).toInt();
 		obj->remarks = query->value(7).toString();
-		obj->censor = query->value(8).toInt();
 		obj->imageQuality = query->value(9).toInt();
 	}
 	delete query;
+	qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
+	query = new QSqlQuery(qstr);
+	if (query->next()) {
+		obj->censor = query->value(8).toInt();
+	}
 	qDebug() << "Done";
 	return obj;
 }

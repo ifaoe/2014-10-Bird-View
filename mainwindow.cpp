@@ -190,7 +190,6 @@ void MainWindow::handleBirdSave() {
 		curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
 	curObj->remarks = ui->txtBirdRemarks->toPlainText();
 	curObj->name = ui->cmbBird->currentText();
-//	curObj->name = ui->cmbBird->itemData(ui->cmbBird->currentIndex()).toString();
 	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
 	if (ui->chbImgQuality->isChecked())
 		curObj->imageQuality = 1;
@@ -199,7 +198,6 @@ void MainWindow::handleBirdSave() {
 	// refresh object table
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
-	ui->tblObjects->item(currentRow, 4)->setText(curObj->usr);
 	// delete object structure
 	delete curObj;
 	// clear remark box
@@ -223,13 +221,11 @@ void MainWindow::handleMammalSave() {
 		curObj->imageQuality = 1;
 	curObj->remarks = ui->txtMammalRemarks->toPlainText();
 	curObj->name = ui->cmbMammal->currentText();
-//	curObj->name = ui->cmbMammal->itemData(ui->cmbMammal->currentIndex()).toString();
 	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
 
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
-	ui->tblObjects->item(currentRow, 4)->setText(curObj->usr);
 	delete curObj;
 	ui->txtMammalRemarks->clear();
 	if(currentRow < ui->tblObjects->rowCount()) {
