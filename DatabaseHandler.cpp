@@ -93,6 +93,7 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 			userList.append(user);
 	}
 	qDebug() << "Done";
+	return userList;
 }
 
 QSqlQuery * DatabaseHandler::getObjectResult(QString session) {
