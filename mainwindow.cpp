@@ -94,10 +94,12 @@ void MainWindow::handleSessionButton() {
 	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
 	while(query->next()) {
-		if (ui->tblObjects->item(row, 0)->text() == query->value(0).toString()) {
-			ui->tblObjects->item(row, 4)->setText(
-					ui->tblObjects->item(row, 0)->text() + ", " + query->value(4).toString());
-			continue;
+		if (row>0) {
+			if (ui->tblObjects->item(row, 0)->text() == query->value(0).toString()) {
+				ui->tblObjects->item(row, 4)->setText(
+						ui->tblObjects->item(row, 0)->text() + ", " + query->value(4).toString());
+				continue;
+			}
 		}
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
 		QTableWidgetItem * type;
