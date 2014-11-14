@@ -71,15 +71,6 @@ QStringList DatabaseHandler::getBirdTypeList() {
 	return birdList;
 }
 
-void DatabaseHandler::populateBirdList(QComboBox * cmb) {
-	qDebug() << "Getting bird type list from database.";
-	QStringList birdList;
-	QSqlQuery query("SELECT tx_euring, tx_name_de FROM taxa ORDER BY tx_name_de DESC");
-	while(query.next()) {
-		cmb->insertItem(-1, query.value(1).toString(), query.value(0).toString());
-	}
-}
-
 QStringList DatabaseHandler::getUserList(QString objId) {
 	qDebug() << "Getting user list from database.";
 	QStringList userList;
@@ -100,7 +91,7 @@ QSqlQuery * DatabaseHandler::getObjectResult(QString session) {
 	// get object data for population of object list
 	QString qstr = "SELECT raw_census.rcns_id, raw_census.tp, raw_census.cam, raw_census.img, census.usr, census.censor, census.tp FROM raw_census"
 			" LEFT JOIN census on raw_census.rcns_id=census.rcns_id WHERE raw_census.session='"
-			+ session + "' ORDER BY cam,img,rcns_id";
+			+ session + "' ORDER BY cam,img,rcns_id,censor desc";
 	QSqlQuery * query = new QSqlQuery(qstr);
 	return query;
 }
@@ -126,7 +117,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	QSqlQuery * query = new QSqlQuery(qstr);
 	census *obj = new census;
 	if(!query->next()) {
-		qDebug() << "Keine Objektdaten gefunden.";
+		qDebug() << "No data found for object ID: " << objId;
 		return obj;
 	}
 	obj->id = query->value(0).toInt();
@@ -142,6 +133,8 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	obj->ly = query->value(11).toDouble();
 	obj->usr = usr;
 	delete query;
+	qDebug() << "Done.";
+	qDebug() << "Getting object specific data for ID: " << objId;
 	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId
 			+ " AND usr='" + usr + "'";
 	// if there is already an entry in census db-table,
@@ -156,14 +149,16 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 		obj->gender = query->value(5).toString();
 		obj->direction = query->value(6).toInt();
 		obj->remarks = query->value(7).toString();
+		obj->censor = query->value(8).toInt();
 		obj->imageQuality = query->value(9).toInt();
 	}
 	delete query;
-	qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
-	query = new QSqlQuery(qstr);
-	if (query->next()) {
-		obj->censor = query->value(8).toInt();
-	}
+//	qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
+//	query = new QSqlQuery(qstr);
+//	if (query->next()) {
+//		obj->censor = query->value(0).toInt();
+//	}
+//	delete query;
 	qDebug() << "Done";
 	return obj;
 }
@@ -172,7 +167,7 @@ void DatabaseHandler::writeCensus(census * obj) {
 	qDebug() << "Writing object data to database.";
 	QSqlTableModel table;
 	table.setTable("census");
-	table.setFilter("rcns_id=" + QString::number(obj->id) + " AND usr=" + obj->usr);
+	table.setFilter("rcns_id=" + QString::number(obj->id) + " AND usr='" + obj->usr + "'");
 	table.select();
 	// get record structure from db
 	QSqlRecord record(table.record());

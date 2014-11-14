@@ -22,6 +22,7 @@
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
 {
+	Q_UNUSED(parent);
 	ui->setupUi(this);
 
 	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "TP" <<"CAM" << "IMG");
@@ -95,9 +96,9 @@ void MainWindow::handleSessionButton() {
 	int row = 0;
 	while(query->next()) {
 		if (row>0) {
-			if (ui->tblObjects->item(row, 0)->text() == query->value(0).toString()) {
-				ui->tblObjects->item(row, 4)->setText(
-						ui->tblObjects->item(row, 0)->text() + ", " + query->value(4).toString());
+			if (ui->tblObjects->item(row-1, 0)->text() == query->value(0).toString()) {
+//				ui->tblObjects->item(row, 4)->setText(
+//						ui->tblObjects->item(row, 0)->text() + ", " + query->value(4).toString());
 				continue;
 			}
 		}
@@ -128,13 +129,11 @@ void MainWindow::handleSessionButton() {
 			type->setBackgroundColor(Qt::yellow);
 			cam->setBackgroundColor(Qt::yellow);
 			img->setBackgroundColor(Qt::yellow);
-			user->setBackgroundColor(Qt::yellow);
 		} else if (censor > 1) {
 			id->setBackgroundColor(Qt::green);
 			type->setBackgroundColor(Qt::green);
 			cam->setBackgroundColor(Qt::green);
 			img->setBackgroundColor(Qt::green);
-			user->setBackgroundColor(Qt::green);
 		}
 	}
 	delete query;
@@ -200,8 +199,6 @@ void MainWindow::handleBirdSave() {
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
 	// delete object structure
 	delete curObj;
-	// clear remark box
-	ui->txtBirdRemarks->clear();
 	// select next object in table
 	if(currentRow < ui->tblObjects->rowCount()) {
 		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
@@ -227,7 +224,6 @@ void MainWindow::handleMammalSave() {
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
 	delete curObj;
-	ui->txtMammalRemarks->clear();
 	if(currentRow < ui->tblObjects->rowCount()) {
 		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
 		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
@@ -244,10 +240,8 @@ void MainWindow::handleNoSightingButton() {
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
-	ui->tblObjects->item(currentRow, 4)->setText(curObj->usr);
 
 	delete curObj;
-	ui->txtNoSightRemarks->clear();
 	if(currentRow < ui->tblObjects->rowCount()) {
 		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
 		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
@@ -295,13 +289,11 @@ void MainWindow::colorTableReady(int censor) {
 		ui->tblObjects->item(currentRow, 1)->setBackgroundColor(Qt::yellow);
 		ui->tblObjects->item(currentRow, 2)->setBackgroundColor(Qt::yellow);
 		ui->tblObjects->item(currentRow, 3)->setBackgroundColor(Qt::yellow);
-		ui->tblObjects->item(currentRow, 4)->setBackgroundColor(Qt::yellow);
 	} else if (censor > 1) {
 		ui->tblObjects->item(currentRow, 0)->setBackgroundColor(Qt::green);
 		ui->tblObjects->item(currentRow, 1)->setBackgroundColor(Qt::green);
 		ui->tblObjects->item(currentRow, 2)->setBackgroundColor(Qt::green);
 		ui->tblObjects->item(currentRow, 3)->setBackgroundColor(Qt::green);
-		ui->tblObjects->item(currentRow, 4)->setBackgroundColor(Qt::green);
 	}
 }
 
@@ -342,9 +334,8 @@ void MainWindow::initMapView() {
 }
 
 void MainWindow::resizeEvent(QResizeEvent * event) {
-
+	Q_UNUSED(event);
 	int wdgSizeX = ui->wdgImg->size().width();
-	int wdgSizeY = ui->wdgImg->size().height();
 	btnMapModeImg->move(wdgSizeX-100,40);
 	btnMapModeGeo->move(wdgSizeX-160,80);
 	btnZoomOneOne->move(wdgSizeX-100,10);
@@ -355,6 +346,10 @@ void MainWindow::handleDirDial() {
 }
 
 void MainWindow::uiPreSelection(census * cobj) {
+	// clear remark boxes
+	ui->txtBirdRemarks->clear();
+	ui->txtMammalRemarks->clear();
+	ui->txtNoSightRemarks->clear();
 	if (cobj->direction >= 0 ) {
 		dirDial->setValue((cobj->direction+180)%360);
 	} else {
@@ -366,7 +361,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 		ui->chbImgQuality->setChecked(false);
 	}
 	QString shTp = ui->tblObjects->item(currentRow,1)->text().left(1);
-	if(cobj->type.left(1) == "B" || shTp == "V" ) { // Bird Tab
+	if(shTp == "B" || shTp == "V" ) { // Bird Tab
 			ui->wdgTabTypes->setCurrentIndex(0);
 			int index = ui->cmbBird->findText(cobj->name);
 			ui->cmbBird->setCurrentIndex(index);

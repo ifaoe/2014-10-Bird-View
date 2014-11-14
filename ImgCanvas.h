@@ -40,6 +40,7 @@ public:
 private slots:
 	void handleCanvasClicked(const QgsPoint & point);
 private:
+	void paintEvent(QPaintEvent * event);
 	QgsLayerStack * layerStack = 0;
 	Ui::MainWindow *ui = 0;
 	QgsMapLayerRegistry *lyrRegistry;
@@ -48,6 +49,8 @@ private:
 
 	QgsMapToolEmitPoint *qgsEmitPointTool = 0;
 	QList<QgsPoint> msmList;
+
+	QPainter * msmLine;
 };
 
 #endif /* IMGCANVAS_H_ */
