@@ -149,8 +149,8 @@ void MainWindow::objectUpdateSelection() {
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
 	QString img = ui->tblObjects->item(currentRow, 3)->text();
 	ui->cmbUsers->clear();
-	ui->cmbUsers->addItems(db->getUserList(objId));
 	curObj = db->getRawObjectData(objId, QString::fromStdString(getenv("USER")));
+	ui->cmbUsers->addItems(db->getUserList(objId));
 	uiPreSelection(curObj);
 	QString date = session.left(10);
 	QDir base = QDir(cfg->imgPath);

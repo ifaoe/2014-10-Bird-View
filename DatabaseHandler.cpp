@@ -120,8 +120,7 @@ double * DatabaseHandler::getObjectPosition(QString objId) {
 
 census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	qDebug() << "Getting raw object data for object ID: " << objId;
-	QString qstr = "SELECT rcns_id, session, epsg, cam, img, tp, px, py, ux, uy, lx, ly FROM raw_census WHERE rcns_id=" + objId
-			+ " AND usr='" + usr + "'";
+	QString qstr = "SELECT rcns_id, session, epsg, cam, img, tp, px, py, ux, uy, lx, ly FROM raw_census WHERE rcns_id=" + objId;
 	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	census *obj = new census;
@@ -142,7 +141,8 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	obj->ly = query->value(11).toDouble();
 	obj->usr = usr;
 	delete query;
-	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId;
+	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId
+			+ " AND usr='" + usr + "'";
 	// if there is already an entry in census db-table,
 	// initialize census structure with these values
 	query = new QSqlQuery(qstr);
