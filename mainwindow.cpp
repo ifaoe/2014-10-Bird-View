@@ -24,7 +24,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 {
 	ui->setupUi(this);
 
-	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "TP" <<"CAM" << "IMG" << "USER");
+	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "TP" <<"CAM" << "IMG");
 	ui->tblObjects->setColumnWidth(0, 75);
 	ui->tblObjects->setColumnWidth(1, 80);
 	ui->tblObjects->setColumnWidth(2, 40);
@@ -94,6 +94,13 @@ void MainWindow::handleSessionButton() {
 	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
 	while(query->next()) {
+		if (row > 0 && currentRow > -1) {
+			if (ui->tblObjects->item(currentRow, 0)->text() == query->value(0).toString()) {
+				ui->tblObjects->item(currentRow, 4)->setText(
+						ui->tblObjects->item(currentRow, 0)->text() + ", " + query->value(4).toString());
+				continue;
+			}
+		}
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
 		QTableWidgetItem * type;
 		if (query->value(6).toString() == "") {

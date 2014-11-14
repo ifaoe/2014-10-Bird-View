@@ -82,7 +82,7 @@
           <number>0</number>
          </property>
          <property name="columnCount">
-          <number>5</number>
+          <number>4</number>
          </property>
          <attribute name="horizontalHeaderCascadingSectionResizes">
           <bool>true</bool>
@@ -96,7 +96,6 @@
          <attribute name="verticalHeaderHighlightSections">
           <bool>true</bool>
          </attribute>
-         <column/>
          <column/>
          <column/>
          <column/>
@@ -647,8 +646,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>460</width>
-             <height>501</height>
+             <width>327</width>
+             <height>350</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -912,8 +911,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>460</width>
-             <height>501</height>
+             <width>278</width>
+             <height>300</height>
             </rect>
            </property>
            <property name="minimumSize">
