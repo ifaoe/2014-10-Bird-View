@@ -182,7 +182,7 @@ void DatabaseHandler::writeCensus(census * obj) {
 	if (table.rowCount() == 0) { //INSERT
 		qDebug() << "Insert!";
 		// remove first entry of record
-		// auto increment of id is handle by postgres
+		// auto increment of id is handled by postgres
 		record.remove(0);
 		table.insertRecord(-1,record);
 	} else { //UPDATE
