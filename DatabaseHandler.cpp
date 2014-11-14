@@ -84,7 +84,7 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 	qDebug() << "Getting user list from database.";
 	QStringList userList;
 	userList.append(QString::fromStdString(getenv("USER")));
-	QSqlQuery query("SELECT usr FROM censur WHERE rcns_id=" + objId);
+	QSqlQuery query("SELECT usr FROM census WHERE rcns_id=" + objId);
 	QString user;
 	if (query.size() == -1) return userList;
 	while(query.next()) {
