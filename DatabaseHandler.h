@@ -31,6 +31,7 @@ public:
 	double * getObjectPosition(QString objId);
 	QStringList getBirdTypeList();
 	QStringList getUserList(QString objId);
+	QMap<int, int> getObjectDone(QString usr, QString session);
 	void writeCensus(census * obj);
 private:
 	QSqlDatabase *db;

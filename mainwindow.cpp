@@ -25,7 +25,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	Q_UNUSED(parent);
 	ui->setupUi(this);
 
-	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "TP" <<"CAM" << "IMG");
+	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP");
 	ui->tblObjects->setColumnWidth(0, 75);
 	ui->tblObjects->setColumnWidth(1, 80);
 	ui->tblObjects->setColumnWidth(2, 40);
@@ -94,11 +94,10 @@ void MainWindow::handleSessionButton() {
 	session = ui->cmbSession->currentText();
 	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
+	QMap<int, int> objMapDone = db->getObjectDone(cfg->user, ui->cmbSession->currentText());
 	while(query->next()) {
 		if (row>0) {
 			if (ui->tblObjects->item(row-1, 0)->text() == query->value(0).toString()) {
-//				ui->tblObjects->item(row, 4)->setText(
-//						ui->tblObjects->item(row, 0)->text() + ", " + query->value(4).toString());
 				continue;
 			}
 		}
@@ -112,24 +111,24 @@ void MainWindow::handleSessionButton() {
 		QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
 		QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
 		QTableWidgetItem * user = new QTableWidgetItem(query->value(4).toString());
-		int censor = query->value(5).toInt();
+
 		id->setTextAlignment(Qt::AlignHCenter);
 		type->setTextAlignment(Qt::AlignHCenter);
 		cam->setTextAlignment(Qt::AlignHCenter);
 		img->setTextAlignment(Qt::AlignHCenter);
 		user->setTextAlignment(Qt::AlignHCenter);
 		ui->tblObjects->setItem(row,0,id);
-		ui->tblObjects->setItem(row,1,type);
+		ui->tblObjects->setItem(row,1,img);
 		ui->tblObjects->setItem(row,2,cam);
-		ui->tblObjects->setItem(row,3,img);
+		ui->tblObjects->setItem(row,3,type);
 		ui->tblObjects->setItem(row,4,user);
 		row++;
-		if (censor == 1) {
+		if (objMapDone[query->value(0).toInt()] == 1) {
 			id->setBackgroundColor(Qt::yellow);
 			type->setBackgroundColor(Qt::yellow);
 			cam->setBackgroundColor(Qt::yellow);
 			img->setBackgroundColor(Qt::yellow);
-		} else if (censor > 1) {
+		} else if (objMapDone[query->value(0).toInt()] > 1) {
 			id->setBackgroundColor(Qt::green);
 			type->setBackgroundColor(Qt::green);
 			cam->setBackgroundColor(Qt::green);
@@ -146,9 +145,9 @@ void MainWindow::objectUpdateSelection() {
 	QString prjDir = "";
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
-	QString img = ui->tblObjects->item(currentRow, 3)->text();
+	QString img = ui->tblObjects->item(currentRow, 1)->text();
 	ui->cmbUsers->clear();
-	curObj = db->getRawObjectData(objId, QString::fromStdString(getenv("USER")));
+	curObj = db->getRawObjectData(objId, cfg->user);
 	ui->cmbUsers->addItems(db->getUserList(objId));
 	uiPreSelection(curObj);
 	QString date = session.left(10);
@@ -179,6 +178,17 @@ void MainWindow::handleBirdSave() {
 	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
 		curObj->direction = -1;
 	}
+
+	if (ui->cmbBird->currentText() == "") {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Bitte Art auswählen!"));
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		if(msgBox->clickedButton() == nextButton) {
+			return;
+		}
+	}
+
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 	curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
@@ -189,14 +199,15 @@ void MainWindow::handleBirdSave() {
 		curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
 	curObj->remarks = ui->txtBirdRemarks->toPlainText();
 	curObj->name = ui->cmbBird->currentText();
-	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+//	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+	curObj->censor = cfg->censor;
 	if (ui->chbImgQuality->isChecked())
 		curObj->imageQuality = 1;
 	// write object data to db
 	db->writeCensus(curObj);
 	// refresh object table
 	colorTableReady(curObj->censor);
-	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
 	// delete object structure
 	delete curObj;
 	// select next object in table
@@ -207,22 +218,32 @@ void MainWindow::handleBirdSave() {
 }
 
 void MainWindow::handleMammalSave() {
+	if (ui->cmbMammal->currentText() == "") {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Bitte Art auswählen!"));
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		if(msgBox->clickedButton() == nextButton) {
+			return;
+		}
+	}
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
+	curObj->name = ui->cmbMammal->currentText();
 	curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
 	curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
-	curObj->gender = "";
 	if (ui->gbxMammalAge->isChecked())
 		curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
+	curObj->gender = "";
+	curObj->remarks = ui->txtMammalRemarks->toPlainText();
+//	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+	curObj->censor = cfg->censor;
 	if (ui->chbImgQuality->isChecked())
 		curObj->imageQuality = 1;
-	curObj->remarks = ui->txtMammalRemarks->toPlainText();
-	curObj->name = ui->cmbMammal->currentText();
-	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
 
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
-	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
 	delete curObj;
 	if(currentRow < ui->tblObjects->rowCount()) {
 		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
@@ -233,13 +254,21 @@ void MainWindow::handleMammalSave() {
 void MainWindow::handleNoSightingButton() {
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	curObj->type = "NOSIGHT";
-	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+	curObj->name = "";
 	curObj->quality = ui->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
+	curObj->behavior = "";
+	curObj->age = "";
+	curObj->gender = "";
 	curObj->remarks = ui->txtNoSightRemarks->toPlainText();
+//	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
+	curObj->censor = cfg->censor;
+	if (ui->chbImgQuality->isChecked())
+		curObj->imageQuality = 1;
+
 	curObj->direction = -1;
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
-	ui->tblObjects->item(currentRow, 1)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
 
 	delete curObj;
 	if(currentRow < ui->tblObjects->rowCount()) {
@@ -350,6 +379,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 	ui->txtBirdRemarks->clear();
 	ui->txtMammalRemarks->clear();
 	ui->txtNoSightRemarks->clear();
+
 	if (cobj->direction >= 0 ) {
 		dirDial->setValue((cobj->direction+180)%360);
 	} else {
@@ -360,7 +390,12 @@ void MainWindow::uiPreSelection(census * cobj) {
 	} else {
 		ui->chbImgQuality->setChecked(false);
 	}
-	QString shTp = ui->tblObjects->item(currentRow,1)->text().left(1);
+	QString shTp = "";
+	if (cobj->type == "") {
+		shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),1)->text().left(1);
+	} else {
+		shTp = cobj->type.left(1);
+	}
 	if(shTp == "B" || shTp == "V" ) { // Bird Tab
 			ui->wdgTabTypes->setCurrentIndex(0);
 			int index = ui->cmbBird->findText(cobj->name);
@@ -381,7 +416,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 			}
 			ui->txtBirdRemarks->setPlainText(cobj->remarks);
 			ui->cmbBird->setFocus();
-		} else if (cobj->type.left(1) == "M" || shTp == "M") { // Mammal Tab
+		} else if (shTp == "M" ) { // Mammal Tab
 			ui->wdgTabTypes->setCurrentIndex(1);
 			int index = ui->cmbMammal->findText(cobj->name);
 			ui->cmbMammal->setCurrentIndex(index);
@@ -405,6 +440,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 void MainWindow::handleUsrSelect() {
 	census * obj;
 	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
+
 	uiPreSelection(obj);
 	delete obj;
 }

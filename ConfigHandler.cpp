@@ -22,6 +22,8 @@ using namespace std;
 
 ConfigHandler::ConfigHandler(int argc, char *argv[]) {
 	// TODO Auto-generated constructor stub
+	user = QString::fromStdString(getenv("USER"));
+
 	po::options_description desc("Options");
 	desc.add_options()
 			("help,h", "Show this help message.")

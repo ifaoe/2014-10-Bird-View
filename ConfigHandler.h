@@ -32,6 +32,8 @@ public:
 	QString dbPass = "18ifaoe184";
 	QString dbPort = "5432";
 	QStringList mmList;
+	QString user;
+	int censor = 0;
 private:
 	QFile *cfgFile;
 	void parseCfgFile();

@@ -12,6 +12,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
+#include <QMessageBox>
 #include <qgsapplication.h>
 #include "ConfigHandler.h"
 #include "mainwindow.h"
@@ -26,6 +27,20 @@ int main(int argc, char *argv[])
     // Qgis Pfad setzen und Provider laden
     QgsApplication::setPrefixPath("/usr", true);
     QgsApplication::initQgis();
+
+    QMessageBox msgBox;
+	msgBox.setText("Auswahl Bildbetrachter");
+	msgBox.setInformativeText("Vor- oder Endbestimmer?");
+	QAbstractButton *preButton = msgBox.addButton("Vorbestimmer", QMessageBox::YesRole);
+	QAbstractButton *endButton = msgBox.addButton("Endbestimmer", QMessageBox::NoRole);
+	msgBox.exec();
+	if(msgBox.clickedButton() == preButton) {
+		cfg->censor = 1;
+	} else if (msgBox.clickedButton() == endButton) {
+		cfg->censor = 2;
+	} else {
+		exit(1);
+	}
 
     MainWindow w(cfg, db);
 

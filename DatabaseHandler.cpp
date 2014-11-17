@@ -74,7 +74,7 @@ QStringList DatabaseHandler::getBirdTypeList() {
 QStringList DatabaseHandler::getUserList(QString objId) {
 	qDebug() << "Getting user list from database.";
 	QStringList userList;
-	userList.append(QString::fromStdString(getenv("USER")));
+	userList.append(cfg->user);
 	QSqlQuery query("SELECT usr FROM census WHERE rcns_id=" + objId);
 	QString user;
 	if (query.size() == -1) return userList;
@@ -213,4 +213,17 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	if (obj->direction >= 0) record->setValue("dir", obj->direction);
 	record->setValue("censor", obj->censor);
 	record->setValue("imgqual", obj->imageQuality);
+}
+
+QMap<int, int> DatabaseHandler::getObjectDone(QString usr, QString session) {
+	qDebug() << "Getting viewed object list from database.";
+	QMap <int, int> objMap;
+	QSqlQuery query("SELECT rcns_id, censor FROM census WHERE session='" + session + "' AND usr='" + usr + "'");
+	QString user;
+	if (query.size() == -1) return objMap;
+	while(query.next()) {
+		objMap[query.value(0).toInt()] = query.value(1).toInt();
+	}
+	qDebug() << "Done";
+	return objMap;
 }
