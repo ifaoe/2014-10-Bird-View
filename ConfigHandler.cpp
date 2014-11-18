@@ -22,7 +22,7 @@ using namespace std;
 
 ConfigHandler::ConfigHandler(int argc, char *argv[]) {
 	// TODO Auto-generated constructor stub
-	user = QString::fromStdString(getenv("USER"));
+	usr = QString::fromStdString(getenv("USER"));
 
 	po::options_description desc("Options");
 	desc.add_options()
@@ -58,6 +58,8 @@ ConfigHandler::~ConfigHandler() {
 	// TODO Auto-generated destructor stub
 	delete cfgFile;
 }
+
+QString ConfigHandler::user() { return usr; }
 
 void ConfigHandler::parseCfgFile() {
 	boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);

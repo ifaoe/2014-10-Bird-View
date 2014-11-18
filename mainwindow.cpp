@@ -94,8 +94,11 @@ void MainWindow::handleSessionButton() {
 	session = ui->cmbSession->currentText();
 	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
-	QMap<int, int> objMapDone = db->getObjectDone(cfg->user, ui->cmbSession->currentText());
+	QMap<int, int> objMapDone = db->getObjectDone(cfg->user(), ui->cmbSession->currentText());
+	QMap<int, int> objMapFinal = db->getObjectFinal(ui->cmbSession->currentText());
 	while(query->next()) {
+		// Test if object Id is already in the object table.
+		// If yes, skip the object
 		if (row>0) {
 			if (ui->tblObjects->item(row-1, 0)->text() == query->value(0).toString()) {
 				continue;
@@ -123,16 +126,18 @@ void MainWindow::handleSessionButton() {
 		ui->tblObjects->setItem(row,3,type);
 		ui->tblObjects->setItem(row,4,user);
 		row++;
-		if (objMapDone[query->value(0).toInt()] == 1) {
+		// Color tablerow only if correct user has visited the image
+		// TODO: censor == 2 coloured for everybody
+		if (objMapFinal[query->value(0).toInt()] > 1) {
+					id->setBackgroundColor(Qt::green);
+					type->setBackgroundColor(Qt::green);
+					cam->setBackgroundColor(Qt::green);
+					img->setBackgroundColor(Qt::green);
+		} else if (objMapDone[query->value(0).toInt()] == 1) {
 			id->setBackgroundColor(Qt::yellow);
 			type->setBackgroundColor(Qt::yellow);
 			cam->setBackgroundColor(Qt::yellow);
 			img->setBackgroundColor(Qt::yellow);
-		} else if (objMapDone[query->value(0).toInt()] > 1) {
-			id->setBackgroundColor(Qt::green);
-			type->setBackgroundColor(Qt::green);
-			cam->setBackgroundColor(Qt::green);
-			img->setBackgroundColor(Qt::green);
 		}
 	}
 	delete query;
@@ -147,7 +152,7 @@ void MainWindow::objectUpdateSelection() {
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
 	QString img = ui->tblObjects->item(currentRow, 1)->text();
 	ui->cmbUsers->clear();
-	curObj = db->getRawObjectData(objId, cfg->user);
+	curObj = db->getRawObjectData(objId, cfg->user());
 	ui->cmbUsers->addItems(db->getUserList(objId));
 	uiPreSelection(curObj);
 	QString date = session.left(10);
@@ -165,6 +170,11 @@ void MainWindow::objectUpdateSelection() {
 	imgcvs->loadObject(file, db->getObjectPosition(objId));
 }
 
+
+/*
+ * Handle Save Buttons
+ * TODO: Put all in one save routine
+ */
 
 void MainWindow::handleBirdSave() {
 	if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY" && curObj->direction < 0) {
@@ -289,11 +299,14 @@ void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
 	}
 }
 
+/*
+ * Handle Inet Map Button
+ * Set Url and Load via Browser Widget
+ * TODO: Use proper map API
+ * TODO: Google or OpenStreetMaps ?
+ */
 void MainWindow::handleMapToolButton() {
 	if (curObj == 0) return;
-	// Show Geo Location on Map
-	// TODO: Use proper map API
-	// TODO: Google or OpenStreetMaps ?
 	QString scale="8";
 	QString url = "";
 	url += "http://www.openstreetmap.org/?mlat=" + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
@@ -312,6 +325,9 @@ void MainWindow::handleMapToolButton() {
 	}
 }
 
+/*
+ * Color the current row of the table corresponding to the censor value
+ */
 void MainWindow::colorTableReady(int censor) {
 	if (censor == 1) {
 		ui->tblObjects->item(currentRow, 0)->setBackgroundColor(Qt::yellow);
@@ -326,6 +342,9 @@ void MainWindow::colorTableReady(int censor) {
 	}
 }
 
+/*
+ * 1:1 Zoom Button handler
+ */
 void MainWindow::handleOneToOneZoom() {
 	if (curObj == 0) return;
 	imgcvs->centerOnWorldPosition(curObj->ux, curObj->uy, 1.0);
@@ -352,6 +371,7 @@ void MainWindow::initMapView() {
 	btnZoomOneOne = new QPushButton(imgcvs);
 	btnZoomOneOne->setText("1:1");
 
+	// Add QDial for direction
 	dirDial = new QDial(imgcvs);
 	dirDial->setFixedSize(80,80);
 	dirDial->move(10,10);
@@ -362,6 +382,9 @@ void MainWindow::initMapView() {
 	dirDial->setStyle(new QMotifStyle);
 }
 
+/*
+ * Dynamically place the buttons and elements on the image canvas
+ */
 void MainWindow::resizeEvent(QResizeEvent * event) {
 	Q_UNUSED(event);
 	int wdgSizeX = ui->wdgImg->size().width();
@@ -370,32 +393,40 @@ void MainWindow::resizeEvent(QResizeEvent * event) {
 	btnZoomOneOne->move(wdgSizeX-100,10);
 }
 
+/*
+ * Recalculate direction value depending on QDial value
+ * Set the direction value only when dial is touched
+ */
 void MainWindow::handleDirDial() {
 	curObj->direction = (dirDial->value() + 180)%360;
 }
 
+/*
+ * Function which selects Ui elements depending on the data in
+ * the census struct.
+ */
 void MainWindow::uiPreSelection(census * cobj) {
 	// clear remark boxes
 	ui->txtBirdRemarks->clear();
 	ui->txtMammalRemarks->clear();
 	ui->txtNoSightRemarks->clear();
 
+	// Recalculate values of the QDial to 0=North
 	if (cobj->direction >= 0 ) {
 		dirDial->setValue((cobj->direction+180)%360);
 	} else {
 		dirDial->setValue(180);
 	}
+
+	// Checkbox for very good objects in image quality
+	// which could be used as example pictures
 	if (cobj->imageQuality > 0) {
 		ui->chbImgQuality->setChecked(true);
 	} else {
 		ui->chbImgQuality->setChecked(false);
 	}
-//	QString shTp = "";
-//	if (cobj->type == "") {
-//		shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),1)->text().left(1);
-//	} else {
-//		shTp = cobj->type.left(1);
-//	}
+
+	// Find out which type is listed and switch to the corresponding tab
 	QString shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),3)->text().left(1);
 	if(shTp == "B" || shTp == "V" ) { // Bird Tab
 			ui->wdgTabTypes->setCurrentIndex(0);
@@ -431,17 +462,19 @@ void MainWindow::uiPreSelection(census * cobj) {
 			}
 			ui->txtMammalRemarks->setPlainText(cobj->remarks);
 			ui->cmbMammal->setFocus();
-		} else {
+		} else { //NoSighting tab
 			ui->wdgTabTypes->setCurrentIndex(2);
 			selectButtonByString(ui->btngNoSightQual, QString::number(cobj->quality));
 			ui->txtNoSightRemarks->setPlainText(cobj->remarks);
 		}
 }
 
+/*
+ * Read results for the selected censor and set the Ui elements respectively
+ */
 void MainWindow::handleUsrSelect() {
 	census * obj;
 	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
-
 	uiPreSelection(obj);
 	delete obj;
 }

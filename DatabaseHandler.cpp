@@ -74,7 +74,7 @@ QStringList DatabaseHandler::getBirdTypeList() {
 QStringList DatabaseHandler::getUserList(QString objId) {
 	qDebug() << "Getting user list from database.";
 	QStringList userList;
-	userList.append(cfg->user);
+	userList.append(cfg->user());
 	QSqlQuery query("SELECT usr FROM census WHERE rcns_id=" + objId);
 	QString user;
 	if (query.size() == -1) return userList;
@@ -189,8 +189,11 @@ void DatabaseHandler::writeCensus(census * obj) {
 	}
 }
 
+/*
+ * translate values from census struct into a QSqlRecord which can be written
+ * directly to DB
+ */
 void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
-	// write values from census structure into db record
 	record->setValue("age",obj->age);
 	record->setValue("beh",obj->behavior);
 	record->setValue("cam",obj->camera);
@@ -215,11 +218,28 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	record->setValue("imgqual", obj->imageQuality);
 }
 
+/*
+ * get map of viewed objects in census table for a specific user
+ */
 QMap<int, int> DatabaseHandler::getObjectDone(QString usr, QString session) {
 	qDebug() << "Getting viewed object list from database.";
 	QMap <int, int> objMap;
 	QSqlQuery query("SELECT rcns_id, censor FROM census WHERE session='" + session + "' AND usr='" + usr + "'");
-	QString user;
+	if (query.size() == -1) return objMap;
+	while(query.next()) {
+		objMap[query.value(0).toInt()] = query.value(1).toInt();
+	}
+	qDebug() << "Done";
+	return objMap;
+}
+
+/*
+ * get map of completed objects for all users
+ */
+QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
+	qDebug() << "Getting viewed object list from database.";
+	QMap <int, int> objMap;
+	QSqlQuery query("SELECT rcns_id, censor FROM census WHERE session='" + session + "' AND censor>1");
 	if (query.size() == -1) return objMap;
 	while(query.next()) {
 		objMap[query.value(0).toInt()] = query.value(1).toInt();

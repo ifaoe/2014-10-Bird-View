@@ -32,9 +32,11 @@ public:
 	QString dbPass = "18ifaoe184";
 	QString dbPort = "5432";
 	QStringList mmList;
-	QString user;
+	QString user();
+
 	int censor = 0;
 private:
+	QString usr;
 	QFile *cfgFile;
 	void parseCfgFile();
 	boost::property_tree::ptree cfg;

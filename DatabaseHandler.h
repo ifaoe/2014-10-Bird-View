@@ -32,6 +32,7 @@ public:
 	QStringList getBirdTypeList();
 	QStringList getUserList(QString objId);
 	QMap<int, int> getObjectDone(QString usr, QString session);
+	QMap<int, int> getObjectFinal(QString session);
 	void writeCensus(census * obj);
 private:
 	QSqlDatabase *db;
@@ -39,6 +40,7 @@ private:
 	void setRecordTable(QSqlRecord * record, census * obj);
 };
 
+// C Struct which resembles the database record structure
 struct census {
 	int id = -1;
 	QString session = "";
