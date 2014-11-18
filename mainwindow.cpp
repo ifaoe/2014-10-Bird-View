@@ -390,12 +390,13 @@ void MainWindow::uiPreSelection(census * cobj) {
 	} else {
 		ui->chbImgQuality->setChecked(false);
 	}
-	QString shTp = "";
-	if (cobj->type == "") {
-		shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),1)->text().left(1);
-	} else {
-		shTp = cobj->type.left(1);
-	}
+//	QString shTp = "";
+//	if (cobj->type == "") {
+//		shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),1)->text().left(1);
+//	} else {
+//		shTp = cobj->type.left(1);
+//	}
+	QString shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),3)->text().left(1);
 	if(shTp == "B" || shTp == "V" ) { // Bird Tab
 			ui->wdgTabTypes->setCurrentIndex(0);
 			int index = ui->cmbBird->findText(cobj->name);
