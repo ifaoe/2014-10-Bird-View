@@ -195,7 +195,7 @@ void MainWindow::handleBirdSave() {
 		} else if (msgBox->clickedButton() == noDirButton) {
 			curObj->direction = -1;
 		} else {
-			curObj->direction = -1;
+			return;
 		}
 	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
 		curObj->direction = -1;
