@@ -90,9 +90,13 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::handleSessionButton() {
+	currentRow = -1;
+	objSelector->clearSelection();
+	ui->tblObjects->clear();
+	ui->tblObjects->model()->removeRows(0,ui->tblObjects->rowCount());
 	QSqlQuery *query = db->getObjectResult( ui->cmbSession->currentText() );
 	session = ui->cmbSession->currentText();
-	ui->tblObjects->setRowCount(query->size());
+//	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
 	QMap<int, int> objMapDone = db->getObjectDone(cfg->user(), ui->cmbSession->currentText());
 	QMap<int, int> objMapFinal = db->getObjectFinal(ui->cmbSession->currentText());
@@ -104,6 +108,7 @@ void MainWindow::handleSessionButton() {
 				continue;
 			}
 		}
+		ui->tblObjects->insertRow( ui->tblObjects->rowCount() );
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
 		QTableWidgetItem * type;
 		if (query->value(6).toString() == "") {
@@ -145,7 +150,9 @@ void MainWindow::handleSessionButton() {
 
 void MainWindow::objectUpdateSelection() {
 	// TODO: Cleanup.
+	// TODO: Fix: Crash on empty line
 	ui->lblMsmTool->setText("Zum Beginn der Messung ersten Punkt anklicken.");
+	if (objSelector->selectedRows().isEmpty()) return;
 	currentRow = objSelector->selectedRows().at(0).row();
 	QString prjDir = "";
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
