@@ -187,20 +187,17 @@ void MainWindow::handleBirdSave() {
 	if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY" && curObj->direction < 0) {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
-		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::NoRole);
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
 		msgBox->exec();
 		if (msgBox->clickedButton() == nextButton) {
 			return;
-		} else if (msgBox->clickedButton() == noDirButton) {
+		} else if (msgBox->clickedButton() == noDirButton) {;
 			curObj->direction = -1;
-		} else {
-			return;
 		}
 	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
 		curObj->direction = -1;
 	}
-
 	if (ui->cmbBird->currentText() == "") {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Bitte Art auswählen!"));
