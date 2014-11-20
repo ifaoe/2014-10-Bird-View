@@ -28,19 +28,19 @@ int main(int argc, char *argv[])
     QgsApplication::setPrefixPath("/usr", true);
     QgsApplication::initQgis();
 
-    QMessageBox msgBox;
-	msgBox.setText("Auswahl Bildbetrachter");
-	msgBox.setInformativeText("Vor- oder Endbestimmer?");
-	QAbstractButton *preButton = msgBox.addButton("Vorbestimmer", QMessageBox::YesRole);
-	QAbstractButton *endButton = msgBox.addButton("Endbestimmer", QMessageBox::NoRole);
-	msgBox.exec();
-	if(msgBox.clickedButton() == preButton) {
-		cfg->censor = 1;
-	} else if (msgBox.clickedButton() == endButton) {
-		cfg->censor = 2;
-	} else {
-		exit(1);
-	}
+//    QMessageBox msgBox;
+//	msgBox.setText("Auswahl Bildbetrachter");
+//	msgBox.setInformativeText("Vor- oder Endbestimmer?");
+//	QAbstractButton *preButton = msgBox.addButton("Vorbestimmer", QMessageBox::YesRole);
+//	QAbstractButton *endButton = msgBox.addButton("Endbestimmer", QMessageBox::NoRole);
+//	msgBox.exec();
+//	if(msgBox.clickedButton() == preButton) {
+//		cfg->censor = 1;
+//	} else if (msgBox.clickedButton() == endButton) {
+//		cfg->censor = 2;
+//	} else {
+//		exit(1);
+//	}
 
     MainWindow w(cfg, db);
 

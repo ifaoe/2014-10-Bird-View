@@ -18,6 +18,7 @@
 #include <QSqlQuery>
 #include <QMotifStyle>
 #include <QMessageBox>
+#include <qgsmultibandcolorrenderer.h>
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -31,6 +32,10 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	ui->tblObjects->setColumnWidth(2, 40);
 	ui->tblObjects->setColumnWidth(3, 80);
 	ui->tblObjects->setColumnWidth(4, 50);
+
+	ui->sldBrightness->setMinimum(0);
+	ui->sldBrightness->setMaximum(100);
+	ui->sldBrightness->setValue(0);
 
     prvRegistry = QgsProviderRegistry::instance();
     lyrRegistry = QgsMapLayerRegistry::instance();
@@ -69,16 +74,35 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	initMapView();
 
     // connect signals
+	btnBirdMapper = new QSignalMapper;
+	btnMammalMapper = new QSignalMapper;
+	btnNoSightMapper = new QSignalMapper;
+
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(objectUpdateSelection()));
     connect(ui->btnSession, SIGNAL(released()), this, SLOT(handleSessionButton()));
-    connect(ui->btnBirdReady, SIGNAL(released()), this, SLOT(handleBirdSave()));
-    connect(ui->btnMammalReady, SIGNAL(released()), this, SLOT(handleMammalSave()));
     connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
     connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-    connect(ui->btnNoSightReady, SIGNAL(released()), this, SLOT(handleNoSightingButton()));
     connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
     connect(ui->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
+    connect(ui->sldBrightness, SIGNAL(sliderReleased()), this, SLOT(handleBrightnessSlider()));
+
+    // Ugly hack because Qt doesn't support custom slot arguments
+    connect(ui->btnBirdPre, SIGNAL(released()), btnBirdMapper, SLOT(map()));
+    btnBirdMapper->setMapping(ui->btnBirdPre, 1);
+    connect(ui->btnBirdEnd, SIGNAL(released()), btnBirdMapper, SLOT(map()));
+    btnBirdMapper->setMapping(ui->btnBirdEnd, 2);
+    connect(ui->btnMammalPre, SIGNAL(released()), btnMammalMapper, SLOT(map()));
+    btnMammalMapper->setMapping(ui->btnMammalPre, 1);
+    connect(ui->btnMammalEnd, SIGNAL(released()), btnMammalMapper, SLOT(map()));
+    btnMammalMapper->setMapping(ui->btnMammalEnd, 2);
+    connect(ui->btnNoSightPre, SIGNAL(released()), btnNoSightMapper, SLOT(map()));
+    btnNoSightMapper->setMapping(ui->btnNoSightPre, 1);
+    connect(ui->btnNoSightEnd, SIGNAL(released()), btnNoSightMapper, SLOT(map()));
+    btnNoSightMapper->setMapping(ui->btnNoSightEnd, 2);
+    connect(btnBirdMapper, SIGNAL(mapped(int)), this, SLOT(handleBirdSave(int)));
+    connect(btnMammalMapper, SIGNAL(mapped(int)), this, SLOT(handleMammalSave(int)));
+    connect(btnNoSightMapper, SIGNAL(mapped(int)), this, SLOT(handleNoSightingSave(int)));
 
     // TODO: Button for "agree" -> next object (spacebar?)
 
@@ -160,7 +184,8 @@ void MainWindow::objectUpdateSelection() {
 	QString img = ui->tblObjects->item(currentRow, 1)->text();
 	ui->cmbUsers->clear();
 	curObj = db->getRawObjectData(objId, cfg->user());
-	ui->cmbUsers->addItems(db->getUserList(objId));
+	censorList = db->getUserList(objId);
+	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
 	QString date = session.left(10);
 	QDir base = QDir(cfg->imgPath);
@@ -181,9 +206,10 @@ void MainWindow::objectUpdateSelection() {
 /*
  * Handle Save Buttons
  * TODO: Put all in one save routine
+ * TODO: PUT ALL IN ONE SAVE ROUTINE!
  */
 
-void MainWindow::handleBirdSave() {
+void MainWindow::handleBirdSave(int censor) {
 	if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY" && curObj->direction < 0) {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
@@ -191,10 +217,12 @@ void MainWindow::handleBirdSave() {
 		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
 		msgBox->exec();
 		if (msgBox->clickedButton() == nextButton) {
+			delete msgBox;
 			return;
 		} else if (msgBox->clickedButton() == noDirButton) {;
 			curObj->direction = -1;
 		}
+		delete msgBox;
 	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
 		curObj->direction = -1;
 	}
@@ -204,8 +232,10 @@ void MainWindow::handleBirdSave() {
 		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 		msgBox->exec();
 		if(msgBox->clickedButton() == nextButton) {
+			delete msgBox;
 			return;
 		}
+		delete msgBox;
 	}
 
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
@@ -218,10 +248,46 @@ void MainWindow::handleBirdSave() {
 		curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
 	curObj->remarks = ui->txtBirdRemarks->toPlainText();
 	curObj->name = ui->cmbBird->currentText();
-//	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
-	curObj->censor = cfg->censor;
+	curObj->censor = censor;
 	if (ui->chbImgQuality->isChecked())
 		curObj->imageQuality = 1;
+
+	if (censor > 1) {
+		census * cenObj = db->getCensusData(QString::number(curObj->id));
+		if (cenObj == 0 && censorList.size() == 1) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			msgBox->exec();
+			delete msgBox;
+			return;
+		} else if (cenObj == 0){ // Entscheider
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == noButton) {
+				delete msgBox;
+				return;
+			}
+		} else { // Zweitbestimmer
+			// test input
+			bool agree = true;
+			agree = agree && (curObj->name == cenObj->name);
+			agree = agree && (curObj->type == cenObj->type);
+			if (!agree) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				delete msgBox;
+				return;
+			}
+		}
+	}
+
 	// write object data to db
 	db->writeCensus(curObj);
 	// refresh object table
@@ -236,7 +302,7 @@ void MainWindow::handleBirdSave() {
 	}
 }
 
-void MainWindow::handleMammalSave() {
+void MainWindow::handleMammalSave(int censor) {
 	if (ui->cmbMammal->currentText() == "") {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Bitte Art auswählen!"));
@@ -255,10 +321,45 @@ void MainWindow::handleMammalSave() {
 		curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
 	curObj->gender = "";
 	curObj->remarks = ui->txtMammalRemarks->toPlainText();
-//	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
-	curObj->censor = cfg->censor;
+	curObj->censor = censor;
 	if (ui->chbImgQuality->isChecked())
 		curObj->imageQuality = 1;
+
+	if (censor > 1) {
+		census * cenObj = db->getCensusData(QString::number(curObj->id));
+		if (cenObj == 0 && censorList.size() == 1) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			msgBox->exec();
+			delete msgBox;
+			return;
+		} else if (cenObj == 0){ // Entscheider
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == noButton) {
+				delete msgBox;
+				return;
+			}
+		} else { // Zweitbestimmer
+			// test input
+			bool agree = true;
+			agree = agree && (curObj->name == cenObj->name);
+			agree = agree && (curObj->type == cenObj->type);
+			if (!agree) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				delete msgBox;
+				return;
+			}
+		}
+	}
 
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
@@ -270,7 +371,7 @@ void MainWindow::handleMammalSave() {
 	}
 }
 
-void MainWindow::handleNoSightingButton() {
+void MainWindow::handleNoSightingSave(int censor) {
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	curObj->type = "NOSIGHT";
 	curObj->name = "";
@@ -279,12 +380,50 @@ void MainWindow::handleNoSightingButton() {
 	curObj->age = "";
 	curObj->gender = "";
 	curObj->remarks = ui->txtNoSightRemarks->toPlainText();
-//	curObj->censor = ui->btngCensor->checkedButton()->property("dbvalue").toInt();
-	curObj->censor = cfg->censor;
+	curObj->censor = censor;
 	if (ui->chbImgQuality->isChecked())
 		curObj->imageQuality = 1;
 
 	curObj->direction = -1;
+
+	if (censor > 1) {
+		census * cenObj = db->getCensusData(QString::number(curObj->id));
+		if (cenObj == 0 && censorList.size() == 1) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			msgBox->exec();
+			delete msgBox;
+			return;
+		} else if (cenObj == 0){ // Entscheider
+			QMessageBox * msgBox = new QMessageBox();
+			QStringList foreignCensors = censorList;
+			foreignCensors.removeAt(1);
+			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+					+ "Bitte mit " + foreignCensors.join(", ") + " abstimmen.");
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == noButton) {
+				delete msgBox;
+				return;
+			}
+		} else { // Zweitbestimmer
+			// test input
+			bool agree = true;
+			agree = agree && (curObj->name == cenObj->name);
+			agree = agree && (curObj->type == cenObj->type);
+			if (!agree) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				delete msgBox;
+				return;
+			}
+		}
+	}
+
 	db->writeCensus(curObj);
 	colorTableReady(curObj->censor);
 	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
@@ -436,7 +575,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 	}
 
 	// Find out which type is listed and switch to the corresponding tab
-	QString shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),3)->text().left(1);
+//	QString shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),3)->text().left(1);
+	QString shTp = cobj->type.left(1);
+	if (shTp == "" ) {
+		shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),3)->text().left(1);
+	}
 	if(shTp == "B" || shTp == "V" ) { // Bird Tab
 			ui->wdgTabTypes->setCurrentIndex(0);
 			int index = ui->cmbBird->findText(cobj->name);
@@ -486,4 +629,37 @@ void MainWindow::handleUsrSelect() {
 	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
 	uiPreSelection(obj);
 	delete obj;
+}
+
+void MainWindow::handleBrightnessSlider() {
+	qDebug() << "Changing Brightness";
+	double scale = double(ui->sldBrightness->value())/100.0;
+	int maxval = int(scale * 65535.);
+//	int minval = int((1-scale) * 32000.);
+	int minval = 0;
+	qDebug() << "Scale: " << scale << "Max. value: " << maxval;
+	QgsRasterLayer * imgLayer = imgcvs->getImageLayer();
+	QgsRasterDataProvider * provider = imgLayer->dataProvider();
+    QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
+    qgsContrastEnhRed->setMinimumValue(minval);
+    qgsContrastEnhRed->setMaximumValue(maxval);
+    qgsContrastEnhRed->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
+
+    QgsContrastEnhancement* qgsContrastEnhGreen = new QgsContrastEnhancement(QGis::UInt16);
+    qgsContrastEnhGreen->setMinimumValue(minval);
+    qgsContrastEnhGreen->setMaximumValue(maxval);
+    qgsContrastEnhGreen->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
+
+    QgsContrastEnhancement* qgsContrastEnhBlue = new QgsContrastEnhancement(QGis::UInt16);
+    qgsContrastEnhBlue->setMinimumValue(minval);
+    qgsContrastEnhBlue->setMaximumValue(maxval);
+    qgsContrastEnhBlue->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
+
+    QgsMultiBandColorRenderer* renderer = new QgsMultiBandColorRenderer( provider , 1, 2, 3,
+    		qgsContrastEnhRed, qgsContrastEnhGreen, qgsContrastEnhBlue);
+
+    imgLayer->setRenderer(renderer);
+    imgcvs->refresh();
+
+    qDebug() << "Done.";
 }

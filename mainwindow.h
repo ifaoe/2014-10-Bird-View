@@ -18,6 +18,7 @@
 #include <QLabel>
 #include <QDial>
 #include <QScrollArea>
+#include <QSignalMapper>
 #include <QWebView>
 #include <qgsproviderregistry.h>
 #include <qgsmaplayerregistry.h>
@@ -39,14 +40,15 @@ public:
 
 private slots:
 	void handleSessionButton();
-	void handleBirdSave();
-	void handleMammalSave();
+	void handleBirdSave(int censor);
+	void handleMammalSave(int censor);
 	void objectUpdateSelection();
 	void handleMapToolButton();
-	void handleNoSightingButton();
+	void handleNoSightingSave(int censor);
 	void handleOneToOneZoom();
 	void handleDirDial();
 	void handleUsrSelect();
+	void handleBrightnessSlider();
 
 private:
 	QgsProviderRegistry *prvRegistry = 0;
@@ -57,11 +59,16 @@ private:
     DatabaseHandler *db;
     QItemSelectionModel *objSelector;
     QString session = "";
+    QStringList censorList;
     census * curObj = 0;
     int currentRow = -1;
     int mapMode = 0;
     QVBoxLayout *lytFrmImg;
     QWebView * geoMap;
+
+    QSignalMapper * btnBirdMapper;
+    QSignalMapper * btnMammalMapper;
+    QSignalMapper * btnNoSightMapper;
 
     QPushButton * btnZoomOneOne;
     QPushButton * btnMapModeImg;

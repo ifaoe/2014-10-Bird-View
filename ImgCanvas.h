@@ -37,6 +37,7 @@ public:
 	void centerOnWorldPosition(double ux, double uy, double scale);
 	QgsPoint calcWorldPosition(int x, int y);
 	void calcPixelPosition(QgsPoint pos);
+	QgsRasterLayer * getImageLayer();
 private slots:
 	void handleCanvasClicked(const QgsPoint & point);
 private:

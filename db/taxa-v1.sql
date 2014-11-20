@@ -1,4 +1,5 @@
 insert into taxa (tx_euring,tx_sea_flag,tx_abv_de,tx_abv_dk,tx_name_lat,tx_name_de,tx_name_en,tx_name_dk) values
+('00000', false, 'aves', 'aves', 'Aves', 'Vogel unbestimmt', 'Bird unknown', 'Fugle' ),
 ('06549',false,'av','alcsp','Alcidae indet.','Alkenvogel unbestimmt','Auklet sp.','uidenficeret alkefugl'),
 ('05120',false,'ap','caalp','Calidris alpina','Alpenstrandläufer','Dunlin','Almindelig Ryle'),
 ('05121',false,'apa','caala','Calidris alpina alpina','Alpenstrandläufer (Unterart alpina)','Dunlin (alpina)','Almindelig Ryle (alpina)'),

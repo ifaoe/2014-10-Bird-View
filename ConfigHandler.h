@@ -33,8 +33,6 @@ public:
 	QString dbPort = "5432";
 	QStringList mmList;
 	QString user();
-
-	int censor = 0;
 private:
 	QString usr;
 	QFile *cfgFile;

@@ -72,7 +72,6 @@ bool ImgCanvas::loadObject(QString file, double * pos) {
     QgsMultiBandColorRenderer* renderer = new QgsMultiBandColorRenderer( imgProvider, 1, 2, 3,
                 qgsContrastEnhRed, qgsContrastEnhGreen, qgsContrastEnhBlue);
 
-//    QgsMultiBandColorRenderer* renderer = new QgsMultiBandColorRenderer(imgProvider, 1, 2, 3);
     imgLayer->setRenderer( renderer );
 
     layerStack->addMapLayer("image", imgLayer, 100);
@@ -84,7 +83,6 @@ bool ImgCanvas::loadObject(QString file, double * pos) {
 void ImgCanvas::centerOnPixelPosition(int x, int y, double scale) {
 	double w = scale*this->width()/2;
 	double h = scale*this->height()/2;
-//	QPoint minPixel(x-w, y+h), maxPixel(x+w, y-h);
 	QgsPoint min = calcWorldPosition(x-w, y+h);
 	QgsPoint max = calcWorldPosition(x+w, y-h);
 	QgsRectangle view(min, max);
@@ -118,6 +116,9 @@ void ImgCanvas::calcPixelPosition(QgsPoint pos) {
 	this->setExtent(view);
 }
 
+/*
+ * Handle clicks on the map canvas with regards to the measurement tool
+ */
 void ImgCanvas::handleCanvasClicked(const QgsPoint & point) {
 	if (msmList.size() == 1) {
 		msmList.append(point);
@@ -150,4 +151,8 @@ void ImgCanvas::paintEvent(QPaintEvent * event) {
 //		msmLine->drawLine(mapper->transform(p0).x(), mapper->transform(p0).y(), mapper->transform(p1).x(), mapper->transform(p1).y());
 //		msmLine->end();
 //	}
+}
+
+QgsRasterLayer * ImgCanvas::getImageLayer() {
+	return imgLayer;
 }

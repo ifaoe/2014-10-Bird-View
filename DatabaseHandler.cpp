@@ -247,3 +247,32 @@ QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
 	qDebug() << "Done";
 	return objMap;
 }
+
+census * DatabaseHandler::getCensusData(QString objId) {
+	qDebug() << "Getting object specific query for ID: " << objId;
+	QString qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId +
+			" AND usr!='" + cfg->user() + "'";
+	// if there is already an entry in census db-table,
+	// initialize census structure with these values
+	QSqlQuery * query = new QSqlQuery(qstr);
+	if (query->size() != 1) {
+		delete query;
+		return 0;
+	}
+	census * obj = new census;
+	if (query->next()) {
+		obj->type = query->value(0).toString();
+		obj->name = query->value(1).toString();
+		obj->quality = query->value(2).toInt();
+		obj->behavior = query->value(3).toString();
+		obj->age = query->value(4).toString();
+		obj->gender = query->value(5).toString();
+		obj->direction = query->value(6).toInt();
+		obj->remarks = query->value(7).toString();
+		obj->censor = query->value(8).toInt();
+		obj->imageQuality = query->value(9).toInt();
+	}
+	delete query;
+	qDebug() << "Done";
+	return obj;
+}

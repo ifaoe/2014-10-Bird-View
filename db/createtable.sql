@@ -34,3 +34,10 @@ CREATE TABLE taxa(
 	tx_name_en text,
 	tx_name_dk text
 )
+
+CREATE TABLE projects(
+	name text not null primary key,
+	abrv text,
+	hostname text,
+	hostip text
+);

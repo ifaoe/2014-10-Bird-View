@@ -33,6 +33,7 @@ public:
 	QStringList getUserList(QString objId);
 	QMap<int, int> getObjectDone(QString usr, QString session);
 	QMap<int, int> getObjectFinal(QString session);
+	census * getCensusData(QString objId);
 	void writeCensus(census * obj);
 private:
 	QSqlDatabase *db;
