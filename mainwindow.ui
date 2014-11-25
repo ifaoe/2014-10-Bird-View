@@ -38,8 +38,6 @@
         <height>0</height>
        </size>
       </property>
-      <zorder>sclNoSight</zorder>
-      <zorder>sclNoSight</zorder>
      </widget>
     </item>
     <item row="5" column="1" colspan="2">
@@ -65,10 +63,10 @@
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Plain</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -86,10 +84,10 @@
           </size>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Plain</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="2">
@@ -671,8 +669,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>460</width>
-                <height>521</height>
+                <width>327</width>
+                <height>350</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -943,8 +941,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>460</width>
-                <height>521</height>
+                <width>278</width>
+                <height>300</height>
                </rect>
               </property>
               <property name="minimumSize">

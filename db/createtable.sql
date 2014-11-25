@@ -24,7 +24,7 @@ CREATE TABLE census(
 	imgqual int
 );
 
-CREATE TABLE taxa(
+CREATE TABLE taxa_bird(
 	tx_euring text not null primary key,
 	tx_sea_flag text,
 	tx_abv_de text,
@@ -33,11 +33,4 @@ CREATE TABLE taxa(
 	tx_name_de text,
 	tx_name_en text,
 	tx_name_dk text
-)
-
-CREATE TABLE projects(
-	name text not null primary key,
-	abrv text,
-	hostname text,
-	hostip text
 );
