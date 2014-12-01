@@ -33,10 +33,13 @@ public:
 	QString dbPort = "5432";
 	QStringList mmList;
 	QString user();
+	QString session_type = "local";
+	void parseCfgFile(QString database);
+	QMap<QString, QString> getDbMap();
 private:
 	QString usr;
 	QFile *cfgFile;
-	void parseCfgFile();
+	QMap<QString, QString> databaseMap;
 	boost::property_tree::ptree cfg;
 };
 

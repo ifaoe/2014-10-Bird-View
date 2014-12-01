@@ -41,7 +41,7 @@ ConfigHandler::ConfigHandler(int argc, char *argv[]) {
 		string tmp = vm["config"].as<string>();
 		cfgFile = new QFile(tmp.data());
 	} else {
-		cfgFile = new QFile("/usr/local/ifaoe/Settings/birdview/main.cfg");
+		cfgFile = new QFile("/usr/local/ifaoe/Settings/Daisi/birdview/main.cfg");
 	}
 	if (cfgFile->exists()) {
 		qDebug() << "Using config-file: " << cfgFile->fileName();
@@ -51,7 +51,11 @@ ConfigHandler::ConfigHandler(int argc, char *argv[]) {
 	if (vm.count("path")) {
 		imgPath.fromStdString( vm["path"].as<string>() );
 	}
-	parseCfgFile();
+
+	QStringList tmpDbList = QString().fromStdString( cfg.get<std::string>("main.dblist")).split(",");
+	for (int i=0; i<tmpDbList.size(); i++) {
+		databaseMap[tmpDbList.at(i).split('-').at(0)] = tmpDbList.at(i).split('-').at(1);
+	}
 }
 
 ConfigHandler::~ConfigHandler() {
@@ -61,15 +65,16 @@ ConfigHandler::~ConfigHandler() {
 
 QString ConfigHandler::user() { return usr; }
 
-void ConfigHandler::parseCfgFile() {
+void ConfigHandler::parseCfgFile(QString database) {
 	boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
-	dbHost = QString::fromStdString( cfg.get<std::string>("database.host") );
-	dbName = QString::fromStdString( cfg.get<std::string>("database.name") );
-	dbUser = QString::fromStdString( cfg.get<std::string>("database.user") );
-	dbPass = QString::fromStdString( cfg.get<std::string>("database.pass") );
-	dbPort = QString::fromStdString( cfg.get<std::string>("database.port") );
+	dbHost = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".host") );
+	dbName = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".name") );
+	dbUser = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".user") );
+	dbPass = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".pass") );
+	dbPort = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".port") );
 	imgPath = QString::fromStdString( cfg.get<std::string>("main.data"));
 	mmList = QString().fromStdString( cfg.get<std::string>("species.mammal")).split(",");
 }
 
+QMap<QString, QString> ConfigHandler::getDbMap() { return databaseMap; }
 

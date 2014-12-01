@@ -14,9 +14,10 @@
 #include "ImgCanvas.h"
 #include <qgsmultibandcolorrenderer.h>
 #include <QFileDialog>
+#include <QNetworkAccessManager>
 #include <math.h>
 
-ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi) : QgsMapCanvas(parent),ui(mUi) {
+ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg) : QgsMapCanvas(parent),ui(mUi), cfg(cfg) {
 	// TODO Auto-generated constructor stub
 
     enableAntiAliasing(true);
@@ -31,6 +32,7 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi) : QgsMapCanvas(parent
 	layerStack = new QgsLayerStack(this);
 
 	qgsEmitPointTool = new QgsMapToolEmitPoint(this);
+	networkManager = new QNetworkAccessManager(this);
     connect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
     		this, SLOT( handleCanvasClicked(const QgsPoint &)));
     setMapTool(qgsEmitPointTool);
@@ -42,21 +44,56 @@ ImgCanvas::~ImgCanvas() {
 	delete layerStack;
 }
 
-bool ImgCanvas::loadObject(QString file, double * pos) {
-	if(imgLayer) {
-		layerStack->removeMapLayer("image");
-		imgLayer = 0;
+bool ImgCanvas::loadObject(census * obj, double * pos) {
+	QString file;
+	if (cfg->session_type == "local") {
+		QString prjDir = "";
+		QString date = obj->session.left(10);
+		QDir base = QDir(cfg->imgPath);
+		base.setFilter(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+		QStringList subdirs = base.entryList();
+		for(int i=0; i<subdirs.size(); i++) {
+			if (subdirs.at(i).left(10).compare(date) == 0) {
+				prjDir = subdirs.at(i);
+				break;
+			}
+		}
+
+		file = cfg->imgPath + "/" + prjDir + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
+
+	} else if (cfg->session_type == "pfz") {
+		QString img = QString::number(obj->id) + "-" + obj->image + ".tif";
+		QUrl url("http://platform-z.ifaoe.de/daisi/" + obj->session + "/cam" + QString::number(obj->camera) + "/crop/" + img);
+		qDebug() << "Getting cropped image from" << url.toString();
+		QEventLoop eventloop;
+		QNetworkReply* reply = networkManager->get(QNetworkRequest(url));
+	    connect(networkManager, SIGNAL(finished(QNetworkReply*)),
+	            &eventloop, SLOT(quit()));
+	    eventloop.exec();
+		QFile imgfile("/tmp/birdview-tmp.tif");
+		imgfile.open(QIODevice::WriteOnly);
+		imgfile.write(reply->readAll());
+		imgfile.close();
+		file = "/tmp/birdview-tmp.tif";
+	} else {
+		return false;
 	}
-    QFileInfo info (file);
+
+	QFileInfo info(file);
     if ( !info.isFile() || !info.isReadable() ) {
        	qDebug() << "Error: Invalid Filepath: " << file;
         return false;
     }
 
+	if(imgLayer) {
+		layerStack->removeMapLayer("image");
+		imgLayer = 0;
+	}
     QString basePath = info.filePath();
     QString baseName = info.fileName();
 
     imgLayer = new QgsRasterLayer(basePath,baseName);
+
 
     if ( !imgLayer->isValid() ) {
     	qDebug() << "Warning: Imagelayer is invalid!";
@@ -153,6 +190,4 @@ void ImgCanvas::paintEvent(QPaintEvent * event) {
 //	}
 }
 
-QgsRasterLayer * ImgCanvas::getImageLayer() {
-	return imgLayer;
-}
+QgsRasterLayer * ImgCanvas::getImageLayer() { return imgLayer; }

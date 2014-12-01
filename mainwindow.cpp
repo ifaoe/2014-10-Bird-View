@@ -178,7 +178,6 @@ void MainWindow::objectUpdateSelection() {
 	ui->lblMsmTool->setText("Zum Beginn der Messung ersten Punkt anklicken.");
 	if (objSelector->selectedRows().isEmpty()) return;
 	currentRow = objSelector->selectedRows().at(0).row();
-	QString prjDir = "";
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
 	QString img = ui->tblObjects->item(currentRow, 1)->text();
@@ -187,19 +186,8 @@ void MainWindow::objectUpdateSelection() {
 	censorList = db->getUserList(objId);
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
-	QString date = session.left(10);
-	QDir base = QDir(cfg->imgPath);
-	base.setFilter(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-	QStringList subdirs = base.entryList();
-	for(int i=0; i<subdirs.size(); i++) {
-		if (subdirs.at(i).left(10).compare(date) == 0) {
-			prjDir = subdirs.at(i);
-			break;
-		}
-	}
 
-	QString file = cfg->imgPath + "/" + prjDir + "/cam" + cam + "/geo/" + img + ".tif";
-	imgcvs->loadObject(file, db->getObjectPosition(objId));
+	imgcvs->loadObject(curObj, db->getObjectPosition(objId));
 }
 
 
@@ -500,7 +488,7 @@ void MainWindow::handleOneToOneZoom() {
 
 void MainWindow::initMapView() {
 	// Setup image and map
-	imgcvs = new ImgCanvas(ui->wdgImg, ui);
+	imgcvs = new ImgCanvas(ui->wdgImg, ui, cfg);
 	geoMap = new QWebView(ui->wdgImg);
 	lytFrmImg = new QVBoxLayout;
 	lytFrmImg->setMargin(0);

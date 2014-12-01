@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QWidget>
+#include <QNetworkReply>
 #include <qgis.h>
 #include <qgsmapcanvas.h>
 #include <qgsrasterlayer.h>
@@ -24,15 +25,16 @@
 #include <qgsmaplayerregistry.h>
 #include <qgsmaptoolemitpoint.h>
 #include "QgsLayerStack.h"
+#include "ConfigHandler.h"
 #include "ui_mainwindow.h"
-
+#include "census.h"
 
 class ImgCanvas: public QgsMapCanvas {
 	Q_OBJECT
 public:
-	ImgCanvas(QWidget *parent, Ui::MainWindow *mUi);
+	ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler * cfg);
 	virtual ~ImgCanvas();
-	bool loadObject(QString file, double * pos);
+	bool loadObject(census * obj, double * pos);
 	void centerOnPixelPosition(int x, int y, double scale);
 	void centerOnWorldPosition(double ux, double uy, double scale);
 	QgsPoint calcWorldPosition(int x, int y);
@@ -44,12 +46,15 @@ private:
 	void paintEvent(QPaintEvent * event);
 	QgsLayerStack * layerStack = 0;
 	Ui::MainWindow *ui = 0;
-	QgsMapLayerRegistry *lyrRegistry;
+	ConfigHandler *cfg = 0;
+	QgsMapLayerRegistry *lyrRegistry = 0;
 	QgsRasterLayer * imgLayer = 0;
 	QgsRasterDataProvider* imgProvider = 0;
 
 	QgsMapToolEmitPoint *qgsEmitPointTool = 0;
 	QList<QgsPoint> msmList;
+
+	QNetworkAccessManager* networkManager = 0;
 
 	QPainter * msmLine;
 };

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml webkit
+QT       += core gui sql xml webkit network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,15 +18,19 @@ SOURCES += main.cpp\
         ImgCanvas.cpp \
         QgsLayerStack.cpp \
         ConfigHandler.cpp \
-        DatabaseHandler.cpp
-
+        DatabaseHandler.cpp \
+        SessionDialog.cpp
+		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
 		QgsLayerStack.h \
 		ConfigHandler.h \
-		DatabaseHandler.h
+		DatabaseHandler.h \
+		census.h \
+		SessionDialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+			SessionDialog.ui
 
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis

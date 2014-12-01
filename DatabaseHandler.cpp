@@ -194,24 +194,14 @@ void DatabaseHandler::writeCensus(census * obj) {
  * directly to DB
  */
 void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
+	record->setValue("rcns_id",obj->id);
 	record->setValue("age",obj->age);
 	record->setValue("beh",obj->behavior);
-	record->setValue("cam",obj->camera);
-	record->setValue("epsg",obj->epsg);
 	record->setValue("gen",obj->gender);
-	record->setValue("rcns_id",obj->id);
-	record->setValue("img",obj->image);
-	record->setValue("lx",obj->lx);
-	record->setValue("ly",obj->ly);
-	record->setValue("ux",obj->ux);
-	record->setValue("uy",obj->uy);
-	record->setValue("px",obj->px);
-	record->setValue("py",obj->py);
 	record->setValue("name",obj->name);
 	record->setValue("tp",obj->type);
 	record->setValue("qual",obj->quality);
 	record->setValue("rem",obj->remarks);
-	record->setValue("session",obj->session);
 	record->setValue("usr",obj->usr);
 	if (obj->direction >= 0) record->setValue("dir", obj->direction);
 	record->setValue("censor", obj->censor);
