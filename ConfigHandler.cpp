@@ -15,6 +15,7 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <cstring>
+#include <QDir>
 
 namespace po = boost::program_options;
 namespace pt = boost::property_tree;
@@ -27,8 +28,7 @@ ConfigHandler::ConfigHandler(int argc, char *argv[]) {
 	po::options_description desc("Options");
 	desc.add_options()
 			("help,h", "Show this help message.")
-			("config,c", po::value<string>(), "Path to config-file.")
-			("path,p", po::value<string>(), "Path to image directories.");
+			("config,c", po::value<string>(), "Path to config-file.");
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm);
@@ -48,14 +48,9 @@ ConfigHandler::ConfigHandler(int argc, char *argv[]) {
 	} else {
 		qFatal( "Fatal: Config file %s does not exist or is not readable. Aborting.", cfgFile->fileName().toStdString().c_str() );
 	}
-	if (vm.count("path")) {
-		imgPath.fromStdString( vm["path"].as<string>() );
-	}
 
-	QStringList tmpDbList = QString().fromStdString( cfg.get<std::string>("main.dblist")).split(",");
-	for (int i=0; i<tmpDbList.size(); i++) {
-		databaseMap[tmpDbList.at(i).split('-').at(0)] = tmpDbList.at(i).split('-').at(1);
-	}
+	boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
+	databaseList = QString().fromStdString( cfg.get<std::string>("main.dblist")).split(",");
 }
 
 ConfigHandler::~ConfigHandler() {
@@ -66,15 +61,13 @@ ConfigHandler::~ConfigHandler() {
 QString ConfigHandler::user() { return usr; }
 
 void ConfigHandler::parseCfgFile(QString database) {
-	boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
+//	boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
 	dbHost = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".host") );
 	dbName = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".name") );
 	dbUser = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".user") );
 	dbPass = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".pass") );
 	dbPort = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".port") );
-	imgPath = QString::fromStdString( cfg.get<std::string>("main.data"));
 	mmList = QString().fromStdString( cfg.get<std::string>("species.mammal")).split(",");
 }
 
-QMap<QString, QString> ConfigHandler::getDbMap() { return databaseMap; }
-
+QStringList ConfigHandler::getDbList() { return databaseList; }

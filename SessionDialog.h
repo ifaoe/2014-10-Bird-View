@@ -16,6 +16,7 @@ namespace Ui {
 }
 
 class SessionDialog : public QDialog{
+	Q_OBJECT;
 public:
 	SessionDialog(ConfigHandler * cfg);
 	virtual ~SessionDialog();
@@ -23,9 +24,8 @@ private slots:
 	void handleYesButton();
 	void handleNoButton();
 private:
-	Ui::dlgModeSelect *dlg;
-	ConfigHandler * cfg;
-	QMap<QString, QString> dbMap;
+	ConfigHandler * cfg = 0;
+	Ui::dlgModeSelect *dlg = 0;
 };
 
 #endif /* SESSIONDIALOG_H_ */

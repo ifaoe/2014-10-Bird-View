@@ -25,7 +25,6 @@ public:
 	ConfigHandler(int argc, char *argv[]);
 	virtual ~ConfigHandler();
 
-	QString imgPath = "/net/daisi";
 	QString dbHost = "localhost";
 	QString dbName = "daisi";
 	QString dbUser = "daisi";
@@ -33,13 +32,14 @@ public:
 	QString dbPort = "5432";
 	QStringList mmList;
 	QString user();
+	QString image_path = "/net";
 	QString session_type = "local";
 	void parseCfgFile(QString database);
-	QMap<QString, QString> getDbMap();
+	QStringList getDbList();
 private:
 	QString usr;
 	QFile *cfgFile;
-	QMap<QString, QString> databaseMap;
+	QStringList databaseList;
 	boost::property_tree::ptree cfg;
 };
 

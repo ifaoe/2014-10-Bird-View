@@ -59,6 +59,7 @@ private:
     DatabaseHandler *db;
     QItemSelectionModel *objSelector;
     QString session = "";
+    QString session_path = "/net/daisi";
     QStringList censorList;
     census * curObj = 0;
     int currentRow = -1;

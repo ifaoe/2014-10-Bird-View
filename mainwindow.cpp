@@ -170,6 +170,7 @@ void MainWindow::handleSessionButton() {
 		}
 	}
 	delete query;
+	cfg->image_path = db->getProjectPath(session);
 }
 
 void MainWindow::objectUpdateSelection() {

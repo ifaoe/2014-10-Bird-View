@@ -23,14 +23,15 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     ConfigHandler *cfg = new ConfigHandler(argc, argv);
-    DatabaseHandler *db = new DatabaseHandler(cfg);
 
     // Qgis Pfad setzen und Provider laden
     QgsApplication::setPrefixPath("/usr", true);
     QgsApplication::initQgis();
 
     SessionDialog d(cfg);
-    d.show();
+    d.exec();
+
+    DatabaseHandler *db = new DatabaseHandler(cfg);
 
     MainWindow w(cfg, db);
     w.showMaximized();

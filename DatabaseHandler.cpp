@@ -87,6 +87,17 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 	return userList;
 }
 
+QString DatabaseHandler::getProjectPath(QString session) {
+	qDebug() << "Getting session path list from database.";
+	QSqlQuery query("SELECT path FROM projects WHERE project_id='" + session + "'");
+	if (query.size() == -1) return "/net";
+	while(query.next()) {
+		return query.value(0).toString();
+	}
+	return "/net";
+}
+
+
 QSqlQuery * DatabaseHandler::getObjectResult(QString session) {
 	// get object data for population of object list
 	QString qstr = "SELECT raw_census.rcns_id, raw_census.tp, raw_census.cam, raw_census.img, census.usr, census.censor, census.tp FROM raw_census"

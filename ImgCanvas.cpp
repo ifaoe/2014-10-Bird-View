@@ -47,19 +47,8 @@ ImgCanvas::~ImgCanvas() {
 bool ImgCanvas::loadObject(census * obj, double * pos) {
 	QString file;
 	if (cfg->session_type == "local") {
-		QString prjDir = "";
-		QString date = obj->session.left(10);
-		QDir base = QDir(cfg->imgPath);
-		base.setFilter(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-		QStringList subdirs = base.entryList();
-		for(int i=0; i<subdirs.size(); i++) {
-			if (subdirs.at(i).left(10).compare(date) == 0) {
-				prjDir = subdirs.at(i);
-				break;
-			}
-		}
 
-		file = cfg->imgPath + "/" + prjDir + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
+		file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
 
 	} else if (cfg->session_type == "pfz") {
 		QString img = QString::number(obj->id) + "-" + obj->image + ".tif";
@@ -70,11 +59,11 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 	    connect(networkManager, SIGNAL(finished(QNetworkReply*)),
 	            &eventloop, SLOT(quit()));
 	    eventloop.exec();
-		QFile imgfile("/tmp/birdview-tmp.tif");
+		QFile imgfile("/tmp/birdview-tmp" + QString::number(obj->id) + ".tif");
 		imgfile.open(QIODevice::WriteOnly);
 		imgfile.write(reply->readAll());
 		imgfile.close();
-		file = "/tmp/birdview-tmp.tif";
+		file = "/tmp/birdview-tmp" + QString::number(obj->id) + ".tif";
 	} else {
 		return false;
 	}

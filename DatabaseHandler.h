@@ -36,6 +36,7 @@ public:
 	QMap<int, int> getObjectFinal(QString session);
 	census * getCensusData(QString objId);
 	void writeCensus(census * obj);
+	QString getProjectPath(QString session);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;
