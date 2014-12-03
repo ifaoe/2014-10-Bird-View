@@ -48,7 +48,7 @@ DatabaseHandler::~DatabaseHandler() {
 QStringList DatabaseHandler::getSessionList() {
 	qDebug() << "Getting session list from database.";
 	QStringList sessionList;
-	QSqlQuery query("SELECT distinct(session) FROM raw_census");
+	QSqlQuery query("SELECT distinct(session) FROM raw_census ORDER BY session");
 	while(query.next()) {
 		sessionList.append(query.value(0).toString());
 	}

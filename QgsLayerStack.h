@@ -33,7 +33,6 @@ public:
 private:
 	void registerMapLayers();
 	void refreshLayerSet();
-	int stdPriority = 0;
 	QgsMapLayerRegistry* qgsLyrRegistry = 0;
 	QgsMapCanvas *mapCanvas;
 	QMap<int,QgsMapLayer*> lyrMap;	// Sorted in ascending order by key: c++ standard
