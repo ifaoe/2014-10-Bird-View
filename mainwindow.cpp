@@ -117,6 +117,7 @@ void MainWindow::handleSessionButton() {
 	currentRow = -1;
 	objSelector->clearSelection();
 	ui->tblObjects->clear();
+	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP");
 	ui->tblObjects->model()->removeRows(0,ui->tblObjects->rowCount());
 	QSqlQuery *query = db->getObjectResult( ui->cmbSession->currentText() );
 	session = ui->cmbSession->currentText();
@@ -189,6 +190,7 @@ void MainWindow::objectUpdateSelection() {
 	uiPreSelection(curObj);
 
 	imgcvs->loadObject(curObj, db->getObjectPosition(objId));
+	handleBrightnessSlider();
 }
 
 
@@ -622,7 +624,7 @@ void MainWindow::handleUsrSelect() {
 
 void MainWindow::handleBrightnessSlider() {
 	qDebug() << "Changing Brightness";
-	double scale = double(ui->sldBrightness->value())/100.0;
+	double scale = 1.0 - double(ui->sldBrightness->value())/100.0;
 	int maxval = int(scale * 65535.);
 //	int minval = int((1-scale) * 32000.);
 	int minval = 0;
