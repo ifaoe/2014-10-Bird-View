@@ -80,6 +80,7 @@ private:
     void colorTableReady(int censor);
     void initMapView();
     void uiPreSelection(census * cobj);
+    void saveRoutine(QString type, int censor);
 protected:
     void resizeEvent(QResizeEvent *event);
 };

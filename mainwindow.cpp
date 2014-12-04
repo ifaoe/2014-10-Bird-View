@@ -200,6 +200,95 @@ void MainWindow::objectUpdateSelection() {
  * TODO: PUT ALL IN ONE SAVE ROUTINE!
  */
 
+void MainWindow::saveRoutine(QString type, int censor) {
+	QString objId = ui->tblObjects->item(currentRow, 0)->text();
+	curObj->censor = censor;
+
+	if (type == "bird") {
+		curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
+		curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
+		curObj->behavior = ui->btngBirdBhv->checkedButton()->property("dbvalue").toString();
+		if (ui->gbxBirdGender->isChecked())
+			curObj->gender = ui->btngBirdGnd->checkedButton()->property("dbvalue").toString();
+		if (ui->gbxBirdAge->isChecked())
+			curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
+		curObj->remarks = ui->txtBirdRemarks->toPlainText();
+		curObj->name = ui->cmbBird->currentText();
+	} else if (type == "mammal") {
+		curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
+		curObj->name = ui->cmbMammal->currentText();
+		curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
+		curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
+		if (ui->gbxMammalAge->isChecked())
+			curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
+		curObj->gender = "";
+		curObj->remarks = ui->txtMammalRemarks->toPlainText();
+	} else if (type == "nosight") {
+		curObj->type = "NOSIGHT";
+		curObj->name = "";
+		curObj->quality = ui->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
+		curObj->behavior = "";
+		curObj->age = "";
+		curObj->gender = "";
+		curObj->remarks = ui->txtNoSightRemarks->toPlainText();
+		curObj->direction = -1;
+	} else {
+		return;
+	}
+
+
+	if (censor > 1) {
+		census * cenObj = db->getCensusData(QString::number(curObj->id));
+		if (cenObj == 0 && censorList.size() == 1) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			msgBox->exec();
+			delete msgBox;
+			return;
+		} else if (cenObj == 0){ // Entscheider
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == noButton) {
+				delete msgBox;
+				return;
+			}
+		} else { // Zweitbestimmer
+			// test input
+			bool agree = true;
+			agree = agree && (curObj->name == cenObj->name);
+			agree = agree && (curObj->type == cenObj->type);
+			if (!agree) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				delete msgBox;
+				return;
+			}
+		}
+	}
+	if (ui->chbImgQuality->isChecked())
+		curObj->imageQuality = 1;
+
+	// write object data to db
+	db->writeCensus(curObj);
+	// refresh object table
+	colorTableReady(curObj->censor);
+	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
+	// delete object structure
+	delete curObj;
+	// select next object in table
+	if(currentRow < ui->tblObjects->rowCount()) {
+		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
+		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+	}
+}
+
 void MainWindow::handleBirdSave(int censor) {
 	if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY" && curObj->direction < 0) {
 		QMessageBox * msgBox = new QMessageBox();
@@ -228,69 +317,7 @@ void MainWindow::handleBirdSave(int censor) {
 		}
 		delete msgBox;
 	}
-
-	QString objId = ui->tblObjects->item(currentRow, 0)->text();
-	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
-	curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
-	curObj->behavior = ui->btngBirdBhv->checkedButton()->property("dbvalue").toString();
-	if (ui->gbxBirdGender->isChecked())
-		curObj->gender = ui->btngBirdGnd->checkedButton()->property("dbvalue").toString();
-	if (ui->gbxBirdAge->isChecked())
-		curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
-	curObj->remarks = ui->txtBirdRemarks->toPlainText();
-	curObj->name = ui->cmbBird->currentText();
-	curObj->censor = censor;
-	if (ui->chbImgQuality->isChecked())
-		curObj->imageQuality = 1;
-
-	if (censor > 1) {
-		census * cenObj = db->getCensusData(QString::number(curObj->id));
-		if (cenObj == 0 && censorList.size() == 1) {
-			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
-			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-			msgBox->exec();
-			delete msgBox;
-			return;
-		} else if (cenObj == 0){ // Entscheider
-			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
-			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-			msgBox->exec();
-			if (msgBox->clickedButton() == noButton) {
-				delete msgBox;
-				return;
-			}
-		} else { // Zweitbestimmer
-			// test input
-			bool agree = true;
-			agree = agree && (curObj->name == cenObj->name);
-			agree = agree && (curObj->type == cenObj->type);
-			if (!agree) {
-				QMessageBox * msgBox = new QMessageBox();
-				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
-				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-				msgBox->exec();
-				delete msgBox;
-				return;
-			}
-		}
-	}
-
-	// write object data to db
-	db->writeCensus(curObj);
-	// refresh object table
-	colorTableReady(curObj->censor);
-	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
-	// delete object structure
-	delete curObj;
-	// select next object in table
-	if(currentRow < ui->tblObjects->rowCount()) {
-		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
-		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-	}
+	saveRoutine("bird", censor);
 }
 
 void MainWindow::handleMammalSave(int censor) {
@@ -303,127 +330,11 @@ void MainWindow::handleMammalSave(int censor) {
 			return;
 		}
 	}
-	QString objId = ui->tblObjects->item(currentRow, 0)->text();
-	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
-	curObj->name = ui->cmbMammal->currentText();
-	curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
-	curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
-	if (ui->gbxMammalAge->isChecked())
-		curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
-	curObj->gender = "";
-	curObj->remarks = ui->txtMammalRemarks->toPlainText();
-	curObj->censor = censor;
-	if (ui->chbImgQuality->isChecked())
-		curObj->imageQuality = 1;
-
-	if (censor > 1) {
-		census * cenObj = db->getCensusData(QString::number(curObj->id));
-		if (cenObj == 0 && censorList.size() == 1) {
-			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
-			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-			msgBox->exec();
-			delete msgBox;
-			return;
-		} else if (cenObj == 0){ // Entscheider
-			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
-			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-			msgBox->exec();
-			if (msgBox->clickedButton() == noButton) {
-				delete msgBox;
-				return;
-			}
-		} else { // Zweitbestimmer
-			// test input
-			bool agree = true;
-			agree = agree && (curObj->name == cenObj->name);
-			agree = agree && (curObj->type == cenObj->type);
-			if (!agree) {
-				QMessageBox * msgBox = new QMessageBox();
-				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
-				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-				msgBox->exec();
-				delete msgBox;
-				return;
-			}
-		}
-	}
-
-	db->writeCensus(curObj);
-	colorTableReady(curObj->censor);
-	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
-	delete curObj;
-	if(currentRow < ui->tblObjects->rowCount()) {
-		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
-		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-	}
+	saveRoutine("mammal", censor);
 }
 
 void MainWindow::handleNoSightingSave(int censor) {
-	QString objId = ui->tblObjects->item(currentRow, 0)->text();
-	curObj->type = "NOSIGHT";
-	curObj->name = "";
-	curObj->quality = ui->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
-	curObj->behavior = "";
-	curObj->age = "";
-	curObj->gender = "";
-	curObj->remarks = ui->txtNoSightRemarks->toPlainText();
-	curObj->censor = censor;
-	if (ui->chbImgQuality->isChecked())
-		curObj->imageQuality = 1;
-
-	curObj->direction = -1;
-
-	if (censor > 1) {
-		census * cenObj = db->getCensusData(QString::number(curObj->id));
-		if (cenObj == 0 && censorList.size() == 1) {
-			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
-			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-			msgBox->exec();
-			delete msgBox;
-			return;
-		} else if (cenObj == 0){ // Entscheider
-			QMessageBox * msgBox = new QMessageBox();
-			QStringList foreignCensors = censorList;
-			foreignCensors.removeAt(1);
-			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-					+ "Bitte mit " + foreignCensors.join(", ") + " abstimmen.");
-			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-			msgBox->exec();
-			if (msgBox->clickedButton() == noButton) {
-				delete msgBox;
-				return;
-			}
-		} else { // Zweitbestimmer
-			// test input
-			bool agree = true;
-			agree = agree && (curObj->name == cenObj->name);
-			agree = agree && (curObj->type == cenObj->type);
-			if (!agree) {
-				QMessageBox * msgBox = new QMessageBox();
-				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
-				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-				msgBox->exec();
-				delete msgBox;
-				return;
-			}
-		}
-	}
-
-	db->writeCensus(curObj);
-	colorTableReady(curObj->censor);
-	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
-
-	delete curObj;
-	if(currentRow < ui->tblObjects->rowCount()) {
-		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
-		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-	}
+	saveRoutine("nosight", censor);
 }
 
 void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
