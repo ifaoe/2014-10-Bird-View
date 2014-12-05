@@ -264,7 +264,7 @@ void MainWindow::saveRoutine(QString type, int censor) {
 			agree = agree && (curObj->type == cenObj->type);
 			if (!agree) {
 				QMessageBox * msgBox = new QMessageBox();
-				msgBox->setText("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich.");
+				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich."));
 				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 				msgBox->exec();
 				delete msgBox;
@@ -424,7 +424,7 @@ void MainWindow::initMapView() {
 	// Add QDial for direction
 	dirDial = new QDial(imgcvs);
 	dirDial->setFixedSize(80,80);
-	dirDial->move(10,10);
+	dirDial->move(10,50);
 	dirDial->setMaximum(359);
 	dirDial->setMinimum(0);
 	dirDial->setWrapping(true);
@@ -536,7 +536,7 @@ void MainWindow::handleUsrSelect() {
 void MainWindow::handleBrightnessSlider() {
 	qDebug() << "Changing Brightness";
 	double scale = 1.0 - double(ui->sldBrightness->value())/100.0;
-	int maxval = int(scale * 65535.);
+	int maxval = int(scale * 65000.);
 //	int minval = int((1-scale) * 32000.);
 	int minval = 0;
 	qDebug() << "Scale: " << scale << "Max. value: " << maxval;
