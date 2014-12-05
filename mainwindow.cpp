@@ -177,6 +177,7 @@ void MainWindow::handleSessionButton() {
 void MainWindow::objectUpdateSelection() {
 	// TODO: Cleanup.
 	// TODO: Fix: Crash on empty line
+	dialChecked = false;
 	ui->lblMsmTool->setText("Zum Beginn der Messung ersten Punkt anklicken.");
 	if (objSelector->selectedRows().isEmpty()) return;
 	currentRow = objSelector->selectedRows().at(0).row();
@@ -290,7 +291,7 @@ void MainWindow::saveRoutine(QString type, int censor) {
 }
 
 void MainWindow::handleBirdSave(int censor) {
-	if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY" && curObj->direction < 0) {
+	if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
 		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
@@ -448,7 +449,9 @@ void MainWindow::resizeEvent(QResizeEvent * event) {
  * Set the direction value only when dial is touched
  */
 void MainWindow::handleDirDial() {
+	qDebug() << "Handle direcrection dial.";
 	curObj->direction = (dirDial->value() + 180)%360;
+	dialChecked=true;
 }
 
 /*
@@ -462,6 +465,12 @@ void MainWindow::uiPreSelection(census * cobj) {
 	ui->txtNoSightRemarks->clear();
 
 	// Recalculate values of the QDial to 0=North
+	qDebug() << "Dir: " << cobj->direction;
+	if (cobj->type == "BIRD" && cobj->behavior == "FLY"){
+		dialChecked = true;
+	} else {
+		dialChecked = false;
+	}
 	if (cobj->direction >= 0 ) {
 		dirDial->setValue((cobj->direction+180)%360);
 	} else {

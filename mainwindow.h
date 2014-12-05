@@ -75,6 +75,7 @@ private:
     QPushButton * btnMapModeImg;
     QPushButton * btnMapModeGeo;
     QDial * dirDial;
+    bool dialChecked = false;
 
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableReady(int censor);
