@@ -306,6 +306,8 @@ void MainWindow::handleBirdSave(int censor) {
 		delete msgBox;
 	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
 		curObj->direction = -1;
+	} else {
+
 	}
 	if (ui->cmbBird->currentText() == "") {
 		QMessageBox * msgBox = new QMessageBox();
@@ -449,9 +451,10 @@ void MainWindow::resizeEvent(QResizeEvent * event) {
  * Set the direction value only when dial is touched
  */
 void MainWindow::handleDirDial() {
-	qDebug() << "Handle direction dial.";
+	qDebug() << "Handle direction dial with value: " << dirDial->value();
 	curObj->direction = (dirDial->value() + 180)%360;
 	dialChecked=true;
+	qDebug() << curObj->direction;
 }
 
 /*
@@ -466,15 +469,16 @@ void MainWindow::uiPreSelection(census * cobj) {
 
 	// Recalculate values of the QDial to 0=North
 	qDebug() << "Dir: " << cobj->direction;
-	if (cobj->type == "BIRD" && cobj->behavior == "FLY"){
-		dialChecked = true;
-	} else {
-		dialChecked = false;
-	}
 	if (cobj->direction >= 0 ) {
 		dirDial->setValue((cobj->direction+180)%360);
 	} else {
 		dirDial->setValue(180);
+	}
+	if (cobj->type == "BIRD" && cobj->behavior == "FLY"){
+		dialChecked = true;
+		handleDirDial();
+	} else {
+		dialChecked = false;
 	}
 
 	// Checkbox for very good objects in image quality
@@ -539,7 +543,6 @@ void MainWindow::handleUsrSelect() {
 	census * obj;
 	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
 	uiPreSelection(obj);
-	handleDirDial();
 	delete obj;
 }
 

@@ -148,6 +148,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	qDebug() << "Getting object specific data for ID: " << objId;
 	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId
 			+ " AND usr='" + usr + "'";
+	qDebug() << qstr;
 	// if there is already an entry in census db-table,
 	// initialize census structure with these values
 	query = new QSqlQuery(qstr);
