@@ -170,7 +170,6 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 //		obj->censor = query->value(0).toInt();
 //	}
 //	delete query;
-	qDebug() << "Done";
 	return obj;
 }
 
@@ -230,7 +229,6 @@ QMap<int, int> DatabaseHandler::getObjectDone(QString usr, QString session) {
 	while(query.next()) {
 		objMap[query.value(0).toInt()] = query.value(1).toInt();
 	}
-	qDebug() << "Done";
 	return objMap;
 }
 
@@ -240,12 +238,11 @@ QMap<int, int> DatabaseHandler::getObjectDone(QString usr, QString session) {
 QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
 	qDebug() << "Getting viewed object list from database.";
 	QMap <int, int> objMap;
-	QSqlQuery query("SELECT rcns_id, censor FROM census WHERE session='" + session + "' AND censor>1");
+	QSqlQuery query("SELECT census.rcns_id, census.censor FROM census JOIN raw_census ON census.rcns_id=raw_census.rcns_id WHERE raw_census.session='" + session + "' AND census.censor>1");
 	if (query.size() == -1) return objMap;
 	while(query.next()) {
 		objMap[query.value(0).toInt()] = query.value(1).toInt();
 	}
-	qDebug() << "Done";
 	return objMap;
 }
 
@@ -274,6 +271,5 @@ census * DatabaseHandler::getCensusData(QString objId) {
 		obj->imageQuality = query->value(9).toInt();
 	}
 	delete query;
-	qDebug() << "Done";
 	return obj;
 }

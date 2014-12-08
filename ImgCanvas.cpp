@@ -45,6 +45,10 @@ ImgCanvas::~ImgCanvas() {
 }
 
 bool ImgCanvas::loadObject(census * obj, double * pos) {
+	if(imgLayer) {
+		layerStack->removeMapLayer("image");
+		imgLayer = 0;
+	}
 	QString file;
 	if (cfg->session_type == "local") {
 
@@ -73,11 +77,6 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
        	qDebug() << "Error: Invalid Filepath: " << file;
         return false;
     }
-
-	if(imgLayer) {
-		layerStack->removeMapLayer("image");
-		imgLayer = 0;
-	}
     QString basePath = info.filePath();
     QString baseName = info.fileName();
 

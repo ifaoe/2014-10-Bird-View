@@ -449,7 +449,7 @@ void MainWindow::resizeEvent(QResizeEvent * event) {
  * Set the direction value only when dial is touched
  */
 void MainWindow::handleDirDial() {
-	qDebug() << "Handle direcrection dial.";
+	qDebug() << "Handle direction dial.";
 	curObj->direction = (dirDial->value() + 180)%360;
 	dialChecked=true;
 }
@@ -539,6 +539,7 @@ void MainWindow::handleUsrSelect() {
 	census * obj;
 	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
 	uiPreSelection(obj);
+	handleDirDial();
 	delete obj;
 }
 
