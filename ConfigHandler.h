@@ -30,7 +30,6 @@ public:
 	QString dbUser = "daisi";
 	QString dbPass = "18ifaoe184";
 	QString dbPort = "5432";
-	QStringList mmList;
 	QString user();
 	QString image_path = "/net";
 	QString session_type = "local";

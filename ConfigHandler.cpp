@@ -67,7 +67,6 @@ void ConfigHandler::parseCfgFile(QString database) {
 	dbUser = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".user") );
 	dbPass = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".pass") );
 	dbPort = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".port") );
-	mmList = QString().fromStdString( cfg.get<std::string>("species.mammal")).split(",");
 }
 
 QStringList ConfigHandler::getDbList() { return databaseList; }

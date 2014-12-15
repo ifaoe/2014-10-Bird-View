@@ -24,3 +24,9 @@ CREATE TABLE taxa_bird(
 	tx_name_en text,
 	tx_name_dk text
 );
+
+CREATE TABLE taxa_mammal(
+	tx_name_de text not null primary key,
+	tx_name_en text,
+	tx_name_lat text
+);

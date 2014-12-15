@@ -31,6 +31,7 @@ public:
 	census * getRawObjectData(QString objId, QString usr);
 	double * getObjectPosition(QString objId);
 	QStringList getBirdTypeList();
+	QStringList getMammalTypeList();
 	QStringList getUserList(QString objId);
 	QMap<int, int> getObjectDone(QString usr, QString session);
 	QMap<int, int> getObjectFinal(QString session);

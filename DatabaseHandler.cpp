@@ -61,7 +61,20 @@ QStringList DatabaseHandler::getSessionList() {
 QStringList DatabaseHandler::getBirdTypeList() {
 	qDebug() << "Getting bird type list from database.";
 	QStringList birdList;
-	QSqlQuery query("SELECT tx_name_de FROM taxa");
+	QSqlQuery query("SELECT tx_name_de FROM taxa_bird");
+	while(query.next()) {
+		birdList.append(query.value(0).toString());
+	}
+	if (birdList.empty()) {
+		qFatal("Bird type list is empty.");
+	}
+	return birdList;
+}
+
+QStringList DatabaseHandler::getMammalTypeList() {
+	qDebug() << "Getting mammal type list from database.";
+	QStringList birdList;
+	QSqlQuery query("SELECT tx_name_de FROM taxa_mammal");
 	while(query.next()) {
 		birdList.append(query.value(0).toString());
 	}
@@ -83,7 +96,6 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 		if (!userList.contains(user))
 			userList.append(user);
 	}
-	qDebug() << "Done";
 	return userList;
 }
 
@@ -144,7 +156,6 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	obj->ly = query->value(11).toDouble();
 	obj->usr = usr;
 	delete query;
-	qDebug() << "Done.";
 	qDebug() << "Getting object specific data for ID: " << objId;
 	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId
 			+ " AND usr='" + usr + "'";

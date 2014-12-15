@@ -63,9 +63,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	}
 
 	ui->cmbSession->addItems(db->getSessionList());
-//	db->getBirdTypeList(ui->cmbBird);
 	ui->cmbBird->addItems(db->getBirdTypeList());
-	ui->cmbMammal->addItems(cfg->mmList);
+	ui->cmbMammal->addItems(db->getMammalTypeList());
 
 	objSelector = ui->tblObjects->selectionModel();
 	ui->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -150,6 +149,11 @@ void MainWindow::handleSessionButton() {
 		cam->setTextAlignment(Qt::AlignHCenter);
 		img->setTextAlignment(Qt::AlignHCenter);
 		user->setTextAlignment(Qt::AlignHCenter);
+		id->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		type->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		cam->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		img->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		user->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		ui->tblObjects->setItem(row,0,id);
 		ui->tblObjects->setItem(row,1,img);
 		ui->tblObjects->setItem(row,2,cam);
