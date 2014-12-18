@@ -70,3 +70,7 @@ void ConfigHandler::parseCfgFile(QString database) {
 }
 
 QStringList ConfigHandler::getDbList() { return databaseList; }
+
+QString ConfigHandler::getSessionType() {return session_type; }
+
+void ConfigHandler::setSessionType(QString type) { session_type = type; }

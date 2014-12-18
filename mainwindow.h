@@ -72,6 +72,7 @@ private:
     QSignalMapper * btnNoSightMapper;
 
     QPushButton * btnZoomOneOne;
+    QPushButton * btnToggleSource;
     QPushButton * btnMapModeImg;
     QPushButton * btnMapModeGeo;
     QDial * dirDial;

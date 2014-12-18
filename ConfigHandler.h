@@ -32,10 +32,12 @@ public:
 	QString dbPort = "5432";
 	QString user();
 	QString image_path = "/net";
-	QString session_type = "local";
 	void parseCfgFile(QString database);
 	QStringList getDbList();
+	QString getSessionType();
+	void setSessionType(QString type);
 private:
+	QString session_type = "local";
 	QString usr;
 	QFile *cfgFile;
 	QStringList databaseList;

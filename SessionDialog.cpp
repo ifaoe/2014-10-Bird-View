@@ -39,7 +39,7 @@ void SessionDialog::handleYesButton() {
 	qDebug() << "Using Database: " << dlg->cmbDatabase->currentText();
 	cfg->parseCfgFile(dlg->cmbDatabase->currentText());
 	qDebug() << "Using data source: " << dlg->cmbSource->currentText();
-	cfg->session_type = dlg->cmbSource->itemData(dlg->cmbSource->currentIndex()).toString();
+	cfg->setSessionType( dlg->cmbSource->itemData(dlg->cmbSource->currentIndex()).toString() );
 	this->close();
 }
 

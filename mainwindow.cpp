@@ -206,6 +206,7 @@ void MainWindow::objectUpdateSelection() {
  */
 
 void MainWindow::saveRoutine(QString type, int censor) {
+	qDebug() << "Trying to save as censor: " << QString::number(censor) << " and user: " << curObj->usr;
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	curObj->censor = censor;
 
@@ -246,11 +247,12 @@ void MainWindow::saveRoutine(QString type, int censor) {
 		census * cenObj = db->getCensusData(QString::number(curObj->id));
 		if (cenObj == 0 && censorList.size() == 1) {
 			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich."));
+			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich. \n"
+					"Bestimmung als Vorbestimmer."));
 			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 			msgBox->exec();
 			delete msgBox;
-			return;
+			curObj->censor = 1;
 		} else if (cenObj == 0){ // Entscheider
 			QMessageBox * msgBox = new QMessageBox();
 			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
@@ -269,11 +271,13 @@ void MainWindow::saveRoutine(QString type, int censor) {
 			agree = agree && (curObj->type == cenObj->type);
 			if (!agree) {
 				QMessageBox * msgBox = new QMessageBox();
-				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n Noch keine Endbestimmung möglich."));
+				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
+						" Noch keine Endbestimmung möglich.\n"
+						"Bestimmung als Vorbestimmer."));
 				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 				msgBox->exec();
 				delete msgBox;
-				return;
+				curObj->censor = 1;
 			}
 		}
 	}
@@ -427,6 +431,9 @@ void MainWindow::initMapView() {
 
 	btnZoomOneOne = new QPushButton(imgcvs);
 	btnZoomOneOne->setText("1:1");
+
+//	btnToggleSource = new QPushButton(imgcvs);
+//	btnToggleSource->setText("Quelle");
 
 	// Add QDial for direction
 	dirDial = new QDial(imgcvs);

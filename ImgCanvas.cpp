@@ -50,11 +50,11 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 		imgLayer = 0;
 	}
 	QString file;
-	if (cfg->session_type == "local") {
+	if (cfg->getSessionType() == "local") {
 
 		file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
 
-	} else if (cfg->session_type == "pfz") {
+	} else if (cfg->getSessionType() == "pfz") {
 		QString img = QString::number(obj->id) + "-" + obj->image + ".tif";
 		QUrl url("http://platform-z.ifaoe.de/daisi/" + obj->session + "/cam" + QString::number(obj->camera) + "/crop/" + img);
 		qDebug() << "Getting cropped image from" << url.toString();
