@@ -552,6 +552,7 @@ void MainWindow::uiPreSelection(census * cobj) {
  */
 void MainWindow::handleUsrSelect() {
 	census * obj;
+	if (ui->cmbUsers->currentIndex() == -1) return;
 	obj = db->getRawObjectData(QString::number(curObj->id), ui->cmbUsers->currentText());
 	uiPreSelection(obj);
 	delete obj;
