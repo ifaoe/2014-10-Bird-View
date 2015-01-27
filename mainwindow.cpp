@@ -188,8 +188,10 @@ void MainWindow::objectUpdateSelection() {
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 	QString cam = ui->tblObjects->item(currentRow, 2)->text();
 	QString img = ui->tblObjects->item(currentRow, 1)->text();
+	QString type = ui->tblObjects->item(currentRow, 3)->text();
 	ui->cmbUsers->clear();
 	curObj = db->getRawObjectData(objId, cfg->user());
+	if (curObj->type.isEmpty()) curObj->type = type;
 	censorList = db->getUserList(objId);
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
@@ -214,10 +216,17 @@ void MainWindow::saveRoutine(QString type, int censor) {
 		curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 		curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
 		curObj->behavior = ui->btngBirdBhv->checkedButton()->property("dbvalue").toString();
-		if (ui->gbxBirdGender->isChecked())
+		if (ui->gbxBirdGender->isChecked()) {
 			curObj->gender = ui->btngBirdGnd->checkedButton()->property("dbvalue").toString();
-		if (ui->gbxBirdAge->isChecked())
+		} else {
+			curObj->gender = "";
+		}
+		if (ui->gbxBirdAge->isChecked()) {
 			curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
+		} else {
+			curObj->age = "";
+		}
+
 		curObj->remarks = ui->txtBirdRemarks->toPlainText();
 		curObj->name = ui->cmbBird->currentText();
 	} else if (type == "mammal") {
@@ -225,8 +234,11 @@ void MainWindow::saveRoutine(QString type, int censor) {
 		curObj->name = ui->cmbMammal->currentText();
 		curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
 		curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
-		if (ui->gbxMammalAge->isChecked())
+		if (ui->gbxMammalAge->isChecked()) {
 			curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
+		} else {
+			curObj->age = "";
+		}
 		curObj->gender = "";
 		curObj->remarks = ui->txtMammalRemarks->toPlainText();
 	} else if (type == "nosight") {
@@ -281,8 +293,11 @@ void MainWindow::saveRoutine(QString type, int censor) {
 			}
 		}
 	}
-	if (ui->chbImgQuality->isChecked())
+	if (ui->chbImgQuality->isChecked()) {
 		curObj->imageQuality = 1;
+	} else {
+		curObj->imageQuality = 0;
+	}
 
 	// write object data to db
 	db->writeCensus(curObj);
@@ -294,8 +309,10 @@ void MainWindow::saveRoutine(QString type, int censor) {
 	// select next object in table
 	if(currentRow < ui->tblObjects->rowCount()) {
 		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
+		ui->tblObjects->scrollTo(newIndex);
 		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 	}
+
 }
 
 void MainWindow::handleBirdSave(int censor) {
@@ -506,6 +523,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 	if (shTp == "" ) {
 		shTp = ui->tblObjects->item(ui->tblObjects->currentRow(),3)->text().left(1);
 	}
+	// by default, all options are off
+	ui->gbxMammalAge->setChecked(false);
+	ui->gbxBirdAge->setChecked(false);
+	ui->gbxBirdGender->setChecked(false);
+
 	if(shTp == "B" || shTp == "V" ) { // Bird Tab
 			ui->wdgTabTypes->setCurrentIndex(0);
 			int index = ui->cmbBird->findText(cobj->name);
@@ -515,14 +537,10 @@ void MainWindow::uiPreSelection(census * cobj) {
 			if(cobj->gender != "") {
 				ui->gbxBirdGender->setChecked(true);
 				selectButtonByString(ui->btngBirdGnd, cobj->gender);
-			} else {
-				ui->gbxBirdGender->setChecked(false);
 			}
 			if(cobj->age != "") {
 				ui->gbxBirdAge->setChecked(true);
 				selectButtonByString(ui->btngBirdAge, cobj->age);
-			} else {
-				ui->gbxBirdAge->setChecked(false);
 			}
 			ui->txtBirdRemarks->setPlainText(cobj->remarks);
 			ui->cmbBird->setFocus();
@@ -535,8 +553,6 @@ void MainWindow::uiPreSelection(census * cobj) {
 			if (cobj->age != "") {
 				ui->gbxMammalAge->setChecked(true);
 				selectButtonByString(ui->btngMammalAge, cobj->age);
-			} else {
-				ui->gbxMammalAge->setChecked(false);
 			}
 			ui->txtMammalRemarks->setPlainText(cobj->remarks);
 			ui->cmbMammal->setFocus();
