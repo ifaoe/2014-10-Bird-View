@@ -251,7 +251,7 @@ void MainWindow::saveRoutine(QString type, int censor) {
 		return;
 	}
 
-	if (objMapFinal.keys().contains(curObj->id)) {
+	if (objMapFinal.contains(curObj->id) && objMapDone[curObj->id]!=2) {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
 		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
