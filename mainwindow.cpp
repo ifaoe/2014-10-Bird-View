@@ -119,8 +119,8 @@ void MainWindow::handleSessionButton() {
 	session = ui->cmbSession->currentText();
 //	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
-	QMap<int, int> objMapDone = db->getObjectDone(cfg->user(), ui->cmbSession->currentText());
-	QMap<int, int> objMapFinal = db->getObjectFinal(ui->cmbSession->currentText());
+	objMapDone = db->getObjectDone(cfg->user(), ui->cmbSession->currentText());
+	objMapFinal = db->getObjectFinal(ui->cmbSession->currentText());
 	while(query->next()) {
 		// Test if object Id is already in the object table.
 		// If yes, skip the object
@@ -193,7 +193,7 @@ void MainWindow::objectUpdateSelection() {
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
 
-	imgcvs->loadObject(curObj, db->getObjectPosition(objId));
+	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) return;
 	handleBrightnessSlider();
 }
 
@@ -251,8 +251,14 @@ void MainWindow::saveRoutine(QString type, int censor) {
 		return;
 	}
 
-
-	if (censor > 1) {
+	if (objMapFinal.keys().contains(curObj->id)) {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
+		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		delete msgBox;
+		curObj->censor = 3;
+	} else if (censor > 1) {
 		census * cenObj = db->getCensusData(QString::number(curObj->id));
 		if (cenObj == 0 && censorList.size() == 1) {
 			QMessageBox * msgBox = new QMessageBox();
@@ -262,7 +268,7 @@ void MainWindow::saveRoutine(QString type, int censor) {
 			msgBox->exec();
 			delete msgBox;
 			curObj->censor = 1;
-		} else if (cenObj == 0){ // Entscheider
+		} else if (cenObj == 0 && censorList.size() > 1) { // Entscheider
 			QMessageBox * msgBox = new QMessageBox();
 			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
 					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
@@ -273,7 +279,7 @@ void MainWindow::saveRoutine(QString type, int censor) {
 				delete msgBox;
 				return;
 			}
-			db->revisitObject(QString::number(curObj->id));
+//			db->revisitObject(QString::number(curObj->id));
 		} else { // Zweitbestimmer
 			// test input
 			bool agree = true;

@@ -77,7 +77,6 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 	QFileInfo info(file);
     if ( !info.isFile() || !info.isReadable() ) {
        	qDebug() << "Error: Invalid Filepath: " << file;
-        return false;
     }
     QString basePath = info.filePath();
     QString baseName = info.fileName();
@@ -92,6 +91,7 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 		imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
 		imgerror->exec();
 		delete imgerror;
+		return false;
     }
 
     imgProvider = imgLayer->dataProvider();

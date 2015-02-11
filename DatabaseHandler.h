@@ -33,15 +33,16 @@ public:
 	QStringList getBirdTypeList();
 	QStringList getMammalTypeList();
 	QStringList getUserList(QString objId);
-	QMap<int, int> getObjectDone(QString usr, QString session);
-	QMap<int, int> getObjectFinal(QString session);
 	census * getCensusData(QString objId);
 	void writeCensus(census * obj);
 	QString getProjectPath(QString session);
 	void revisitObject(QString objId);
+	QMap<int, int> getObjectDone(QString usr, QString session);
+	QMap<int, int> getObjectFinal(QString session);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;
+
 	void setRecordTable(QSqlRecord * record, census * obj);
 };
 

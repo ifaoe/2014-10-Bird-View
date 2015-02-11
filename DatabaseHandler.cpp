@@ -250,7 +250,7 @@ QMap<int, int> DatabaseHandler::getObjectDone(QString usr, QString session) {
 QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
 	qDebug() << "Getting viewed object list from database.";
 	QMap <int, int> objMap;
-	QSqlQuery query("SELECT census.rcns_id, census.censor FROM census JOIN raw_census ON census.rcns_id=raw_census.rcns_id WHERE raw_census.session='" + session + "' AND census.censor>1");
+	QSqlQuery query("SELECT census.rcns_id, census.censor FROM census JOIN raw_census ON census.rcns_id=raw_census.rcns_id WHERE raw_census.session='" + session + "' AND census.censor=2");
 	if (query.size() == -1) return objMap;
 	while(query.next()) {
 		objMap[query.value(0).toInt()] = query.value(1).toInt();

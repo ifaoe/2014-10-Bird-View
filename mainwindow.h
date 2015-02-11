@@ -67,6 +67,9 @@ private:
     QVBoxLayout *lytFrmImg;
     QWebView * geoMap;
 
+    QMap<int, int> objMapDone;
+    QMap<int, int> objMapFinal;
+
     QSignalMapper * btnBirdMapper;
     QSignalMapper * btnMammalMapper;
     QSignalMapper * btnNoSightMapper;
