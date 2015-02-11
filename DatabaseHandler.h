@@ -36,7 +36,7 @@ public:
 	census * getCensusData(QString objId);
 	void writeCensus(census * obj);
 	QString getProjectPath(QString session);
-	void revisitObject(QString objId);
+//	void revisitObject(QString objId);
 	QMap<int, int> getObjectDone(QString usr, QString session);
 	QMap<int, int> getObjectFinal(QString session);
 private:

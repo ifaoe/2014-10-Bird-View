@@ -55,7 +55,7 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 	if (cfg->getSessionType() == "local") {
 
 		file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
-
+		qDebug() << "Loading file " << file;
 	} else if (cfg->getSessionType() == "pfz") {
 		QString img = QString::number(obj->id) + "-" + obj->image + ".tif";
 		QUrl url("http://platform-z.ifaoe.de/daisi/" + obj->session + "/cam" + QString::number(obj->camera) + "/crop/" + img);

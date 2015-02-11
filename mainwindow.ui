@@ -79,8 +79,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>518</width>
-         <height>852</height>
+         <width>505</width>
+         <height>849</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -214,7 +214,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tabBird">
            <property name="dbvalue" stdset="0">
@@ -253,7 +253,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>460</width>
-                 <height>521</height>
+                 <height>515</height>
                 </rect>
                </property>
                <property name="sizePolicy">
@@ -277,16 +277,9 @@
                  </widget>
                 </item>
                 <item row="7" column="0">
-                 <widget class="QPushButton" name="btnBirdPre">
+                 <widget class="QPushButton" name="btnBirdSave">
                   <property name="text">
-                   <string>Vorbestimmung</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="1">
-                 <widget class="QPushButton" name="btnBirdEnd">
-                  <property name="text">
-                   <string>Endbestimmung</string>
+                   <string>Speichern</string>
                   </property>
                  </widget>
                 </item>
@@ -685,7 +678,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>460</width>
-                 <height>521</height>
+                 <height>515</height>
                 </rect>
                </property>
                <property name="sizePolicy">
@@ -709,16 +702,9 @@
                  </widget>
                 </item>
                 <item row="6" column="0">
-                 <widget class="QPushButton" name="btnMammalPre">
+                 <widget class="QPushButton" name="btnMammalSave">
                   <property name="text">
-                   <string>Vorbestimmung</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
-                 <widget class="QPushButton" name="btnMammalEnd">
-                  <property name="text">
-                   <string>Endbestimmung</string>
+                   <string>Speichern</string>
                   </property>
                  </widget>
                 </item>
@@ -957,7 +943,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>460</width>
-                 <height>521</height>
+                 <height>515</height>
                 </rect>
                </property>
                <property name="minimumSize">
@@ -975,16 +961,9 @@
                  </widget>
                 </item>
                 <item row="3" column="0">
-                 <widget class="QPushButton" name="btnNoSightPre">
+                 <widget class="QPushButton" name="btnNoSightSave">
                   <property name="text">
-                   <string>Vorbestimmung</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="btnNoSightEnd">
-                  <property name="text">
-                   <string>Endbestimmung</string>
+                   <string>Speichern</string>
                   </property>
                  </widget>
                 </item>

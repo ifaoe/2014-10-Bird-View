@@ -40,11 +40,11 @@ public:
 
 private slots:
 	void handleSessionButton();
-	void handleBirdSave(int censor);
-	void handleMammalSave(int censor);
+	void handleBirdSave();
+	void handleMammalSave();
 	void objectUpdateSelection();
 	void handleMapToolButton();
-	void handleNoSightingSave(int censor);
+	void handleNoSightingSave();
 	void handleOneToOneZoom();
 	void handleDirDial();
 	void handleUsrSelect();
@@ -85,7 +85,7 @@ private:
     void colorTableReady(int censor);
     void initMapView();
     void uiPreSelection(census * cobj);
-    void saveRoutine(QString type, int censor);
+    void saveRoutine(QString type);
 protected:
     void resizeEvent(QResizeEvent *event);
 };
