@@ -286,6 +286,15 @@ census * DatabaseHandler::getCensusData(QString objId) {
 	return obj;
 }
 
+int DatabaseHandler::getMaxCensor(QString objId) {
+	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
+	QSqlQuery * query = new QSqlQuery(qstr);
+	if (query->next()) {
+			return query->value(0).toInt();
+	}
+	return 0;
+}
+
 //void DatabaseHandler::revisitObject(QString objId) {
 //	QString qstr = "UPDATE census SET censor=1 where rcns_id=" + objId;
 //	QSqlQuery write(*db);

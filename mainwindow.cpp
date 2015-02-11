@@ -253,10 +253,10 @@ void MainWindow::saveRoutine(QString type) {
 		return;
 	}
 
-	census * cenObj = db->getCensusData(QString::number(curObj->id));
 	if (censorList.size() == 1) {
 		curObj->censor = 1;
 	} else if (censorList.size() == 2) {
+		census * cenObj = db->getCensusData(QString::number(curObj->id));
 		curObj->censor = 2;
 		bool agree = true;
 		agree = agree && (curObj->name == cenObj->name);
@@ -271,17 +271,28 @@ void MainWindow::saveRoutine(QString type) {
 			delete msgBox;
 			curObj->censor = 1;
 		}
-	} else if (censorList.size() > 2) {
+	} else if (censorList.size() > 2 && db->getMaxCensor(QString::number(curObj->id)) >= 2) {
 		curObj->censor = 3;
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
 		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 		msgBox->exec();
 		delete msgBox;
-		curObj->censor = 3;
+	} else if (censorList.size() > 2 && db->getMaxCensor(QString::number(curObj->id)) < 2 ){
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+				+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+		msgBox->exec();
+		if (msgBox->clickedButton() == noButton) {
+			delete msgBox;
+			return;
+		}
 	} else {
 		// Never come here!
-		return;
+		qDebug() << "You should have never come here!";
+		exit(1);
 	}
 //	if (objMapFinal.contains(curObj->id) && objMapDone[curObj->id]!=2) {
 //

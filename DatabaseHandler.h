@@ -39,6 +39,7 @@ public:
 //	void revisitObject(QString objId);
 	QMap<int, int> getObjectDone(QString usr, QString session);
 	QMap<int, int> getObjectFinal(QString session);
+	int getMaxCensor(QString ObjId);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;
