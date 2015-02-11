@@ -16,6 +16,7 @@
 #include <QFileDialog>
 #include <QNetworkAccessManager>
 #include <math.h>
+#include <QMessageBox>
 
 ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg) : QgsMapCanvas(parent),ui(mUi), cfg(cfg) {
 	// TODO Auto-generated constructor stub
@@ -45,10 +46,11 @@ ImgCanvas::~ImgCanvas() {
 }
 
 bool ImgCanvas::loadObject(census * obj, double * pos) {
-	if(imgLayer) {
+//	if(imgLayer) {
 		layerStack->removeMapLayer("image");
 		imgLayer = 0;
-	}
+//	}
+	this->refresh();
 	QString file;
 	if (cfg->getSessionType() == "local") {
 
@@ -85,7 +87,11 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 
     if ( !imgLayer->isValid() ) {
     	qDebug() << "Warning: Imagelayer is invalid!";
-    	return false;
+    	QMessageBox *imgerror= new QMessageBox();
+    	imgerror->setText("Fehler beim Laden des Bildes.");
+		imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+		imgerror->exec();
+		delete imgerror;
     }
 
     imgProvider = imgLayer->dataProvider();

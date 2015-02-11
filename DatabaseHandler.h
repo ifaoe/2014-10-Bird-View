@@ -38,6 +38,7 @@ public:
 	census * getCensusData(QString objId);
 	void writeCensus(census * obj);
 	QString getProjectPath(QString session);
+	void revisitObject(QString objId);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

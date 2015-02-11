@@ -285,3 +285,11 @@ census * DatabaseHandler::getCensusData(QString objId) {
 	delete query;
 	return obj;
 }
+
+void DatabaseHandler::revisitObject(QString objId) {
+	QString qstr = "UPDATE census SET censor=1 where rcns_id=" + objId;
+	QSqlQuery write(*db);
+	if (!write.exec(qstr)) {
+		qDebug() << write.lastError().text();
+	}
+}

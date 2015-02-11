@@ -102,9 +102,6 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(btnBirdMapper, SIGNAL(mapped(int)), this, SLOT(handleBirdSave(int)));
     connect(btnMammalMapper, SIGNAL(mapped(int)), this, SLOT(handleMammalSave(int)));
     connect(btnNoSightMapper, SIGNAL(mapped(int)), this, SLOT(handleNoSightingSave(int)));
-
-    // TODO: Button for "agree" -> next object (spacebar?)
-
 }
 
 MainWindow::~MainWindow()
@@ -276,6 +273,7 @@ void MainWindow::saveRoutine(QString type, int censor) {
 				delete msgBox;
 				return;
 			}
+			db->revisitObject(QString::number(curObj->id));
 		} else { // Zweitbestimmer
 			// test input
 			bool agree = true;
