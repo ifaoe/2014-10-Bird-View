@@ -253,9 +253,11 @@ void MainWindow::saveRoutine(QString type) {
 		return;
 	}
 
-	if (censorList.size() == 1) {
+	if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
+		qDebug() << "Erster Bestimmer.";
 		curObj->censor = 1;
-	} else if (censorList.size() == 2) {
+	} else if (db->getCensorCount(QString::number(curObj->id), "1", curObj->usr) == 1) {
+		qDebug() << "Zweiter Bestimmer.";
 		census * cenObj = db->getCensusData(QString::number(curObj->id));
 		curObj->censor = 2;
 		bool agree = true;
@@ -271,14 +273,17 @@ void MainWindow::saveRoutine(QString type) {
 			delete msgBox;
 			curObj->censor = 1;
 		}
-	} else if (censorList.size() > 2 && db->getMaxCensor(QString::number(curObj->id)) >= 2) {
-		curObj->censor = 3;
+	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
+		qDebug() << "Zusätzlicher Bestimmer.";
+		curObj->censor = 0;
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
 		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 		msgBox->exec();
 		delete msgBox;
-	} else if (censorList.size() > 2 && db->getMaxCensor(QString::number(curObj->id)) < 2 ){
+	} else if (db->getCensorCount(QString::number(curObj->id), "1", curObj->usr) >= 2){
+		qDebug() << "Ditter Bestimmer.";
+		curObj->censor = 2;
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
 				+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
@@ -533,7 +538,8 @@ void MainWindow::handleDirDial() {
  */
 void MainWindow::uiPreSelection(census * cobj) {
 	// handle user selection
-	if (censorList.size() > 2) {
+	if (db->getCensorCount(QString::number(cobj->id), "1", cobj->usr) >= 2
+			|| db->getMaxCensor(QString::number(cobj->id)) >= 2) {
 		ui->cmbUsers->show();
 		ui->btnUserSelect->show();
 	} else {

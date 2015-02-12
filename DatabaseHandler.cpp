@@ -288,6 +288,38 @@ census * DatabaseHandler::getCensusData(QString objId) {
 
 int DatabaseHandler::getMaxCensor(QString objId) {
 	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
+	qDebug() << qstr;
+	QSqlQuery * query = new QSqlQuery(qstr);
+	if (query->next()) {
+			return query->value(0).toInt();
+	}
+	return 0;
+}
+
+int DatabaseHandler::getMaxCensor(QString objId, QString usr) {
+	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId + "AND usr!='" + usr +"'";
+	qDebug() << qstr;
+	QSqlQuery * query = new QSqlQuery(qstr);
+	if (query->next()) {
+			return query->value(0).toInt();
+	}
+	return 0;
+}
+
+int DatabaseHandler::getCensorCount(QString objId, QString censor) {
+	QString qstr = "SELECT count(usr) FROM census WHERE rcns_id=" + objId + " AND censor=" + censor;
+	qDebug() << qstr;
+	QSqlQuery * query = new QSqlQuery(qstr);
+	if (query->next()) {
+			return query->value(0).toInt();
+	}
+	return 0;
+}
+
+int DatabaseHandler::getCensorCount(QString objId, QString censor, QString usr) {
+	QString qstr = "SELECT count(usr) FROM census WHERE rcns_id=" + objId + " AND censor=" + censor
+			+ " AND usr!='" + usr + "'";
+	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
 			return query->value(0).toInt();

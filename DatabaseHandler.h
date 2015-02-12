@@ -40,6 +40,9 @@ public:
 	QMap<int, int> getObjectDone(QString usr, QString session);
 	QMap<int, int> getObjectFinal(QString session);
 	int getMaxCensor(QString ObjId);
+	int getMaxCensor(QString objId, QString usr);
+	int getCensorCount(QString ObjId, QString censor);
+	int getCensorCount(QString ObjId, QString censor, QString usr);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;
