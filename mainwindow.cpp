@@ -405,6 +405,20 @@ void MainWindow::handleMammalSave() {
 			return;
 		}
 	}
+	if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+		msgBox->exec();
+		if (msgBox->clickedButton() == nextButton) {
+			delete msgBox;
+			return;
+		} else if (msgBox->clickedButton() == noDirButton) {;
+			curObj->direction = -1;
+		}
+		delete msgBox;
+	}
 	saveRoutine("mammal");
 }
 
