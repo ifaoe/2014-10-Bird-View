@@ -86,22 +86,6 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(ui->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
     connect(ui->sldBrightness, SIGNAL(sliderReleased()), this, SLOT(handleBrightnessSlider()));
 
-//    // Ugly hack because Qt doesn't support custom slot arguments
-//    connect(ui->btnBirdPre, SIGNAL(released()), btnBirdMapper, SLOT(map()));
-//    btnBirdMapper->setMapping(ui->btnBirdPre, 1);
-//    connect(ui->btnBirdEnd, SIGNAL(released()), btnBirdMapper, SLOT(map()));
-//    btnBirdMapper->setMapping(ui->btnBirdEnd, 2);
-//    connect(ui->btnMammalPre, SIGNAL(released()), btnMammalMapper, SLOT(map()));
-//    btnMammalMapper->setMapping(ui->btnMammalPre, 1);
-//    connect(ui->btnMammalEnd, SIGNAL(released()), btnMammalMapper, SLOT(map()));
-//    btnMammalMapper->setMapping(ui->btnMammalEnd, 2);
-//    connect(ui->btnNoSightPre, SIGNAL(released()), btnNoSightMapper, SLOT(map()));
-//    btnNoSightMapper->setMapping(ui->btnNoSightPre, 1);
-//    connect(ui->btnNoSightEnd, SIGNAL(released()), btnNoSightMapper, SLOT(map()));
-//    btnNoSightMapper->setMapping(ui->btnNoSightEnd, 2);
-//    connect(btnBirdMapper, SIGNAL(mapped(int)), this, SLOT(handleBirdSave(int)));
-//    connect(btnMammalMapper, SIGNAL(mapped(int)), this, SLOT(handleMammalSave(int)));
-//    connect(btnNoSightMapper, SIGNAL(mapped(int)), this, SLOT(handleNoSightingSave(int)));
     connect(ui->btnBirdSave, SIGNAL(released()), this, SLOT(handleBirdSave()));
     connect(ui->btnMammalSave, SIGNAL(released()), this, SLOT(handleMammalSave()));
     connect(ui->btnNoSightSave, SIGNAL(released()), this, SLOT(handleNoSightingSave()));
@@ -299,47 +283,7 @@ void MainWindow::saveRoutine(QString type) {
 		qDebug() << "You should have never come here!";
 		exit(1);
 	}
-//	if (objMapFinal.contains(curObj->id) && objMapDone[curObj->id]!=2) {
-//
-//	} else if (censor > 1) {
-//		census * cenObj = db->getCensusData(QString::number(curObj->id));
-//		if (cenObj == 0 && censorList.size() == 1) {
-//			QMessageBox * msgBox = new QMessageBox();
-//			msgBox->setText(trUtf8("Erster Bestimmer. Noch keine Endbestimmung möglich. \n"
-//					"Bestimmung als Vorbestimmer."));
-//			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//			msgBox->exec();
-//			delete msgBox;
-//			curObj->censor = 1;
-//		} else if (cenObj == 0 && censorList.size() > 1) { // Entscheider
-//			QMessageBox * msgBox = new QMessageBox();
-//			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-//					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
-//			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-//			msgBox->exec();
-//			if (msgBox->clickedButton() == noButton) {
-//				delete msgBox;
-//				return;
-//			}
-////			db->revisitObject(QString::number(curObj->id));
-//		} else { // Zweitbestimmer
-//			// test input
-//			bool agree = true;
-//			agree = agree && (curObj->name == cenObj->name);
-//			agree = agree && (curObj->type == cenObj->type);
-//			if (!agree) {
-//				QMessageBox * msgBox = new QMessageBox();
-//				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
-//						" Noch keine Endbestimmung möglich.\n"
-//						"Bestimmung als Vorbestimmer."));
-//				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//				msgBox->exec();
-//				delete msgBox;
-//				curObj->censor = 1;
-//			}
-//		}
-//	}
+
 	if (ui->chbImgQuality->isChecked()) {
 		curObj->imageQuality = 1;
 	} else {

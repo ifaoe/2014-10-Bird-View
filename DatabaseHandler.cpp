@@ -297,7 +297,7 @@ int DatabaseHandler::getMaxCensor(QString objId) {
 }
 
 int DatabaseHandler::getMaxCensor(QString objId, QString usr) {
-	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId + "AND usr!='" + usr +"'";
+	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId + " AND usr!='" + usr +"'";
 	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
