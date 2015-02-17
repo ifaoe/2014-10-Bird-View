@@ -496,7 +496,7 @@ void MainWindow::handleDirDial() {
  */
 void MainWindow::uiPreSelection(census * cobj) {
 	// handle user selection
-	if (db->getCensorCount(QString::number(cobj->id), "1", cobj->usr) >= 2
+	if (db->getCensorCount(QString::number(cobj->id), "1", cfg->user()) >= 2
 			|| db->getMaxCensor(QString::number(cobj->id)) >= 2) {
 		ui->cmbUsers->show();
 		ui->btnUserSelect->show();
