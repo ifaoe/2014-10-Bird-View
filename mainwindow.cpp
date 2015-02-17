@@ -349,7 +349,7 @@ void MainWindow::handleMammalSave() {
 			return;
 		}
 	}
-	if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
+	if (dialChecked == false) {
 		QMessageBox * msgBox = new QMessageBox();
 		msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
 		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
