@@ -27,7 +27,7 @@ public:
 	DatabaseHandler(ConfigHandler *cfg);
 	virtual ~DatabaseHandler();
 	QStringList getSessionList();
-	QSqlQuery * getObjectResult(QString session);
+	QSqlQuery * getObjectResult(QString session, QString filter="");
 	census * getRawObjectData(QString objId, QString usr);
 	double * getObjectPosition(QString objId);
 	QStringList getBirdTypeList();
@@ -43,6 +43,9 @@ public:
 	int getMaxCensor(QString objId, QString usr);
 	int getCensorCount(QString ObjId, QString censor);
 	int getCensorCount(QString ObjId, QString censor, QString usr);
+	QMap<int, QString> getUserCensus(QString usr, QString session);
+	QMap<int, QString> getFinalCensus(QString session);
+	QStringList getTypeList(QString session);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

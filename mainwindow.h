@@ -39,7 +39,7 @@ public:
     ~MainWindow();
 
 private slots:
-	void handleSessionButton();
+	void populateObjectTable(QString filter = "");
 	void handleBirdSave();
 	void handleMammalSave();
 	void objectUpdateSelection();
@@ -49,7 +49,7 @@ private slots:
 	void handleDirDial();
 	void handleUsrSelect();
 	void handleBrightnessSlider();
-
+	void handleHeaderFilter();
 private:
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
@@ -67,8 +67,8 @@ private:
     QVBoxLayout *lytFrmImg;
     QWebView * geoMap;
 
-    QMap<int, int> objMapDone;
-    QMap<int, int> objMapFinal;
+//    QMap<int, int> objMapDone;
+//    QMap<int, int> objMapFinal;
 
     QSignalMapper * btnBirdMapper;
     QSignalMapper * btnMammalMapper;
@@ -82,7 +82,7 @@ private:
     bool dialChecked = false;
 
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
-    void colorTableReady(int censor);
+    void colorTableReady(int censor, int row);
     void initMapView();
     void uiPreSelection(census * cobj);
     void saveRoutine(QString type);

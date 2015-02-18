@@ -16,10 +16,7 @@
 
 #include <QDialog>
 #include "ConfigHandler.h"
-
-namespace Ui {
-	class dlgModeSelect;
-}
+#include "ui_sessiondialog.h"
 
 class SessionDialog : public QDialog{
 	Q_OBJECT;

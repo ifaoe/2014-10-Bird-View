@@ -12,7 +12,7 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include "SessionDialog.h"
-#include "ui_sessiondialog.h"
+
 
 SessionDialog::SessionDialog(ConfigHandler * cfg) : cfg(cfg), dlg(new Ui::dlgModeSelect) {
 	// TODO Auto-generated constructor stub

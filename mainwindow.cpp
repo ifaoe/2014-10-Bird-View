@@ -14,6 +14,7 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "FilterDialog.h"
 #include "ImgCanvas.h"
 #include <QSqlQuery>
 #include <QMotifStyle>
@@ -26,12 +27,17 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	Q_UNUSED(parent);
 	ui->setupUi(this);
 
-	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP");
+	ui->tblObjects->setColumnCount(7);
+	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP"
+			<< "USR" << "CEN" << "CNT");
 	ui->tblObjects->setColumnWidth(0, 75);
 	ui->tblObjects->setColumnWidth(1, 80);
 	ui->tblObjects->setColumnWidth(2, 40);
 	ui->tblObjects->setColumnWidth(3, 80);
 	ui->tblObjects->setColumnWidth(4, 50);
+	ui->tblObjects->hideColumn(4);
+	ui->tblObjects->hideColumn(5);
+	ui->tblObjects->hideColumn(6);
 
 	ui->sldBrightness->setMinimum(0);
 	ui->sldBrightness->setMaximum(100);
@@ -78,7 +84,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	btnNoSightMapper = new QSignalMapper;
 
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(objectUpdateSelection()));
-    connect(ui->btnSession, SIGNAL(released()), this, SLOT(handleSessionButton()));
+    connect(ui->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
     connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
     connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
     connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
@@ -89,6 +95,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(ui->btnBirdSave, SIGNAL(released()), this, SLOT(handleBirdSave()));
     connect(ui->btnMammalSave, SIGNAL(released()), this, SLOT(handleMammalSave()));
     connect(ui->btnNoSightSave, SIGNAL(released()), this, SLOT(handleNoSightingSave()));
+
+    connect(ui->tblObjects->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this,
+    		SLOT(handleHeaderFilter()));
 }
 
 MainWindow::~MainWindow()
@@ -96,67 +105,59 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::handleSessionButton() {
+void MainWindow::populateObjectTable(QString filter) {
 	currentRow = -1;
 	objSelector->clearSelection();
 	ui->tblObjects->clear();
 	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP");
 	ui->tblObjects->model()->removeRows(0,ui->tblObjects->rowCount());
-	QSqlQuery *query = db->getObjectResult( ui->cmbSession->currentText() );
+	QSqlQuery *query = db->getObjectResult( ui->cmbSession->currentText(), filter);
 	session = ui->cmbSession->currentText();
-//	ui->tblObjects->setRowCount(query->size());
 	int row = 0;
-	objMapDone = db->getObjectDone(cfg->user(), ui->cmbSession->currentText());
-	objMapFinal = db->getObjectFinal(ui->cmbSession->currentText());
+	QMap<int, QString> usrCensus = db->getUserCensus(cfg->user(), ui->cmbSession->currentText());
+	QMap<int, QString> finalCensus = db->getFinalCensus(ui->cmbSession->currentText());
 	while(query->next()) {
-		// Test if object Id is already in the object table.
-		// If yes, skip the object
-		if (row>0) {
-			if (ui->tblObjects->item(row-1, 0)->text() == query->value(0).toString()) {
-				continue;
-			}
-		}
 		ui->tblObjects->insertRow( ui->tblObjects->rowCount() );
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
-		QTableWidgetItem * type;
-		if (query->value(6).toString() == "") {
-			type = new QTableWidgetItem(query->value(1).toString());
+		// Check wether or not there is a better type definition available
+		QString tstr;
+		if (finalCensus.contains(query->value(0).toInt())) {
+			tstr = finalCensus[query->value(0).toInt()];
+		} else if (usrCensus.contains(query->value(0).toInt())) {
+			tstr = usrCensus[query->value(0).toInt()];
 		} else {
-			type = new QTableWidgetItem(query->value(6).toString());
+			tstr = query->value(1).toString();
 		}
+		QTableWidgetItem * type = new QTableWidgetItem(tstr);
 		QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
 		QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
 		QTableWidgetItem * user = new QTableWidgetItem(query->value(4).toString());
+		QTableWidgetItem * censor = new QTableWidgetItem(query->value(5).toString());
+		QTableWidgetItem * count = new QTableWidgetItem(query->value(6).toString());
 
 		id->setTextAlignment(Qt::AlignHCenter);
 		type->setTextAlignment(Qt::AlignHCenter);
 		cam->setTextAlignment(Qt::AlignHCenter);
 		img->setTextAlignment(Qt::AlignHCenter);
+		censor->setTextAlignment(Qt::AlignHCenter);
+		count->setTextAlignment(Qt::AlignHCenter);
 		user->setTextAlignment(Qt::AlignHCenter);
 		id->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		type->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		cam->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		img->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		user->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		censor->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		count->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		ui->tblObjects->setItem(row,0,id);
 		ui->tblObjects->setItem(row,1,img);
 		ui->tblObjects->setItem(row,2,cam);
 		ui->tblObjects->setItem(row,3,type);
 		ui->tblObjects->setItem(row,4,user);
+		ui->tblObjects->setItem(row,5,censor);
+		ui->tblObjects->setItem(row,6,count);
+		colorTableReady(query->value(5).toInt(), row);
 		row++;
-		// Color tablerow only if correct user has visited the image
-		// TODO: censor == 2 coloured for everybody
-		if (objMapFinal[query->value(0).toInt()] > 1) {
-					id->setBackgroundColor(Qt::green);
-					type->setBackgroundColor(Qt::green);
-					cam->setBackgroundColor(Qt::green);
-					img->setBackgroundColor(Qt::green);
-		} else if (objMapDone[query->value(0).toInt()] == 1) {
-			id->setBackgroundColor(Qt::yellow);
-			type->setBackgroundColor(Qt::yellow);
-			cam->setBackgroundColor(Qt::yellow);
-			img->setBackgroundColor(Qt::yellow);
-		}
 	}
 	delete query;
 	cfg->image_path = db->getProjectPath(session);
@@ -293,7 +294,7 @@ void MainWindow::saveRoutine(QString type) {
 	// write object data to db
 	db->writeCensus(curObj);
 	// refresh object table
-	colorTableReady(curObj->censor);
+	colorTableReady(curObj->censor, currentRow);
 	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
 	// delete object structure
 	delete curObj;
@@ -411,17 +412,18 @@ void MainWindow::handleMapToolButton() {
 /*
  * Color the current row of the table corresponding to the censor value
  */
-void MainWindow::colorTableReady(int censor) {
+void MainWindow::colorTableReady(int censor, int row) {
+	int c = ui->tblObjects->columnCount();
+	QColor col;
 	if (censor == 1) {
-		ui->tblObjects->item(currentRow, 0)->setBackgroundColor(Qt::yellow);
-		ui->tblObjects->item(currentRow, 1)->setBackgroundColor(Qt::yellow);
-		ui->tblObjects->item(currentRow, 2)->setBackgroundColor(Qt::yellow);
-		ui->tblObjects->item(currentRow, 3)->setBackgroundColor(Qt::yellow);
+		col =Qt::yellow;
 	} else if (censor > 1) {
-		ui->tblObjects->item(currentRow, 0)->setBackgroundColor(Qt::green);
-		ui->tblObjects->item(currentRow, 1)->setBackgroundColor(Qt::green);
-		ui->tblObjects->item(currentRow, 2)->setBackgroundColor(Qt::green);
-		ui->tblObjects->item(currentRow, 3)->setBackgroundColor(Qt::green);
+		col = Qt::green;
+	} else {
+		col = Qt::white;
+	}
+	for (int i=0; i<c; i++) {
+		ui->tblObjects->item(row, i)->setBackgroundColor(col);
 	}
 }
 
@@ -620,4 +622,11 @@ void MainWindow::handleBrightnessSlider() {
     imgcvs->refresh();
 
     qDebug() << "Done.";
+}
+
+void MainWindow::handleHeaderFilter() {
+	FilterDialog * dlg = new FilterDialog(db, session);
+	dlg->exec();
+	populateObjectTable(dlg->getFilter());
+	delete dlg;
 }
