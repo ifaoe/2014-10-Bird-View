@@ -112,7 +112,8 @@ QString DatabaseHandler::getProjectPath(QString session) {
 QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString filter) {
 	// get object data for population of object list
 	qDebug() << "Gettings object data for session: " + session;
-	QString keys = "rc.rcns_id, rc.tp, rc.cam, rc.img, string_agg(c.usr,', ') as sa ,max(c.censor) as mc, count(*) as cnt";
+	QString keys = QString("rc.rcns_id, rc.tp, rc.cam, rc.img, string_agg(c.usr,', ') as sa ,") +
+			"max(c.censor) as mc, count(*) as cnt, string_agg(c.tp,', ') as stp";
 	QString tqstr = "SELECT " + keys + " FROM raw_census as rc LEFT JOIN census as c " +
 			"on rc.rcns_id=c.rcns_id WHERE rc.session='" + session + "'" +
 			" GROUP BY rc.rcns_id ORDER BY rc.cam,rc.img,rc.rcns_id";
@@ -362,20 +363,26 @@ QMap<int, QString> DatabaseHandler::getFinalCensus(QString session) {
 	return cmap;
 }
 
-QStringList DatabaseHandler::getTypeList(QString session) {
-	qDebug() << "Getting type list for session: " + session;
+QStringList DatabaseHandler::getTypeList() {
+	qDebug() << "Getting type list from DB";
 	QStringList list;
-	QString cqstr = "SELECT DISTINCT tp FROM view_census WHERE session='" + session + "' AND tp IS NOT NULL";
-	qDebug() << cqstr;
-	QSqlQuery cquery(cqstr);
-	while(cquery.next()) {
-		list.append(cquery.value(0).toString());
+	QString qstr = "SELECT DISTINCT tp FROM raw_census";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while(query.next()) {
+		list.append(query.value(0).toString());
 	}
-	QString rcqstr = "SELECT DISTINCT tp FROM raw_census WHERE session='" + session + "'";
-	qDebug() << rcqstr;
-	QSqlQuery rcquery(rcqstr);
-	while(rcquery.next()) {
-		list.append(rcquery.value(0).toString());
+	return list;
+}
+
+QStringList DatabaseHandler::getCensusList() {
+	qDebug() << "Getting type list from DB";
+	QStringList list;
+	QString qstr = "SELECT DISTINCT tp FROM census";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while(query.next()) {
+		list.append(query.value(0).toString());
 	}
 	return list;
 }

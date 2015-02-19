@@ -14,12 +14,12 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "FilterDialog.h"
 #include "ImgCanvas.h"
 #include <QSqlQuery>
 #include <QMotifStyle>
 #include <QMessageBox>
 #include <qgsmultibandcolorrenderer.h>
+#include <QLineEdit>
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -27,17 +27,19 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	Q_UNUSED(parent);
 	ui->setupUi(this);
 
-	ui->tblObjects->setColumnCount(7);
-	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP"
-			<< "USR" << "CEN" << "CNT");
+	ui->tblObjects->setColumnCount(5);
+	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
+			"CEN");
 	ui->tblObjects->setColumnWidth(0, 75);
 	ui->tblObjects->setColumnWidth(1, 80);
 	ui->tblObjects->setColumnWidth(2, 40);
 	ui->tblObjects->setColumnWidth(3, 80);
 	ui->tblObjects->setColumnWidth(4, 50);
-	ui->tblObjects->hideColumn(4);
-	ui->tblObjects->hideColumn(5);
-	ui->tblObjects->hideColumn(6);
+//	ui->tblObjects->hideColumn(4);
+//	ui->tblObjects->hideColumn(5);
+//	ui->tblObjects->hideColumn(6);
+
+	initFilters();
 
 	ui->sldBrightness->setMinimum(0);
 	ui->sldBrightness->setMaximum(100);
@@ -106,10 +108,12 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::populateObjectTable(QString filter) {
+
 	currentRow = -1;
 	objSelector->clearSelection();
 	ui->tblObjects->clear();
-	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP");
+	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
+			"CEN");
 	ui->tblObjects->model()->removeRows(0,ui->tblObjects->rowCount());
 	QSqlQuery *query = db->getObjectResult( ui->cmbSession->currentText(), filter);
 	session = ui->cmbSession->currentText();
@@ -126,12 +130,13 @@ void MainWindow::populateObjectTable(QString filter) {
 		} else if (usrCensus.contains(query->value(0).toInt())) {
 			tstr = usrCensus[query->value(0).toInt()];
 		} else {
-			tstr = query->value(1).toString();
+			tstr = "";
 		}
-		QTableWidgetItem * type = new QTableWidgetItem(tstr);
+		QTableWidgetItem * type = new QTableWidgetItem(query->value(1).toString());
 		QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
 		QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
 		QTableWidgetItem * user = new QTableWidgetItem(query->value(4).toString());
+		QTableWidgetItem * census = new QTableWidgetItem(tstr);
 		QTableWidgetItem * censor = new QTableWidgetItem(query->value(5).toString());
 		QTableWidgetItem * count = new QTableWidgetItem(query->value(6).toString());
 
@@ -142,6 +147,7 @@ void MainWindow::populateObjectTable(QString filter) {
 		censor->setTextAlignment(Qt::AlignHCenter);
 		count->setTextAlignment(Qt::AlignHCenter);
 		user->setTextAlignment(Qt::AlignHCenter);
+		census->setTextAlignment(Qt::AlignHCenter);
 		id->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		type->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		cam->setFlags(id->flags() & ~Qt::ItemIsEditable);
@@ -149,13 +155,15 @@ void MainWindow::populateObjectTable(QString filter) {
 		user->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		censor->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		count->setFlags(id->flags() & ~Qt::ItemIsEditable);
+		census->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		ui->tblObjects->setItem(row,0,id);
 		ui->tblObjects->setItem(row,1,img);
 		ui->tblObjects->setItem(row,2,cam);
 		ui->tblObjects->setItem(row,3,type);
-		ui->tblObjects->setItem(row,4,user);
-		ui->tblObjects->setItem(row,5,censor);
-		ui->tblObjects->setItem(row,6,count);
+		ui->tblObjects->setItem(row,4,census);
+//		ui->tblObjects->setItem(row,4,user);
+//		ui->tblObjects->setItem(row,5,censor);
+//		ui->tblObjects->setItem(row,6,count);
 		colorTableReady(query->value(5).toInt(), row);
 		row++;
 	}
@@ -595,7 +603,6 @@ void MainWindow::handleBrightnessSlider() {
 	qDebug() << "Changing Brightness";
 	double scale = 1.0 - double(ui->sldBrightness->value())/100.0;
 	int maxval = int(scale * 65000.);
-//	int minval = int((1-scale) * 32000.);
 	int minval = 0;
 	qDebug() << "Scale: " << scale << "Max. value: " << maxval;
 	QgsRasterLayer * imgLayer = imgcvs->getImageLayer();
@@ -624,9 +631,85 @@ void MainWindow::handleBrightnessSlider() {
     qDebug() << "Done.";
 }
 
-void MainWindow::handleHeaderFilter() {
-	FilterDialog * dlg = new FilterDialog(db, session);
-	dlg->exec();
-	populateObjectTable(dlg->getFilter());
-	delete dlg;
+void MainWindow::initFilters() {
+	ui->tblFilters->setColumnWidth(0, 75);
+	ui->tblFilters->setColumnWidth(1, 80);
+	ui->tblFilters->setColumnWidth(2, 40);
+	ui->tblFilters->setColumnWidth(3, 80);
+	ui->tblFilters->setColumnWidth(4, 80);
+
+	ui->tblFilters->horizontalHeader()->setStretchLastSection(true);
+
+	cmbFilterCam = new QComboBox();
+	cmbFilterType = new QComboBox();
+	cmbFilterCensus = new QComboBox();
+	pteFilterImg = new QLineEdit();
+	pteFilterId = new QLineEdit();
+
+
+	ui->tblFilters->setCellWidget(0,0,pteFilterId);
+	ui->tblFilters->setCellWidget(0,1,pteFilterImg);
+	ui->tblFilters->setCellWidget(0,2,cmbFilterCam);
+	ui->tblFilters->setCellWidget(0,3,cmbFilterType);
+	ui->tblFilters->setCellWidget(0,4,cmbFilterCensus);
+
+	ui->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
+	ui->cmbFilterCensor->addItem(trUtf8("Unbestimmt"),QVariant(" AND (mc IS NULL OR mc=0)"));
+	ui->cmbFilterCensor->addItem(trUtf8("Vorbestimmt"),QVariant(" AND mc=1"));
+	ui->cmbFilterCensor->addItem(trUtf8("Endbestimmt"),QVariant(" AND mc>1"));
+
+	cmbFilterCam->addItem(trUtf8(""), QVariant(""));
+	cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));
+	cmbFilterCam->addItem(trUtf8("2"), QVariant(" AND cam='2'"));
+
+	cmbFilterType->addItem(trUtf8(""), QVariant(""));
+	cmbFilterType->addItems(db->getTypeList());
+
+	cmbFilterCensus->addItem(trUtf8(""), QVariant(""));
+	cmbFilterCensus->addItems(db->getCensusList());
+
+	connect(pteFilterImg, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
+	connect(pteFilterId, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
+	connect(cmbFilterCam, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCamFilter(int)));
+	connect(cmbFilterType, SIGNAL(currentIndexChanged(int)), this, SLOT(handleTypeFilter(int)));
+	connect(cmbFilterCensus, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensusFilter(int)));
+	connect(ui->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter(int)));
+}
+
+void MainWindow::handleLineEditFilter() {
+	filterMap["Img"] = " AND img like '%" + pteFilterImg->text() + "%'";
+	filterMap["Id"] = " AND cast (rcns_id as text) like '%" + pteFilterId->text() + "%'";
+	updateFilters();
+}
+
+void MainWindow::handleCensorFilter(int index) {
+	filterMap["Censor"] = ui->cmbFilterCensor->itemData(index).toString();
+	updateFilters();
+}
+
+void MainWindow::handleTypeFilter(int index) {
+	if (index > 0)
+
+		filterMap["Type"] = " AND tp ='" + cmbFilterType->currentText() + "'";
+	else
+		filterMap["Type"] = "";
+	updateFilters();
+}
+
+void MainWindow::handleCensusFilter(int index) {
+	if (index > 0)
+
+		filterMap["Census"] = " AND stp LIKE '%" + cmbFilterCensus->currentText() + "%'";
+	else
+		filterMap["Census"] = "";
+	updateFilters();
+}
+
+void MainWindow::handleCamFilter(int index) {
+	filterMap["Cam"] = cmbFilterCam->itemData(index).toString();
+	updateFilters();
+}
+
+void MainWindow::updateFilters() {
+	populateObjectTable( "WHERE TRUE" + QStringList(filterMap.values()).join("") );
 }

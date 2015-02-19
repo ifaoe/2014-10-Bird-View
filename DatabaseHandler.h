@@ -45,7 +45,8 @@ public:
 	int getCensorCount(QString ObjId, QString censor, QString usr);
 	QMap<int, QString> getUserCensus(QString usr, QString session);
 	QMap<int, QString> getFinalCensus(QString session);
-	QStringList getTypeList(QString session);
+	QStringList getTypeList();
+	QStringList getCensusList();
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

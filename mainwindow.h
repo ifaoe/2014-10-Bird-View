@@ -49,7 +49,11 @@ private slots:
 	void handleDirDial();
 	void handleUsrSelect();
 	void handleBrightnessSlider();
-	void handleHeaderFilter();
+	void handleLineEditFilter();
+	void handleTypeFilter(int index);
+	void handleCensusFilter(int index);
+	void handleCamFilter(int index);
+	void handleCensorFilter(int index);
 private:
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
@@ -81,11 +85,21 @@ private:
     QDial * dirDial;
     bool dialChecked = false;
 
+    // Filter Widgets
+    QComboBox * cmbFilterCensus;
+    QComboBox * cmbFilterType;
+    QComboBox * cmbFilterCam;
+    QLineEdit * pteFilterImg;
+    QLineEdit * pteFilterId;
+    QMap<QString, QString> filterMap;
+
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableReady(int censor, int row);
     void initMapView();
     void uiPreSelection(census * cobj);
     void saveRoutine(QString type);
+    void initFilters();
+    void updateFilters();
 protected:
     void resizeEvent(QResizeEvent *event);
 };
