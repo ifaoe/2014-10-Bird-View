@@ -726,6 +726,7 @@ void MainWindow::initFilters() {
 			QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
 	ui->cmbFilterCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL"));
 	ui->cmbFilterCensor->addItem(trUtf8("Endbestimmt"),QVariant(" AND mc>1"));
+	ui->cmbFilterCensor->addItem(trUtf8("Umstimmigkeiten"),QVariant(" AND mc=1 AND cnt>1"));
 
 	cmbFilterCam->addItem(trUtf8(""), QVariant(""));
 	cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));

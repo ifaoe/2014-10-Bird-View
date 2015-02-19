@@ -24,22 +24,6 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1" rowspan="2" colspan="3">
-     <widget class="QWidget" name="wdgImg" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="1" colspan="2">
      <widget class="QLabel" name="lblMsmTool">
       <property name="text">
@@ -307,7 +291,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabBird">
            <property name="dbvalue" stdset="0">
@@ -465,7 +449,20 @@
                      </attribute>
                     </widget>
                    </item>
-                   <item row="3" column="0">
+                   <item row="0" column="2">
+                    <widget class="QRadioButton" name="rbBirdAgeJuv">
+                     <property name="text">
+                      <string comment="JU">juvenil</string>
+                     </property>
+                     <property name="dbvalue" stdset="0">
+                      <string>JUV</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">btngBirdAge</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
                     <widget class="QRadioButton" name="rbBirdAgeK3">
                      <property name="text">
                       <string comment="K3">K3</string>
@@ -478,26 +475,13 @@
                      </attribute>
                     </widget>
                    </item>
-                   <item row="3" column="1">
+                   <item row="2" column="3">
                     <widget class="QRadioButton" name="rbBirdAgeK4">
                      <property name="text">
                       <string comment="K4">K4</string>
                      </property>
                      <property name="dbvalue" stdset="0">
                       <string>K4</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngBirdAge</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="0" column="2">
-                    <widget class="QRadioButton" name="rbBirdAgeJuv">
-                     <property name="text">
-                      <string comment="JU">juvenil</string>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>JUV</string>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">btngBirdAge</string>
@@ -1162,6 +1146,22 @@
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="2" colspan="3">
+     <widget class="QWidget" name="wdgImg" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
       </property>
      </widget>
     </item>
