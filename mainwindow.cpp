@@ -107,7 +107,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::populateObjectTable(QString filter) {
+void MainWindow::populateObjectTable() {
+	QString filter = "WHERE TRUE" + QStringList(filterMap.values()).join("");
 	session = ui->cmbSession->currentText();
 	currentRow = -1;
 	objSelector->clearSelection();
@@ -257,7 +258,11 @@ void MainWindow::saveRoutine(QString type) {
 	}
 
 	switch (tmpcensor) {
-		case 0: {
+		case -1: {
+			qDebug() << "Kann Nuzter nicht bestimmen!";
+			curObj->censor = -1;
+			break;
+		} case 0: {
 			qDebug() << "Zusätzlicher Bestimmer.";
 			curObj->censor = 0;
 			QMessageBox * msgBox = new QMessageBox();
@@ -364,7 +369,7 @@ void MainWindow::saveRoutine(QString type) {
 	// write object data to db
 	db->writeCensus(curObj);
 	// refresh object table
-	if (curObj->censor > 1)
+	if (curObj->censor != 1)
 		colorTableRow(Qt::green, currentRow);
 	else
 		colorTableRow(Qt::yellow, currentRow);
@@ -746,12 +751,12 @@ void MainWindow::handleLineEditFilter() {
 		filterMap["Id"] = " AND TRUE";
 	else
 		filterMap["Id"] = " AND cast (oid as text) like '" + pteFilterId->text() + "'";
-	updateFilters();
+	populateObjectTable();
 }
 
 void MainWindow::handleCensorFilter(int index) {
 	filterMap["Censor"] = ui->cmbFilterCensor->itemData(index).toString();
-	updateFilters();
+	populateObjectTable();
 }
 
 void MainWindow::handleTypeFilter(int index) {
@@ -759,7 +764,7 @@ void MainWindow::handleTypeFilter(int index) {
 		filterMap["Type"] = " AND pre_tp ='" + cmbFilterType->currentText() + "'";
 	else
 		filterMap["Type"] = "";
-	updateFilters();
+	populateObjectTable();
 }
 
 void MainWindow::handleCensusFilter(int index) {
@@ -767,14 +772,11 @@ void MainWindow::handleCensusFilter(int index) {
 		filterMap["Census"] = " AND otp LIKE '%" + cmbFilterCensus->currentText() + "%'";
 	else
 		filterMap["Census"] = "";
-	updateFilters();
+	populateObjectTable();
 }
 
 void MainWindow::handleCamFilter(int index) {
 	filterMap["Cam"] = cmbFilterCam->itemData(index).toString();
-	updateFilters();
+	populateObjectTable();
 }
 
-void MainWindow::updateFilters() {
-	populateObjectTable( "WHERE TRUE" + QStringList(filterMap.values()).join("") );
-}

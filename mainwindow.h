@@ -39,7 +39,7 @@ public:
     ~MainWindow();
 
 private slots:
-	void populateObjectTable(QString filter = "");
+	void populateObjectTable();
 	void handleBirdSave();
 	void handleMammalSave();
 	void objectUpdateSelection();
@@ -96,7 +96,6 @@ private:
     void uiPreSelection(census * cobj);
     void saveRoutine(QString type);
     void initFilters();
-    void updateFilters();
 protected:
     void resizeEvent(QResizeEvent *event);
 };
