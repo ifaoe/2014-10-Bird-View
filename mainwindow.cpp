@@ -118,6 +118,7 @@ void MainWindow::populateObjectTable() {
 	int row = 0;
 	QMap<int, QString> usrCensus = db->getUserCensus(cfg->user(), session);
 	QMap<int, QString> finalCensus = db->getFinalCensus(session);
+
 	while(query->next()) {
 		ui->tblObjects->insertRow( ui->tblObjects->rowCount() );
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
@@ -156,6 +157,8 @@ void MainWindow::populateObjectTable() {
 
 		if (query->value(4).toInt() > 1)
 			colorTableRow(Qt::green, row);
+		else if (query->value(4).toInt() == 1 && query->value(5).toInt() > 1)
+			colorTableRow(Qt::red, row);
 		else if (usrCensus.contains(query->value(0).toInt()))
 			colorTableRow(Qt::yellow, row);
 		else if (query->value(4).toInt() > 0)

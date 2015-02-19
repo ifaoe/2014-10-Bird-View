@@ -122,7 +122,7 @@ QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QStr
 	qDebug() << "Gettings object data for session: " + session;
 	QString otbl = "SELECT rc.rcns_id as oid, rc.tp as pre_tp, rc.cam, rc.img, max(c.censor) as mc,"
 			" count(*) as cnt, string_agg(c.tp, ', ') as otp FROM raw_census as rc LEFT JOIN census"
-			" as c ON rc.rcns_id=c.rcns_id WHERE rc.session='" + session +
+			" as c ON rc.rcns_id=c.rcns_id WHERE c.censor>0 AND rc.session='" + session +
 			"' GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img ORDER BY rc.cam, rc.img";
 	QString utbl = "SELECT rcns_id as uid, tp FROM census where usr='"+user+"'";
 	QString qstr = "SELECT * FROM (" + otbl + ") as ot LEFT JOIN (" + utbl + ") as ut ON " +
@@ -307,7 +307,7 @@ census * DatabaseHandler::getCensusData(QString objId) {
 
 int DatabaseHandler::getMaxCensor(QString objId) {
 	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
-	qDebug() << qstr;
+//	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
 			return query->value(0).toInt();
@@ -317,7 +317,7 @@ int DatabaseHandler::getMaxCensor(QString objId) {
 
 int DatabaseHandler::getMaxCensor(QString objId, QString usr) {
 	QString qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId + " AND usr!='" + usr +"'";
-	qDebug() << qstr;
+//	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
 			return query->value(0).toInt();
@@ -327,7 +327,7 @@ int DatabaseHandler::getMaxCensor(QString objId, QString usr) {
 
 int DatabaseHandler::getCensorCount(QString objId, QString censor) {
 	QString qstr = "SELECT count(usr) FROM census WHERE rcns_id=" + objId + " AND censor=" + censor;
-	qDebug() << qstr;
+//	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
 			return query->value(0).toInt();
@@ -338,7 +338,7 @@ int DatabaseHandler::getCensorCount(QString objId, QString censor) {
 int DatabaseHandler::getCensorCount(QString objId, QString censor, QString usr) {
 	QString qstr = "SELECT count(usr) FROM census WHERE rcns_id=" + objId + " AND censor=" + censor
 			+ " AND usr!='" + usr + "'";
-	qDebug() << qstr;
+//	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
 			return query->value(0).toInt();
