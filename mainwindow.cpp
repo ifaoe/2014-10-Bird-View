@@ -108,18 +108,15 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::populateObjectTable(QString filter) {
-
+	session = ui->cmbSession->currentText();
 	currentRow = -1;
 	objSelector->clearSelection();
 	ui->tblObjects->clear();
-	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
-			"CEN");
 	ui->tblObjects->model()->removeRows(0,ui->tblObjects->rowCount());
-	QSqlQuery *query = db->getObjectResult( ui->cmbSession->currentText(), filter);
-	session = ui->cmbSession->currentText();
+	QSqlQuery *query = db->getObjectResult( session, cfg->user(), filter);
 	int row = 0;
-	QMap<int, QString> usrCensus = db->getUserCensus(cfg->user(), ui->cmbSession->currentText());
-	QMap<int, QString> finalCensus = db->getFinalCensus(ui->cmbSession->currentText());
+	QMap<int, QString> usrCensus = db->getUserCensus(cfg->user(), session);
+	QMap<int, QString> finalCensus = db->getFinalCensus(session);
 	while(query->next()) {
 		ui->tblObjects->insertRow( ui->tblObjects->rowCount() );
 		QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
@@ -135,36 +132,34 @@ void MainWindow::populateObjectTable(QString filter) {
 		QTableWidgetItem * type = new QTableWidgetItem(query->value(1).toString());
 		QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
 		QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
-		QTableWidgetItem * user = new QTableWidgetItem(query->value(4).toString());
 		QTableWidgetItem * census = new QTableWidgetItem(tstr);
-		QTableWidgetItem * censor = new QTableWidgetItem(query->value(5).toString());
-		QTableWidgetItem * count = new QTableWidgetItem(query->value(6).toString());
+
 
 		id->setTextAlignment(Qt::AlignHCenter);
 		type->setTextAlignment(Qt::AlignHCenter);
 		cam->setTextAlignment(Qt::AlignHCenter);
 		img->setTextAlignment(Qt::AlignHCenter);
-		censor->setTextAlignment(Qt::AlignHCenter);
-		count->setTextAlignment(Qt::AlignHCenter);
-		user->setTextAlignment(Qt::AlignHCenter);
+
 		census->setTextAlignment(Qt::AlignHCenter);
 		id->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		type->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		cam->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		img->setFlags(id->flags() & ~Qt::ItemIsEditable);
-		user->setFlags(id->flags() & ~Qt::ItemIsEditable);
-		censor->setFlags(id->flags() & ~Qt::ItemIsEditable);
-		count->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		census->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		ui->tblObjects->setItem(row,0,id);
 		ui->tblObjects->setItem(row,1,img);
 		ui->tblObjects->setItem(row,2,cam);
 		ui->tblObjects->setItem(row,3,type);
 		ui->tblObjects->setItem(row,4,census);
-//		ui->tblObjects->setItem(row,4,user);
-//		ui->tblObjects->setItem(row,5,censor);
-//		ui->tblObjects->setItem(row,6,count);
-		colorTableReady(query->value(5).toInt(), row);
+
+
+		if (query->value(4).toInt() > 1)
+			colorTableRow(Qt::green, row);
+		else if (usrCensus.contains(query->value(0).toInt()))
+			colorTableRow(Qt::yellow, row);
+		else if (query->value(4).toInt() > 0)
+			colorTableRow(Qt::gray, row);
+
 		row++;
 	}
 	delete query;
@@ -302,7 +297,10 @@ void MainWindow::saveRoutine(QString type) {
 	// write object data to db
 	db->writeCensus(curObj);
 	// refresh object table
-	colorTableReady(curObj->censor, currentRow);
+	if (curObj->censor > 1)
+		colorTableRow(Qt::green, currentRow);
+	else
+		colorTableRow(Qt::yellow, currentRow);
 	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
 	// delete object structure
 	delete curObj;
@@ -420,18 +418,10 @@ void MainWindow::handleMapToolButton() {
 /*
  * Color the current row of the table corresponding to the censor value
  */
-void MainWindow::colorTableReady(int censor, int row) {
+void MainWindow::colorTableRow(QColor color, int row) {
 	int c = ui->tblObjects->columnCount();
-	QColor col;
-	if (censor == 1) {
-		col =Qt::yellow;
-	} else if (censor > 1) {
-		col = Qt::green;
-	} else {
-		col = Qt::white;
-	}
 	for (int i=0; i<c; i++) {
-		ui->tblObjects->item(row, i)->setBackgroundColor(col);
+		ui->tblObjects->item(row, i)->setBackgroundColor(color);
 	}
 }
 
@@ -632,6 +622,9 @@ void MainWindow::handleBrightnessSlider() {
 }
 
 void MainWindow::initFilters() {
+	ui->tblFilters->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "Typ" <<
+				"Bestimmung");
+
 	ui->tblFilters->setColumnWidth(0, 75);
 	ui->tblFilters->setColumnWidth(1, 80);
 	ui->tblFilters->setColumnWidth(2, 40);
@@ -654,8 +647,8 @@ void MainWindow::initFilters() {
 	ui->tblFilters->setCellWidget(0,4,cmbFilterCensus);
 
 	ui->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
-	ui->cmbFilterCensor->addItem(trUtf8("Unbestimmt"),QVariant(" AND (mc IS NULL OR mc=0)"));
-	ui->cmbFilterCensor->addItem(trUtf8("Vorbestimmt"),QVariant(" AND mc=1"));
+	ui->cmbFilterCensor->addItem(trUtf8("Unbearbeitet"),QVariant(" AND tp IS NULL AND mc<2"));
+	ui->cmbFilterCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL AND mc=1"));
 	ui->cmbFilterCensor->addItem(trUtf8("Endbestimmt"),QVariant(" AND mc>1"));
 
 	cmbFilterCam->addItem(trUtf8(""), QVariant(""));
@@ -689,8 +682,7 @@ void MainWindow::handleCensorFilter(int index) {
 
 void MainWindow::handleTypeFilter(int index) {
 	if (index > 0)
-
-		filterMap["Type"] = " AND tp ='" + cmbFilterType->currentText() + "'";
+		filterMap["Type"] = " AND pre_tp ='" + cmbFilterType->currentText() + "'";
 	else
 		filterMap["Type"] = "";
 	updateFilters();
@@ -698,8 +690,7 @@ void MainWindow::handleTypeFilter(int index) {
 
 void MainWindow::handleCensusFilter(int index) {
 	if (index > 0)
-
-		filterMap["Census"] = " AND stp LIKE '%" + cmbFilterCensus->currentText() + "%'";
+		filterMap["Census"] = " AND otp LIKE '%" + cmbFilterCensus->currentText() + "%'";
 	else
 		filterMap["Census"] = "";
 	updateFilters();

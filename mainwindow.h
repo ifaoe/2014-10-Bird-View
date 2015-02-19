@@ -94,7 +94,7 @@ private:
     QMap<QString, QString> filterMap;
 
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
-    void colorTableReady(int censor, int row);
+    void colorTableRow(QColor color, int row);
     void initMapView();
     void uiPreSelection(census * cobj);
     void saveRoutine(QString type);

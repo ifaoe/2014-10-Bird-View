@@ -109,15 +109,21 @@ QString DatabaseHandler::getProjectPath(QString session) {
 	return "/net";
 }
 
-QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString filter) {
+QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QString filter) {
 	// get object data for population of object list
 	qDebug() << "Gettings object data for session: " + session;
-	QString keys = QString("rc.rcns_id, rc.tp, rc.cam, rc.img, string_agg(c.usr,', ') as sa ,") +
-			"max(c.censor) as mc, count(*) as cnt, string_agg(c.tp,', ') as stp";
-	QString tqstr = "SELECT " + keys + " FROM raw_census as rc LEFT JOIN census as c " +
-			"on rc.rcns_id=c.rcns_id WHERE rc.session='" + session + "'" +
-			" GROUP BY rc.rcns_id ORDER BY rc.cam,rc.img,rc.rcns_id";
-	QString qstr = "SELECT * FROM (" + tqstr + ") as obj " + filter;
+	QString otbl = "SELECT rcns_id as oid, pre_tp, cam, img, max(censor) as mc, count(*) as cnt,"
+			" string_agg(tp, ', ') as otp FROM view_census WHERE session='" + session +
+			"' GROUP BY rcns_id, pre_tp, cam, img ORDER BY cam, img";
+	QString utbl = "SELECT rcns_id as uid, tp FROM census where usr='"+user+"'";
+	qDebug() << utbl;
+//	QString keys = QString("rc.rcns_id, rc.tp, rc.cam, rc.img, string_agg(c.usr,', ') as sa ,") +
+//			"max(c.censor) as mc, count(*) as cnt, concat( rc.tp, ', ', string_agg(c.tp,', ')) as stp";
+//	QString tqstr = "SELECT " + keys + " FROM raw_census as rc LEFT JOIN census as c " +
+//			"on rc.rcns_id=c.rcns_id WHERE rc.session='" + session + "'" +
+//			" GROUP BY rc.rcns_id ORDER BY rc.cam,rc.img,rc.rcns_id";
+	QString qstr = "SELECT * FROM (" + otbl + ") as ot LEFT JOIN (" + utbl + ") as ut ON " +
+			"ot.oid=ut.uid " + filter;
 	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	return query;
