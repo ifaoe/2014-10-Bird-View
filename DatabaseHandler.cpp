@@ -112,16 +112,11 @@ QString DatabaseHandler::getProjectPath(QString session) {
 QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QString filter) {
 	// get object data for population of object list
 	qDebug() << "Gettings object data for session: " + session;
-	QString otbl = "SELECT rc.rcns_id as oid, rc.tp as pre_tp, rc.cam, rc.img, max(c.censor) as mc, count(*) as cnt,"
-			" string_agg(c.tp, ', ') as otp FROM raw_census as rc LEFT JOIN census as c ON rc.rcns_id=c.rcns_id WHERE rc.session='" + session +
+	QString otbl = "SELECT rc.rcns_id as oid, rc.tp as pre_tp, rc.cam, rc.img, max(c.censor) as mc,"
+			" count(*) as cnt, string_agg(c.tp, ', ') as otp FROM raw_census as rc LEFT JOIN census"
+			" as c ON rc.rcns_id=c.rcns_id WHERE rc.session='" + session +
 			"' GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img ORDER BY rc.cam, rc.img";
 	QString utbl = "SELECT rcns_id as uid, tp FROM census where usr='"+user+"'";
-	qDebug() << utbl;
-//	QString keys = QString("rc.rcns_id, rc.tp, rc.cam, rc.img, string_agg(c.usr,', ') as sa ,") +
-//			"max(c.censor) as mc, count(*) as cnt, concat( rc.tp, ', ', string_agg(c.tp,', ')) as stp";
-//	QString tqstr = "SELECT " + keys + " FROM raw_census as rc LEFT JOIN census as c " +
-//			"on rc.rcns_id=c.rcns_id WHERE rc.session='" + session + "'" +
-//			" GROUP BY rc.rcns_id ORDER BY rc.cam,rc.img,rc.rcns_id";
 	QString qstr = "SELECT * FROM (" + otbl + ") as ot LEFT JOIN (" + utbl + ") as ut ON " +
 			"ot.oid=ut.uid " + filter;
 	qDebug() << qstr;
