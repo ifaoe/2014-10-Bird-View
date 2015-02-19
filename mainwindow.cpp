@@ -647,8 +647,9 @@ void MainWindow::initFilters() {
 	ui->tblFilters->setCellWidget(0,4,cmbFilterCensus);
 
 	ui->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
-	ui->cmbFilterCensor->addItem(trUtf8("Unbearbeitet"),QVariant(" AND tp IS NULL AND mc<2"));
-	ui->cmbFilterCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL AND mc=1"));
+	ui->cmbFilterCensor->addItem(trUtf8("Unbearbeitet"),
+			QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
+	ui->cmbFilterCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL"));
 	ui->cmbFilterCensor->addItem(trUtf8("Endbestimmt"),QVariant(" AND mc>1"));
 
 	cmbFilterCam->addItem(trUtf8(""), QVariant(""));
@@ -671,7 +672,7 @@ void MainWindow::initFilters() {
 
 void MainWindow::handleLineEditFilter() {
 	filterMap["Img"] = " AND img like '%" + pteFilterImg->text() + "%'";
-	filterMap["Id"] = " AND cast (rcns_id as text) like '%" + pteFilterId->text() + "%'";
+	filterMap["Id"] = " AND cast (oid as text) like '%" + pteFilterId->text() + "%'";
 	updateFilters();
 }
 
