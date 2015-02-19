@@ -48,7 +48,9 @@ DatabaseHandler::~DatabaseHandler() {
 QStringList DatabaseHandler::getSessionList() {
 	qDebug() << "Getting session list from database.";
 	QStringList sessionList;
-	QSqlQuery query("SELECT distinct(session) FROM raw_census ORDER BY session");
+	QString qstr = "SELECT distinct(session) FROM raw_census ORDER BY session";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
 	while(query.next()) {
 		sessionList.append(query.value(0).toString());
 	}
@@ -61,6 +63,8 @@ QStringList DatabaseHandler::getSessionList() {
 QStringList DatabaseHandler::getBirdTypeList() {
 	qDebug() << "Getting bird type list from database.";
 	QStringList birdList;
+	QString qstr = "SELECT tx_name_de FROM taxa_bird";
+	qDebug() << qstr;
 	QSqlQuery query("SELECT tx_name_de FROM taxa_bird");
 	while(query.next()) {
 		birdList.append(query.value(0).toString());
@@ -74,7 +78,9 @@ QStringList DatabaseHandler::getBirdTypeList() {
 QStringList DatabaseHandler::getMammalTypeList() {
 	qDebug() << "Getting mammal type list from database.";
 	QStringList birdList;
-	QSqlQuery query("SELECT tx_name_de FROM taxa_mammal");
+	QString qstr = "SELECT tx_name_de FROM taxa_mammal";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
 	while(query.next()) {
 		birdList.append(query.value(0).toString());
 	}
@@ -88,7 +94,9 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 	qDebug() << "Getting user list from database.";
 	QStringList userList;
 //	userList.append(cfg->user());
-	QSqlQuery query("SELECT usr FROM census WHERE rcns_id=" + objId);
+	QString qstr = "SELECT usr FROM census WHERE rcns_id=" + objId;
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
 	QString user;
 	if (query.size() == -1) return userList;
 	while(query.next()) {
@@ -127,6 +135,7 @@ QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QStr
 double * DatabaseHandler::getObjectPosition(QString objId) {
 	double *pos = new double[2];
 	QString qstr = "SELECT ux, uy, px, py FROM raw_census WHERE rcns_id=" + objId;
+	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	if (query->next()) {
 		pos[0] = query->value(0).toDouble();
@@ -271,6 +280,7 @@ census * DatabaseHandler::getCensusData(QString objId) {
 	qDebug() << "Getting object specific query for ID: " << objId;
 	QString qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId +
 			" AND usr!='" + cfg->user() + "'";
+	qDebug() << qstr;
 	// if there is already an entry in census db-table,
 	// initialize census structure with these values
 	QSqlQuery * query = new QSqlQuery(qstr);

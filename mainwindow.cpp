@@ -241,52 +241,119 @@ void MainWindow::saveRoutine(QString type) {
 		return;
 	}
 
-	if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
-		qDebug() << "Erster Bestimmer.";
-		curObj->censor = 1;
-	} else if (db->getCensorCount(QString::number(curObj->id), "1", curObj->usr) == 1) {
-		qDebug() << "Zweiter Bestimmer.";
-		census * cenObj = db->getCensusData(QString::number(curObj->id));
-		curObj->censor = 2;
-		bool agree = true;
-		agree = agree && (curObj->name == cenObj->name);
-		agree = agree && (curObj->type == cenObj->type);
-		if (!agree) {
+	int tmpcensor = 0;
+	if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2)
+		tmpcensor = 0;
+	else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) == 1) {
+		if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) > 1) {
+			tmpcensor = 3;
+		} else {
+			tmpcensor = 2;
+		}
+	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
+		tmpcensor = 1;
+	} else {
+		tmpcensor = -1;
+	}
+
+	switch (tmpcensor) {
+		case 0: {
+			qDebug() << "Zusätzlicher Bestimmer.";
+			curObj->censor = 0;
 			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
-					" Noch keine Endbestimmung möglich.\n"
-					"Bestimmung als Vorbestimmer."));
+			msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
 			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
 			msgBox->exec();
 			delete msgBox;
+			break;
+		} case 1: {
+			qDebug() << "Erster Bestimmer.";
 			curObj->censor = 1;
+			break;
+		} case 2: {
+			qDebug() << "Zweiter Bestimmer.";
+			curObj->censor = 2;
+			census * cenObj = db->getCensusData(QString::number(curObj->id));
+			bool agree = true;
+			agree = agree && (curObj->name == cenObj->name);
+			agree = agree && (curObj->type == cenObj->type);
+			if (!agree) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
+						" Noch keine Endbestimmung möglich.\n"
+						"Bestimmung als Vorbestimmer."));
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				delete msgBox;
+				curObj->censor = 1;
+			}
+			break;
+		} case 3: {
+			qDebug() << "Ditter Bestimmer.";
+			curObj->censor = 2;
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+					+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == noButton) {
+				delete msgBox;
+				return;
+			}
+			break;
+		} default: {
+			qDebug() << "Exit route on switch!";
+			exit(1);
 		}
-	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
-		qDebug() << "Zusätzlicher Bestimmer.";
-		curObj->censor = 0;
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
-		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-		msgBox->exec();
-		delete msgBox;
-	} else if (db->getCensorCount(QString::number(curObj->id), "1", curObj->usr) >= 2){
-		qDebug() << "Ditter Bestimmer.";
-		curObj->censor = 2;
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-				+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
-		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-		QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-		msgBox->exec();
-		if (msgBox->clickedButton() == noButton) {
-			delete msgBox;
-			return;
-		}
-	} else {
-		// Never come here!
-		qDebug() << "You should have never come here!";
-		exit(1);
 	}
+
+//	if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
+//		qDebug() << "Erster Bestimmer.";
+//		curObj->censor = 1;
+//	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) == 1) {
+//		qDebug() << "Zweiter Bestimmer.";
+//		census * cenObj = db->getCensusData(QString::number(curObj->id));
+//		curObj->censor = 2;
+//		bool agree = true;
+//		agree = agree && (curObj->name == cenObj->name);
+//		agree = agree && (curObj->type == cenObj->type);
+//		if (!agree) {
+//			QMessageBox * msgBox = new QMessageBox();
+//			msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
+//					" Noch keine Endbestimmung möglich.\n"
+//					"Bestimmung als Vorbestimmer."));
+//			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+//			msgBox->exec();
+//			delete msgBox;
+//			curObj->censor = 1;
+//		}
+//	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
+//		qDebug() << "Zusätzlicher Bestimmer.";
+//		curObj->censor = 0;
+//		QMessageBox * msgBox = new QMessageBox();
+//		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
+//		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+//		msgBox->exec();
+//		delete msgBox;
+//	} else if (db->getCensorCount(QString::number(curObj->id), "1", curObj->usr) >= 2){
+//		qDebug() << "Ditter Bestimmer.";
+//		curObj->censor = 2;
+//		QMessageBox * msgBox = new QMessageBox();
+//		msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+//				+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+//		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+//		QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+//		msgBox->exec();
+//		if (msgBox->clickedButton() == noButton) {
+//			delete msgBox;
+//			return;
+//		}
+//	} else {
+//		// Never come here!
+//		qDebug() << "You should have never come here!";
+//		exit(1);
+//	}
 
 	if (ui->chbImgQuality->isChecked()) {
 		curObj->imageQuality = 1;
@@ -671,8 +738,14 @@ void MainWindow::initFilters() {
 }
 
 void MainWindow::handleLineEditFilter() {
-	filterMap["Img"] = " AND img like '" + pteFilterImg->text() + "'";
-	filterMap["Id"] = " AND cast (oid as text) like '" + pteFilterId->text() + "'";
+	if (pteFilterImg->text().isEmpty())
+		filterMap["Img"] = " AND TRUE";
+	else
+		filterMap["Img"] = " AND img like '" + pteFilterImg->text() + "'";
+	if (pteFilterId->text().isEmpty())
+		filterMap["Id"] = " AND TRUE";
+	else
+		filterMap["Id"] = " AND cast (oid as text) like '" + pteFilterId->text() + "'";
 	updateFilters();
 }
 
