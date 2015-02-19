@@ -707,6 +707,8 @@ void MainWindow::initFilters() {
 	ui->tblFilters->setColumnWidth(4, 80);
 
 	ui->tblFilters->horizontalHeader()->setStretchLastSection(true);
+	ui->tblFilters->horizontalHeader()->setClickable(false);
+	ui->tblFilters->setRowCount(1);
 
 	cmbFilterCam = new QComboBox();
 	cmbFilterType = new QComboBox();
@@ -726,7 +728,7 @@ void MainWindow::initFilters() {
 			QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
 	ui->cmbFilterCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL"));
 	ui->cmbFilterCensor->addItem(trUtf8("Endbestimmt"),QVariant(" AND mc>1"));
-	ui->cmbFilterCensor->addItem(trUtf8("Umstimmigkeiten"),QVariant(" AND mc=1 AND cnt>1"));
+	ui->cmbFilterCensor->addItem(trUtf8("Unstimmigkeiten"),QVariant(" AND mc=1 AND cnt>1"));
 
 	cmbFilterCam->addItem(trUtf8(""), QVariant(""));
 	cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));
