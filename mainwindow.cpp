@@ -671,8 +671,8 @@ void MainWindow::initFilters() {
 }
 
 void MainWindow::handleLineEditFilter() {
-	filterMap["Img"] = " AND img like '%" + pteFilterImg->text() + "%'";
-	filterMap["Id"] = " AND cast (oid as text) like '%" + pteFilterId->text() + "%'";
+	filterMap["Img"] = " AND img like '" + pteFilterImg->text() + "'";
+	filterMap["Id"] = " AND cast (oid as text) like '" + pteFilterId->text() + "'";
 	updateFilters();
 }
 
