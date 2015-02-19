@@ -573,11 +573,12 @@ void MainWindow::uiPreSelection(census * cobj) {
 	// handle user selection
 	if (db->getCensorCount(QString::number(cobj->id), "1", cfg->user()) >= 2
 			|| db->getMaxCensor(QString::number(cobj->id)) >= 2) {
-		ui->cmbUsers->show();
-		ui->btnUserSelect->show();
+		ui->cmbUsers->setDisabled(false);
+		ui->btnUserSelect->setDisabled(false);
 	} else {
-		ui->cmbUsers->hide();
-		ui->btnUserSelect->hide();
+		ui->cmbUsers->clear();
+		ui->cmbUsers->setDisabled(true);
+		ui->btnUserSelect->setDisabled(true);
 	}
 
 	// clear remark boxes
