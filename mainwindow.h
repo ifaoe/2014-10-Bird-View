@@ -40,11 +40,9 @@ public:
 
 private slots:
 	void populateObjectTable();
-	void handleBirdSave();
-	void handleMammalSave();
+
 	void objectUpdateSelection();
 	void handleMapToolButton();
-	void handleNoSightingSave();
 	void handleOneToOneZoom();
 	void handleDirDial();
 	void handleUsrSelect();
@@ -54,6 +52,8 @@ private slots:
 	void handleCensusFilter(int index);
 	void handleCamFilter(int index);
 	void handleCensorFilter(int index);
+	void handleDeleteButton();
+	void handleSaveButton();
 private:
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
@@ -94,7 +94,6 @@ private:
     void colorTableRow(QColor color, int row);
     void initMapView();
     void uiPreSelection(census * cobj);
-    void saveRoutine(QString type);
     void initFilters();
 protected:
     void resizeEvent(QResizeEvent *event);

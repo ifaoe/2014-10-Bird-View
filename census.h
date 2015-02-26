@@ -38,7 +38,7 @@ struct census {
 	QString age = "";
 	int direction = -1;
 	QString remarks = "";
-	int censor = 0;
+	int censor = -1;
 	int imageQuality = 0;
 };
 

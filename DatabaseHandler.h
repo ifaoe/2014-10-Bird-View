@@ -47,6 +47,7 @@ public:
 	QMap<int, QString> getFinalCensus(QString session);
 	QStringList getTypeList();
 	QStringList getCensusList();
+	void deleteCensusData(QString objId, QString usr);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

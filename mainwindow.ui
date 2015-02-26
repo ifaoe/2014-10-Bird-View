@@ -38,6 +38,41 @@
       </property>
      </widget>
     </item>
+    <item row="2" column="0">
+     <widget class="QSlider" name="sldBrightness">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>520</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="2" colspan="3">
+     <widget class="QWidget" name="wdgImg" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0" rowspan="2">
      <widget class="QScrollArea" name="scrollArea">
       <property name="sizePolicy">
@@ -52,6 +87,12 @@
         <height>0</height>
        </size>
       </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
@@ -62,9 +103,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>505</width>
-         <height>905</height>
+         <y>-111</y>
+         <width>507</width>
+         <height>960</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -291,7 +332,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tabBird">
            <property name="dbvalue" stdset="0">
@@ -346,17 +387,74 @@
                 </size>
                </property>
                <layout class="QGridLayout" name="gridLayout_5">
+                <item row="1" column="0" colspan="2">
+                 <widget class="QGroupBox" name="gbxBirdQuality">
+                  <property name="title">
+                   <string>Bestimmungsqualität</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_2">
+                   <item row="0" column="0">
+                    <widget class="QRadioButton" name="rbBirdQual1">
+                     <property name="text">
+                      <string comment="1">1 - sicher</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                     <property name="dbvalue" stdset="0">
+                      <string>1</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">btngBirdQual</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QRadioButton" name="rbBirdQual4">
+                     <property name="text">
+                      <string comment="4">4 - potenziell</string>
+                     </property>
+                     <property name="dbvalue" stdset="0">
+                      <string>4</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">btngBirdQual</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QRadioButton" name="rbBirdQual3">
+                     <property name="text">
+                      <string comment="3">3 - möglich</string>
+                     </property>
+                     <property name="dbvalue" stdset="0">
+                      <string>3</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">btngBirdQual</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QRadioButton" name="rbBirdQual2">
+                     <property name="text">
+                      <string comment="2">2 - sehr wahrscheinlich</string>
+                     </property>
+                     <property name="dbvalue" stdset="0">
+                      <string>2</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">btngBirdQual</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
                 <item row="5" column="0">
                  <widget class="QLabel" name="lblBirdRemarks">
                   <property name="text">
                    <string>Bermerkungen:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QPushButton" name="btnBirdSave">
-                  <property name="text">
-                   <string>Speichern</string>
                   </property>
                  </widget>
                 </item>
@@ -373,6 +471,13 @@
                     <width>0</width>
                     <height>35</height>
                    </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="2">
+                 <widget class="QComboBox" name="cmbBird">
+                  <property name="editable">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -638,77 +743,6 @@
                   </layout>
                  </widget>
                 </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="QGroupBox" name="gbxBirdQuality">
-                  <property name="title">
-                   <string>Bestimmungsqualität</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_2">
-                   <item row="0" column="0">
-                    <widget class="QRadioButton" name="rbBirdQual1">
-                     <property name="text">
-                      <string comment="1">1 - sicher</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>1</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngBirdQual</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QRadioButton" name="rbBirdQual4">
-                     <property name="text">
-                      <string comment="4">4 - potenziell</string>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>4</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngBirdQual</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QRadioButton" name="rbBirdQual3">
-                     <property name="text">
-                      <string comment="3">3 - möglich</string>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>3</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngBirdQual</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QRadioButton" name="rbBirdQual2">
-                     <property name="text">
-                      <string comment="2">2 - sehr wahrscheinlich</string>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>2</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngBirdQual</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="2">
-                 <widget class="QComboBox" name="cmbBird">
-                  <property name="editable">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </widget>
              </widget>
@@ -775,13 +809,6 @@
                  <widget class="QLabel" name="lblMammalRemarks">
                   <property name="text">
                    <string>Bermerkungen:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="0">
-                 <widget class="QPushButton" name="btnMammalSave">
-                  <property name="text">
-                   <string>Speichern</string>
                   </property>
                  </widget>
                 </item>
@@ -987,6 +1014,9 @@
              <height>0</height>
             </size>
            </property>
+           <property name="dbvalue" stdset="0">
+            <string>NOSIGHT</string>
+           </property>
            <attribute name="title">
             <string>Keine Sichtung</string>
            </attribute>
@@ -1034,13 +1064,6 @@
                  <widget class="QLabel" name="lvlNoSightRemarks">
                   <property name="text">
                    <string>Bermerkungen:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QPushButton" name="btnNoSightSave">
-                  <property name="text">
-                   <string>Speichern</string>
                   </property>
                  </widget>
                 </item>
@@ -1126,43 +1149,43 @@
           </widget>
          </widget>
         </item>
+        <item>
+         <widget class="QFrame" name="frmButtons">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_15">
+           <item row="0" column="1">
+            <widget class="QPushButton" name="btnDelete">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Löschen</string>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="btnSave">
+             <property name="text">
+              <string>Speichern</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QSlider" name="sldBrightness">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>520</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1" rowspan="2" colspan="3">
-     <widget class="QWidget" name="wdgImg" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
      </widget>
     </item>
    </layout>

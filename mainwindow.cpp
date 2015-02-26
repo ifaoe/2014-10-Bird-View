@@ -94,9 +94,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(ui->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
     connect(ui->sldBrightness, SIGNAL(sliderReleased()), this, SLOT(handleBrightnessSlider()));
 
-    connect(ui->btnBirdSave, SIGNAL(released()), this, SLOT(handleBirdSave()));
-    connect(ui->btnMammalSave, SIGNAL(released()), this, SLOT(handleMammalSave()));
-    connect(ui->btnNoSightSave, SIGNAL(released()), this, SLOT(handleNoSightingSave()));
+    connect(ui->btnSave, SIGNAL(released()), this, SLOT(handleSaveButton()));
+
+    connect(ui->btnDelete, SIGNAL(released()), this, SLOT(handleDeleteButton()));
 
     connect(ui->tblObjects->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this,
     		SLOT(handleHeaderFilter()));
@@ -199,29 +199,81 @@ void MainWindow::objectUpdateSelection() {
  * TODO: PUT ALL IN ONE SAVE ROUTINE!
  */
 
-void MainWindow::saveRoutine(QString type) {
+void MainWindow::handleSaveButton() {
 	qDebug() << "Trying to save as user: " << curObj->usr;
-	QString objId = ui->tblObjects->item(currentRow, 0)->text();
+//	QString objId = ui->tblObjects->item(currentRow, 0)->text();
 
-	if (type == "bird") {
-		curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
-		curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
-		curObj->behavior = ui->btngBirdBhv->checkedButton()->property("dbvalue").toString();
-		if (ui->gbxBirdGender->isChecked()) {
-			curObj->gender = ui->btngBirdGnd->checkedButton()->property("dbvalue").toString();
-		} else {
-			curObj->gender = "";
-		}
-		if (ui->gbxBirdAge->isChecked()) {
-			curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
-		} else {
-			curObj->age = "";
-		}
+	curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 
-		curObj->remarks = ui->txtBirdRemarks->toPlainText();
-		curObj->name = ui->cmbBird->currentText();
-	} else if (type == "mammal") {
-		curObj->type = ui->wdgTabTypes->currentWidget()->property("dbvalue").toString();
+	if(curObj->type == "BIRD") {
+		if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
+				QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+				QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+				msgBox->exec();
+				if (msgBox->clickedButton() == nextButton) {
+					delete msgBox;
+					return;
+				} else if (msgBox->clickedButton() == noDirButton) {;
+					curObj->direction = -1;
+				}
+				delete msgBox;
+			} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
+				curObj->direction = -1;
+			} else {
+
+			}
+			if (ui->cmbBird->currentText() == "") {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText(trUtf8("Bitte Art auswählen!"));
+				QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				if(msgBox->clickedButton() == nextButton) {
+					delete msgBox;
+					return;
+				}
+				delete msgBox;
+			}
+			curObj->quality = ui->btngBirdQual->checkedButton()->property("dbvalue").toInt();
+			curObj->behavior = ui->btngBirdBhv->checkedButton()->property("dbvalue").toString();
+			if (ui->gbxBirdGender->isChecked()) {
+				curObj->gender = ui->btngBirdGnd->checkedButton()->property("dbvalue").toString();
+			} else {
+				curObj->gender = "";
+			}
+			if (ui->gbxBirdAge->isChecked()) {
+				curObj->age = ui->btngBirdAge->checkedButton()->property("dbvalue").toString();
+			} else {
+				curObj->age = "";
+			}
+
+			curObj->remarks = ui->txtBirdRemarks->toPlainText();
+			curObj->name = ui->cmbBird->currentText();
+	}else if (curObj->type == "MAMMAL") {
+		if (ui->cmbMammal->currentText() == "") {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Bitte Art auswählen!"));
+			QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+			msgBox->exec();
+			if(msgBox->clickedButton() == nextButton) {
+				return;
+			}
+		}
+		if (dialChecked == false) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
+			QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+			QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == nextButton) {
+				delete msgBox;
+				return;
+			} else if (msgBox->clickedButton() == noDirButton) {;
+				curObj->direction = -1;
+			}
+			delete msgBox;
+		}
 		curObj->name = ui->cmbMammal->currentText();
 		curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
 		curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
@@ -232,8 +284,7 @@ void MainWindow::saveRoutine(QString type) {
 		}
 		curObj->gender = "";
 		curObj->remarks = ui->txtMammalRemarks->toPlainText();
-	} else if (type == "nosight") {
-		curObj->type = "NOSIGHT";
+	} else if (curObj->type == "NOSIGHT") {
 		curObj->name = "";
 		curObj->quality = ui->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
 		curObj->behavior = "";
@@ -242,8 +293,10 @@ void MainWindow::saveRoutine(QString type) {
 		curObj->remarks = ui->txtNoSightRemarks->toPlainText();
 		curObj->direction = -1;
 	} else {
+		qDebug() << "Invalid save type. Aborting.";
 		return;
 	}
+
 
 	int tmpcensor = 0;
 	if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2)
@@ -388,69 +441,69 @@ void MainWindow::saveRoutine(QString type) {
 
 }
 
-void MainWindow::handleBirdSave() {
-	if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
-		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-		msgBox->exec();
-		if (msgBox->clickedButton() == nextButton) {
-			delete msgBox;
-			return;
-		} else if (msgBox->clickedButton() == noDirButton) {;
-			curObj->direction = -1;
-		}
-		delete msgBox;
-	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
-		curObj->direction = -1;
-	} else {
+//void MainWindow::handleBirdSave() {
+//	if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
+//		QMessageBox * msgBox = new QMessageBox();
+//		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
+//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+//		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+//		msgBox->exec();
+//		if (msgBox->clickedButton() == nextButton) {
+//			delete msgBox;
+//			return;
+//		} else if (msgBox->clickedButton() == noDirButton) {;
+//			curObj->direction = -1;
+//		}
+//		delete msgBox;
+//	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
+//		curObj->direction = -1;
+//	} else {
+//
+//	}
+//	if (ui->cmbBird->currentText() == "") {
+//		QMessageBox * msgBox = new QMessageBox();
+//		msgBox->setText(trUtf8("Bitte Art auswählen!"));
+//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+//		msgBox->exec();
+//		if(msgBox->clickedButton() == nextButton) {
+//			delete msgBox;
+//			return;
+//		}
+//		delete msgBox;
+//	}
+//	saveRoutine("bird");
+//}
 
-	}
-	if (ui->cmbBird->currentText() == "") {
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText(trUtf8("Bitte Art auswählen!"));
-		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-		msgBox->exec();
-		if(msgBox->clickedButton() == nextButton) {
-			delete msgBox;
-			return;
-		}
-		delete msgBox;
-	}
-	saveRoutine("bird");
-}
+//void MainWindow::handleMammalSave() {
+//	if (ui->cmbMammal->currentText() == "") {
+//		QMessageBox * msgBox = new QMessageBox();
+//		msgBox->setText(trUtf8("Bitte Art auswählen!"));
+//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+//		msgBox->exec();
+//		if(msgBox->clickedButton() == nextButton) {
+//			return;
+//		}
+//	}
+//	if (dialChecked == false) {
+//		QMessageBox * msgBox = new QMessageBox();
+//		msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
+//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+//		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+//		msgBox->exec();
+//		if (msgBox->clickedButton() == nextButton) {
+//			delete msgBox;
+//			return;
+//		} else if (msgBox->clickedButton() == noDirButton) {;
+//			curObj->direction = -1;
+//		}
+//		delete msgBox;
+//	}
+//	saveRoutine("mammal");
+//}
 
-void MainWindow::handleMammalSave() {
-	if (ui->cmbMammal->currentText() == "") {
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText(trUtf8("Bitte Art auswählen!"));
-		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-		msgBox->exec();
-		if(msgBox->clickedButton() == nextButton) {
-			return;
-		}
-	}
-	if (dialChecked == false) {
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
-		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-		msgBox->exec();
-		if (msgBox->clickedButton() == nextButton) {
-			delete msgBox;
-			return;
-		} else if (msgBox->clickedButton() == noDirButton) {;
-			curObj->direction = -1;
-		}
-		delete msgBox;
-	}
-	saveRoutine("mammal");
-}
-
-void MainWindow::handleNoSightingSave() {
-	saveRoutine("nosight");
-}
+//void MainWindow::handleNoSightingSave() {
+//	saveRoutine("nosight");
+//}
 
 void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
 	QList<QAbstractButton*> btnList = btnGrp->buttons();
@@ -571,6 +624,10 @@ void MainWindow::handleDirDial() {
  */
 void MainWindow::uiPreSelection(census * cobj) {
 	// handle user selection
+	if ((cobj->censor == -1) || (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1))
+		ui->btnDelete->setEnabled(false);
+	else
+		ui->btnDelete->setEnabled(true);
 	if (db->getCensorCount(QString::number(cobj->id), "1", cfg->user()) >= 2
 			|| db->getMaxCensor(QString::number(cobj->id)) >= 2) {
 		ui->cmbUsers->setDisabled(false);
@@ -753,7 +810,7 @@ void MainWindow::handleLineEditFilter() {
 	if (pteFilterImg->text().isEmpty())
 		filterMap["Img"] = " AND TRUE";
 	else
-		filterMap["Img"] = " AND img like '" + pteFilterImg->text() + "'";
+		filterMap["Img"] = " AND img like '%" + pteFilterImg->text() + "'";
 	if (pteFilterId->text().isEmpty())
 		filterMap["Id"] = " AND TRUE";
 	else
@@ -784,6 +841,12 @@ void MainWindow::handleCensusFilter(int index) {
 
 void MainWindow::handleCamFilter(int index) {
 	filterMap["Cam"] = cmbFilterCam->itemData(index).toString();
+	populateObjectTable();
+}
+
+void MainWindow::handleDeleteButton() {
+	db->deleteCensusData(QString::number(curObj->id), cfg->user());
+	ui->btnDelete->setEnabled(false);
 	populateObjectTable();
 }
 

@@ -397,3 +397,11 @@ QStringList DatabaseHandler::getCensusList() {
 	}
 	return list;
 }
+
+void DatabaseHandler::deleteCensusData(QString objId, QString usr) {
+	qDebug() << "Delete data from user: " + usr + " ID: " + objId + "." << endl;
+	QString qstr = "DELETE FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	query.exec();
+}
