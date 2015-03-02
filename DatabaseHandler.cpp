@@ -279,7 +279,7 @@ QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
 census * DatabaseHandler::getCensusData(QString objId) {
 	qDebug() << "Getting object specific query for ID: " << objId;
 	QString qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId +
-			" AND usr!='" + cfg->user() + "'";
+			" AND usr!='" + cfg->user() + "' AND censor=1";
 	qDebug() << qstr;
 	// if there is already an entry in census db-table,
 	// initialize census structure with these values
