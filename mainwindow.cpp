@@ -26,7 +26,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 {
 	Q_UNUSED(parent);
 	ui->setupUi(this);
-
+	ui->btnSave->setEnabled(false);
+	ui->btnDelete->setEnabled(false);
 	ui->tblObjects->setColumnCount(5);
 	ui->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
 			"CEN");
@@ -108,6 +109,8 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::populateObjectTable() {
+	ui->btnSave->setEnabled(false);
+	ui->btnDelete->setEnabled(false);
 	QString filter = "WHERE TRUE" + QStringList(filterMap.values()).join("");
 	session = ui->cmbSession->currentText();
 	currentRow = -1;
@@ -438,7 +441,8 @@ void MainWindow::handleSaveButton() {
 		ui->tblObjects->scrollTo(newIndex);
 		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 	}
-
+	ui->btnSave->setEnabled(false);
+	ui->btnDelete->setEnabled(false);
 }
 
 //void MainWindow::handleBirdSave() {
@@ -647,13 +651,9 @@ void MainWindow::uiPreSelection(census * cobj) {
 	qDebug() << "Dir: " << cobj->direction;
 	if (cobj->direction >= 0 ) {
 		dirDial->setValue((cobj->direction+180)%360);
-	} else {
-		dirDial->setValue(180);
-	}
-	if (cobj->type == "BIRD" && cobj->behavior == "FLY"){
-		dialChecked = true;
 		handleDirDial();
 	} else {
+		dirDial->setValue(180);
 		dialChecked = false;
 	}
 
@@ -709,6 +709,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 			selectButtonByString(ui->btngNoSightQual, QString::number(cobj->quality));
 			ui->txtNoSightRemarks->setPlainText(cobj->remarks);
 		}
+	ui->btnSave->setEnabled(true);
+	ui->btnDelete->setEnabled(true);
 }
 
 /*
