@@ -341,6 +341,8 @@ void MainWindow::handleSaveButton() {
 			bool agree = true;
 			agree = agree && (curObj->name == cenObj->name);
 			agree = agree && (curObj->type == cenObj->type);
+			if (curObj->quality == 4 || cenObj->quality == 4)
+				agree = agree && (curObj->quality == cenObj->quality);
 			if (!agree) {
 				QMessageBox * msgBox = new QMessageBox();
 				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
