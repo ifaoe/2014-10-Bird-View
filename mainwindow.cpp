@@ -191,7 +191,10 @@ void MainWindow::objectUpdateSelection() {
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
 
-	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) return;
+	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
+		ui->btnSave->setEnabled(false);
+		return;
+	}
 	handleBrightnessSlider();
 }
 
@@ -338,11 +341,7 @@ void MainWindow::handleSaveButton() {
 			qDebug() << "Zweiter Bestimmer.";
 			curObj->censor = 2;
 			census * cenObj = db->getCensusData(QString::number(curObj->id));
-			bool agree = true;
-			agree = agree && (curObj->name == cenObj->name);
-			agree = agree && (curObj->type == cenObj->type);
-			if (curObj->quality == 4 || cenObj->quality == 4)
-				agree = agree && (curObj->quality == cenObj->quality);
+			bool agree = compareResults(curObj, cenObj);
 			if (!agree) {
 				QMessageBox * msgBox = new QMessageBox();
 				msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
@@ -852,5 +851,14 @@ void MainWindow::handleDeleteButton() {
 	db->deleteCensusData(QString::number(curObj->id), cfg->user());
 	ui->btnDelete->setEnabled(false);
 	populateObjectTable();
+}
+
+bool MainWindow::compareResults(census * curObj, census * cenObj) {
+	bool agree = true;
+	agree = agree && (curObj->name == cenObj->name);
+	agree = agree && (curObj->type == cenObj->type);
+	if (curObj->quality == 4 || cenObj->quality == 4)
+		agree = agree && (curObj->quality == cenObj->quality);
+	return agree;
 }
 

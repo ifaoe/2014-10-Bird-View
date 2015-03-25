@@ -95,6 +95,7 @@ private:
     void initMapView();
     void uiPreSelection(census * cobj);
     void initFilters();
+    bool compareResults(census * cobj, census * pobj);
 protected:
     void resizeEvent(QResizeEvent *event);
 };

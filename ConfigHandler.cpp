@@ -14,6 +14,7 @@
 #include "ConfigHandler.h"
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <iostream>
 #include <cstring>
 #include <QDir>
 

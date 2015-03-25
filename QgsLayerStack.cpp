@@ -47,6 +47,7 @@ bool QgsLayerStack::removeMapLayer(QString layerName) {
 		int priority = priMap[layerName];
 		priMap.remove(layerName);
 		lyrMap.remove(priority);
+		refreshLayerSet();
 		return true;
 	}
 }
@@ -89,6 +90,7 @@ bool QgsLayerStack::setLayerPriority(QString layerName, int priority){
 void QgsLayerStack::refreshLayerSet() {
 	QMap<int,QgsMapLayer*>::iterator i;
 	QList<QgsMapCanvasLayer> layerSet;
+	if (lyrMap.size() == 0) return;
 	for(i = lyrMap.begin(); i != lyrMap.end(); ++i) {
 		layerSet.append(QgsMapCanvasLayer(i.value()));
 	}

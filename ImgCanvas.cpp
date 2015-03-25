@@ -46,10 +46,12 @@ ImgCanvas::~ImgCanvas() {
 }
 
 bool ImgCanvas::loadObject(census * obj, double * pos) {
-//	if(imgLayer) {
+	if(imgLayer) {
 		layerStack->removeMapLayer("image");
-		imgLayer = 0;
-//	}
+//		delete imgLayer;
+//		imgLayer = new QgsRasterLayer();
+//		imgProvider = imgLayer->dataProvider();
+	}
 	this->refresh();
 	QString file;
 	if (cfg->getSessionType() == "local") {
@@ -64,7 +66,7 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 		QNetworkReply* reply = networkManager->get(QNetworkRequest(url));
 	    connect(networkManager, SIGNAL(finished(QNetworkReply*)),
 	            &eventloop, SLOT(quit()));
-	    eventloop.exec();
+	    eventloop.exec(QEventLoop::ExcludeUserInputEvents);
 		QFile imgfile("/tmp/birdview-tmp" + QString::number(obj->id) + ".tif");
 		imgfile.open(QIODevice::WriteOnly);
 		imgfile.write(reply->readAll());
@@ -77,23 +79,13 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 	QFileInfo info(file);
     if ( !info.isFile() || !info.isReadable() ) {
        	qDebug() << "Error: Invalid Filepath: " << file;
+    } else {
+    	qDebug() << "Success.";
     }
     QString basePath = info.filePath();
     QString baseName = info.fileName();
 
     imgLayer = new QgsRasterLayer(basePath,baseName);
-
-
-    if ( !imgLayer->isValid() ) {
-    	qDebug() << "Warning: Imagelayer is invalid!";
-    	QMessageBox *imgerror= new QMessageBox();
-    	imgerror->setText("Fehler beim Laden des Bildes.");
-		imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-		imgerror->exec();
-		delete imgerror;
-		return false;
-    }
-
     imgProvider = imgLayer->dataProvider();
 
     QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
@@ -108,6 +100,16 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
     layerStack->addMapLayer("image", imgLayer, 100);
     setExtent(fullExtent());
     centerOnWorldPosition(pos[0], pos[1], 1.0);
+    if ( !imgLayer->isValid() ) {
+    	qDebug() << "Warning: Imagelayer is invalid!";
+
+    	QMessageBox *imgerror= new QMessageBox();
+    	imgerror->setText("Fehler beim Laden des Bildes.");
+		imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+		imgerror->exec();
+		delete imgerror;
+		return false;
+    }
     return true;
 }
 
