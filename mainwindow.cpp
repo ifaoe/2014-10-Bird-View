@@ -34,7 +34,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	ui->tblObjects->setColumnWidth(0, 75);
 	ui->tblObjects->setColumnWidth(1, 80);
 	ui->tblObjects->setColumnWidth(2, 40);
-	ui->tblObjects->setColumnWidth(3, 80);
+	ui->tblObjects->setColumnWidth(3, 50);
 	ui->tblObjects->setColumnWidth(4, 50);
 //	ui->tblObjects->hideColumn(4);
 //	ui->tblObjects->hideColumn(5);
@@ -137,7 +137,7 @@ void MainWindow::populateObjectTable() {
 		QTableWidgetItem * type = new QTableWidgetItem(query->value(1).toString());
 		QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
 		QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
-		QTableWidgetItem * census = new QTableWidgetItem(tstr);
+		QTableWidgetItem * census = new QTableWidgetItem(query->value(6).toString());
 
 
 		id->setTextAlignment(Qt::AlignHCenter);
@@ -764,7 +764,7 @@ void MainWindow::initFilters() {
 	ui->tblFilters->setColumnWidth(0, 75);
 	ui->tblFilters->setColumnWidth(1, 80);
 	ui->tblFilters->setColumnWidth(2, 40);
-	ui->tblFilters->setColumnWidth(3, 80);
+	ui->tblFilters->setColumnWidth(3, 50);
 	ui->tblFilters->setColumnWidth(4, 80);
 
 	ui->tblFilters->horizontalHeader()->setStretchLastSection(true);

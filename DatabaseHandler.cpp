@@ -94,7 +94,7 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 	qDebug() << "Getting user list from database.";
 	QStringList userList;
 //	userList.append(cfg->user());
-	QString qstr = "SELECT usr FROM census WHERE rcns_id=" + objId;
+	QString qstr = "SELECT usr FROM census WHERE rcns_id=" + objId + " ORDER BY censor, fcns_id";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
 	QString user;
@@ -121,12 +121,12 @@ QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QStr
 	// get object data for population of object list
 	qDebug() << "Gettings object data for session: " + session;
 	QString otbl = "SELECT rc.rcns_id as oid, rc.tp as pre_tp, rc.cam, rc.img, max(c.censor) as mc,"
-			" count(*) as cnt, string_agg(c.tp, ', ') as otp FROM raw_census as rc LEFT JOIN census"
-			" as c ON rc.rcns_id=c.rcns_id WHERE censor>0 AND rc.session='" + session +
-			"' GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img ORDER BY rc.cam, rc.img";
-	QString utbl = "SELECT rcns_id as uid, tp FROM census where usr='"+user+"'";
+			" count(*) as cnt, string_agg(c.tp, ', ' ORDER BY c.fcns_id) as otp FROM raw_census as rc LEFT JOIN census"
+			" as c ON rc.rcns_id=c.rcns_id WHERE (censor>0 OR censor IS NULL) AND rc.session='" + session +
+			"' GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img";
+	QString utbl = "SELECT rcns_id as uid, tp, censor FROM census where usr='"+user+"'";
 	QString qstr = "SELECT * FROM (" + otbl + ") as ot LEFT JOIN (" + utbl + ") as ut ON " +
-			"ot.oid=ut.uid " + filter;
+			"ot.oid=ut.uid " + filter + " ORDER BY cam, img, censor";
 	qDebug() << qstr;
 	QSqlQuery * query = new QSqlQuery(qstr);
 	return query;
