@@ -433,7 +433,8 @@ void MainWindow::handleSaveButton() {
 		colorTableRow(Qt::green, currentRow);
 	else
 		colorTableRow(Qt::yellow, currentRow);
-	ui->tblObjects->item(currentRow, 3)->setText(curObj->type);
+	ui->tblObjects->item(currentRow, 4)->setText(
+			ui->tblObjects->item(currentRow, 4)->text() + "," + curObj->type);
 	// delete object structure
 	delete curObj;
 	// select next object in table
