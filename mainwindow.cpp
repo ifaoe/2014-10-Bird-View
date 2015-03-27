@@ -191,9 +191,12 @@ void MainWindow::objectUpdateSelection() {
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
 
-	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
+	if (imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
+		ui->btnSave->setEnabled(true);
+	} else {
 		ui->btnSave->setEnabled(false);
 		return;
+
 	}
 	handleBrightnessSlider();
 }
@@ -373,53 +376,6 @@ void MainWindow::handleSaveButton() {
 		}
 	}
 
-//	if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
-//		qDebug() << "Erster Bestimmer.";
-//		curObj->censor = 1;
-//	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) == 1) {
-//		qDebug() << "Zweiter Bestimmer.";
-//		census * cenObj = db->getCensusData(QString::number(curObj->id));
-//		curObj->censor = 2;
-//		bool agree = true;
-//		agree = agree && (curObj->name == cenObj->name);
-//		agree = agree && (curObj->type == cenObj->type);
-//		if (!agree) {
-//			QMessageBox * msgBox = new QMessageBox();
-//			msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
-//					" Noch keine Endbestimmung möglich.\n"
-//					"Bestimmung als Vorbestimmer."));
-//			msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//			msgBox->exec();
-//			delete msgBox;
-//			curObj->censor = 1;
-//		}
-//	} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
-//		qDebug() << "Zusätzlicher Bestimmer.";
-//		curObj->censor = 0;
-//		QMessageBox * msgBox = new QMessageBox();
-//		msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
-//		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//		msgBox->exec();
-//		delete msgBox;
-//	} else if (db->getCensorCount(QString::number(curObj->id), "1", curObj->usr) >= 2){
-//		qDebug() << "Ditter Bestimmer.";
-//		curObj->censor = 2;
-//		QMessageBox * msgBox = new QMessageBox();
-//		msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-//				+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
-//		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//		QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-//		msgBox->exec();
-//		if (msgBox->clickedButton() == noButton) {
-//			delete msgBox;
-//			return;
-//		}
-//	} else {
-//		// Never come here!
-//		qDebug() << "You should have never come here!";
-//		exit(1);
-//	}
-
 	if (ui->chbImgQuality->isChecked()) {
 		curObj->imageQuality = 1;
 	} else {
@@ -433,83 +389,23 @@ void MainWindow::handleSaveButton() {
 		colorTableRow(Qt::green, currentRow);
 	else
 		colorTableRow(Qt::yellow, currentRow);
-	ui->tblObjects->item(currentRow, 4)->setText(
+	if (ui->tblObjects->item(currentRow, 4)->text() == "")
+		ui->tblObjects->item(currentRow, 4)->setText(curObj->type);
+	else
+		ui->tblObjects->item(currentRow, 4)->setText(
 			ui->tblObjects->item(currentRow, 4)->text() + "," + curObj->type);
 	// delete object structure
 	delete curObj;
+	ui->btnSave->setEnabled(false);
+	ui->btnDelete->setEnabled(false);
 	// select next object in table
 	if(currentRow < ui->tblObjects->rowCount()) {
 		QModelIndex newIndex = objSelector->model()->index(currentRow+1, 0);
 		ui->tblObjects->scrollTo(newIndex);
 		objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 	}
-	ui->btnSave->setEnabled(false);
-	ui->btnDelete->setEnabled(false);
 }
 
-//void MainWindow::handleBirdSave() {
-//	if ((ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
-//		QMessageBox * msgBox = new QMessageBox();
-//		msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
-//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-//		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-//		msgBox->exec();
-//		if (msgBox->clickedButton() == nextButton) {
-//			delete msgBox;
-//			return;
-//		} else if (msgBox->clickedButton() == noDirButton) {;
-//			curObj->direction = -1;
-//		}
-//		delete msgBox;
-//	} else if (ui->btngBirdBhv->checkedButton()->property("dbvalue").toString() != "FLY") {
-//		curObj->direction = -1;
-//	} else {
-//
-//	}
-//	if (ui->cmbBird->currentText() == "") {
-//		QMessageBox * msgBox = new QMessageBox();
-//		msgBox->setText(trUtf8("Bitte Art auswählen!"));
-//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//		msgBox->exec();
-//		if(msgBox->clickedButton() == nextButton) {
-//			delete msgBox;
-//			return;
-//		}
-//		delete msgBox;
-//	}
-//	saveRoutine("bird");
-//}
-
-//void MainWindow::handleMammalSave() {
-//	if (ui->cmbMammal->currentText() == "") {
-//		QMessageBox * msgBox = new QMessageBox();
-//		msgBox->setText(trUtf8("Bitte Art auswählen!"));
-//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-//		msgBox->exec();
-//		if(msgBox->clickedButton() == nextButton) {
-//			return;
-//		}
-//	}
-//	if (dialChecked == false) {
-//		QMessageBox * msgBox = new QMessageBox();
-//		msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
-//		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-//		QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-//		msgBox->exec();
-//		if (msgBox->clickedButton() == nextButton) {
-//			delete msgBox;
-//			return;
-//		} else if (msgBox->clickedButton() == noDirButton) {;
-//			curObj->direction = -1;
-//		}
-//		delete msgBox;
-//	}
-//	saveRoutine("mammal");
-//}
-
-//void MainWindow::handleNoSightingSave() {
-//	saveRoutine("nosight");
-//}
 
 void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
 	QList<QAbstractButton*> btnList = btnGrp->buttons();
