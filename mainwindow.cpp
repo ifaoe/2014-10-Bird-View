@@ -191,12 +191,17 @@ void MainWindow::objectUpdateSelection() {
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
 
+
 	if (imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
 		ui->btnSave->setEnabled(true);
 	} else {
 		ui->btnSave->setEnabled(false);
 		return;
-
+	}
+	// If project done can't change anything
+	if (!db->getSessionActive(session)) {
+		ui->btnSave->setEnabled(false);
+		ui->btnDelete->setEnabled(false);
 	}
 	handleBrightnessSlider();
 }
@@ -526,10 +531,13 @@ void MainWindow::handleDirDial() {
  */
 void MainWindow::uiPreSelection(census * cobj) {
 	// handle user selection
-	if ((cobj->censor == -1) || (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1))
+	if ((cobj->censor == -1) || (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
 		ui->btnDelete->setEnabled(false);
-	else
+		ui->btnSave->setEnabled(false);
+	} else {
 		ui->btnDelete->setEnabled(true);
+		ui->btnSave->setEnabled(true);
+	}
 	if (db->getCensorCount(QString::number(cobj->id), "1", cfg->user()) >= 2
 			|| db->getMaxCensor(QString::number(cobj->id)) >= 2) {
 		ui->cmbUsers->setDisabled(false);
@@ -607,8 +615,6 @@ void MainWindow::uiPreSelection(census * cobj) {
 			selectButtonByString(ui->btngNoSightQual, QString::number(cobj->quality));
 			ui->txtNoSightRemarks->setPlainText(cobj->remarks);
 		}
-	ui->btnSave->setEnabled(true);
-	ui->btnDelete->setEnabled(true);
 }
 
 /*
@@ -665,7 +671,9 @@ void MainWindow::initFilters() {
 	ui->tblFilters->setColumnWidth(4, 80);
 
 	ui->tblFilters->horizontalHeader()->setStretchLastSection(true);
-	ui->tblFilters->horizontalHeader()->setClickable(false);
+
+//	ui->tblFilters->horizontalHeaderItem(0)->setData()
+
 	ui->tblFilters->setRowCount(1);
 
 	cmbFilterCam = new QComboBox();

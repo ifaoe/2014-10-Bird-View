@@ -48,6 +48,7 @@ public:
 	QStringList getTypeList();
 	QStringList getCensusList();
 	void deleteCensusData(QString objId, QString usr);
+	bool getSessionActive(QString session);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

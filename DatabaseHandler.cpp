@@ -405,3 +405,16 @@ void DatabaseHandler::deleteCensusData(QString objId, QString usr) {
 	QSqlQuery query(qstr);
 	query.exec();
 }
+
+bool DatabaseHandler::getSessionActive(QString session) {
+	QString qstr = "SELECT active FROM projects WHERE project_id='" + session + "'";
+	QSqlQuery query(qstr);
+	if(query.next()) {
+		if (query.value(0).toInt() == 1)
+			return true;
+		else
+			return false;
+	} else {
+		return false;
+	}
+}
