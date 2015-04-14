@@ -237,7 +237,7 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	record->setValue("name",obj->name);
 	record->setValue("tp",obj->type);
 	record->setValue("qual",obj->quality);
-	record->setValue("rem",obj->remarks);
+	record->setValue("rem",obj->remarks.replace('"', " "));
 	record->setValue("usr",obj->usr);
 	if (obj->direction >= 0) record->setValue("dir", obj->direction);
 	record->setValue("censor", obj->censor);

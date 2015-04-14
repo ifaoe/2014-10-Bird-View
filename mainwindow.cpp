@@ -144,13 +144,14 @@ void MainWindow::populateObjectTable() {
 		type->setTextAlignment(Qt::AlignHCenter);
 		cam->setTextAlignment(Qt::AlignHCenter);
 		img->setTextAlignment(Qt::AlignHCenter);
-
 		census->setTextAlignment(Qt::AlignHCenter);
+
 		id->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		type->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		cam->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		img->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		census->setFlags(id->flags() & ~Qt::ItemIsEditable);
+
 		ui->tblObjects->setItem(row,0,id);
 		ui->tblObjects->setItem(row,1,img);
 		ui->tblObjects->setItem(row,2,cam);
