@@ -36,9 +36,6 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	ui->tblObjects->setColumnWidth(2, 40);
 	ui->tblObjects->setColumnWidth(3, 50);
 	ui->tblObjects->setColumnWidth(4, 50);
-//	ui->tblObjects->hideColumn(4);
-//	ui->tblObjects->hideColumn(5);
-//	ui->tblObjects->hideColumn(6);
 
 	initFilters();
 
@@ -307,6 +304,22 @@ void MainWindow::handleSaveButton() {
 		curObj->age = "";
 		curObj->gender = "";
 		curObj->remarks = ui->txtNoSightRemarks->toPlainText();
+		curObj->direction = -1;
+	} else if (curObj->type == "TRASH") {
+		curObj->name = "";
+		curObj->quality = ui->btngTrashQual->checkedButton()->property("dbvalue").toInt();
+		curObj->behavior = "";
+		curObj->age = "";
+		curObj->gender = "";
+		curObj->remarks = ui->pteTrashRemarks->toPlainText();
+		curObj->direction = -1;
+	} else if (curObj->type == "ANTHRO") {
+		curObj->name = "";
+		curObj->quality = ui->btngAnthroQual->checkedButton()->property("dbvalue").toInt();
+		curObj->behavior = "";
+		curObj->age = "";
+		curObj->gender = "";
+		curObj->remarks = ui->pteAnthroRemarks->toPlainText();
 		curObj->direction = -1;
 	} else {
 		qDebug() << "Invalid save type. Aborting.";
