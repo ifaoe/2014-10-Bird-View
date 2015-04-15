@@ -27,7 +27,7 @@ public:
 	DatabaseHandler(ConfigHandler *cfg);
 	virtual ~DatabaseHandler();
 	QStringList getSessionList();
-	QSqlQuery * getObjectResult(QString session, QString user, QString filter="");
+	QSqlQuery * getObjectResult(QString session, QString user, QString filter="", QString order="");
 	census * getRawObjectData(QString objId, QString usr);
 	double * getObjectPosition(QString objId);
 	QStringList getBirdTypeList();

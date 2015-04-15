@@ -99,8 +99,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
     connect(ui->btnDelete, SIGNAL(released()), this, SLOT(handleDeleteButton()));
 
-    connect(ui->tblObjects->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this,
-    		SLOT(handleHeaderFilter()));
+    connect(ui->tblFilters->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
+    		SLOT(handleSortingHeader(int)));
 }
 
 MainWindow::~MainWindow()
@@ -109,6 +109,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::populateObjectTable() {
+	sortSet.clear();
 	ui->btnSave->setEnabled(false);
 	ui->btnDelete->setEnabled(false);
 	QString filter = "WHERE TRUE" + QStringList(filterMap.values()).join("");
@@ -664,6 +665,8 @@ void MainWindow::handleBrightnessSlider() {
 void MainWindow::initFilters() {
 	ui->tblFilters->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "Typ" <<
 				"Bestimmung");
+	ui->tblFilters->horizontalHeader()->setHighlightSections(false);
+	ui->tblFilters->setSelectionMode(QAbstractItemView::NoSelection);
 
 	ui->tblFilters->setColumnWidth(0, 75);
 	ui->tblFilters->setColumnWidth(1, 80);
@@ -766,5 +769,17 @@ bool MainWindow::compareResults(census * curObj, census * cenObj) {
 	if (curObj->quality == 4 || cenObj->quality == 4)
 		agree = agree && (curObj->quality == cenObj->quality);
 	return agree;
+}
+
+void MainWindow::handleSortingHeader(int section) {
+	if (sortSet.contains(section)) {
+		ui->tblObjects->sortByColumn(section, Qt::DescendingOrder);
+		sortSet.remove(section);
+	} else {
+		ui->tblObjects->sortByColumn(section, Qt::AscendingOrder);
+		sortSet.insert(section);
+	}
+
+
 }
 

@@ -103,7 +103,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-111</y>
+         <y>0</y>
          <width>507</width>
          <height>960</height>
         </rect>
@@ -268,7 +268,13 @@
              <attribute name="horizontalHeaderVisible">
               <bool>true</bool>
              </attribute>
+             <attribute name="horizontalHeaderHighlightSections">
+              <bool>false</bool>
+             </attribute>
              <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderHighlightSections">
               <bool>false</bool>
              </attribute>
              <row/>
@@ -794,8 +800,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>460</width>
-                 <height>515</height>
+                 <width>345</width>
+                 <height>350</height>
                 </rect>
                </property>
                <property name="sizePolicy">
@@ -1055,8 +1061,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>460</width>
-                 <height>515</height>
+                 <width>285</width>
+                 <height>300</height>
                 </rect>
                </property>
                <property name="minimumSize">

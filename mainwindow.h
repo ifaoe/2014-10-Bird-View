@@ -54,6 +54,7 @@ private slots:
 	void handleCensorFilter(int index);
 	void handleDeleteButton();
 	void handleSaveButton();
+	void handleSortingHeader(int section);
 private:
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
@@ -89,6 +90,8 @@ private:
     QLineEdit * pteFilterImg;
     QLineEdit * pteFilterId;
     QMap<QString, QString> filterMap;
+
+    QSet<int> sortSet;
 
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableRow(QColor color, int row);
