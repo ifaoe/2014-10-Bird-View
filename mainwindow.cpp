@@ -625,6 +625,14 @@ void MainWindow::uiPreSelection(census * cobj) {
 			}
 			ui->txtMammalRemarks->setPlainText(cobj->remarks);
 			ui->cmbMammal->setFocus();
+		} else if (shTp == "T" ) { // Trash Tab
+			ui->wdgTabTypes->setCurrentIndex(3);
+			selectButtonByString(ui->btngTrashQual, QString::number(cobj->quality));
+			ui->pteTrashRemarks->setPlainText(cobj->remarks);
+		} else if (shTp == "A" ) { // Anthro Tab
+			ui->wdgTabTypes->setCurrentIndex(4);
+			selectButtonByString(ui->btngAnthroQual, QString::number(cobj->quality));
+			ui->pteAnthroRemarks->setPlainText(cobj->remarks);
 		} else { //NoSighting tab
 			ui->wdgTabTypes->setCurrentIndex(2);
 			selectButtonByString(ui->btngNoSightQual, QString::number(cobj->quality));
