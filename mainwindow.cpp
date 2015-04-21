@@ -747,7 +747,7 @@ void MainWindow::handleLineEditFilter() {
 	if (pteFilterId->text().isEmpty())
 		filterMap["Id"] = " AND TRUE";
 	else
-		filterMap["Id"] = " AND cast (oid as text) like '" + pteFilterId->text() + "'";
+		filterMap["Id"] = " AND ot.rcns_id=" + pteFilterId->text() + "";
 	populateObjectTable();
 }
 
