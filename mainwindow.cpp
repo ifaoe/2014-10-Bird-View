@@ -289,7 +289,12 @@ void MainWindow::handleSaveButton() {
 		}
 		curObj->name = ui->cmbMammal->currentText();
 		curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
-		curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
+
+		if (ui->gbxMammalBehaviour->isChecked()) {
+			curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
+		} else {
+			curObj->behavior = "";
+		}
 		if (ui->gbxMammalAge->isChecked()) {
 			curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
 		} else {

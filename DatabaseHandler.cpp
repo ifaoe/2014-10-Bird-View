@@ -410,7 +410,7 @@ bool DatabaseHandler::getSessionActive(QString session) {
 	QString qstr = "SELECT active FROM projects WHERE project_id='" + session + "'";
 	QSqlQuery query(qstr);
 	if(query.next()) {
-		if (query.value(0).toInt() == 1)
+		if (query.value(0).toInt() > 0)
 			return true;
 		else
 			return false;

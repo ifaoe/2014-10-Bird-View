@@ -103,7 +103,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-111</y>
          <width>507</width>
          <height>960</height>
         </rect>
@@ -344,7 +344,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>3</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabBird">
            <property name="dbvalue" stdset="0">
@@ -879,18 +879,24 @@
                  </widget>
                 </item>
                 <item row="2" column="0" colspan="2">
-                 <widget class="QGroupBox" name="grbMammalBehaviour">
+                 <widget class="QGroupBox" name="gbxMammalBehaviour">
                   <property name="title">
                    <string>Verhalten</string>
                   </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
                   <layout class="QGridLayout" name="gridLayout_9">
-                   <item row="1" column="0">
-                    <widget class="QRadioButton" name="rbMammalBehaveCloseUnder">
+                   <item row="0" column="0">
+                    <widget class="QRadioButton" name="rbMammalBehaveOver">
                      <property name="text">
-                      <string comment="CU">knapp unter W.o.</string>
+                      <string comment="OW">durchbricht Wasseroberfläche</string>
                      </property>
                      <property name="dbvalue" stdset="0">
-                      <string>CU</string>
+                      <string>OW</string>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">btngMammalBhv</string>
@@ -898,41 +904,12 @@
                     </widget>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QRadioButton" name="rbMammalBehavePartOver">
+                    <widget class="QRadioButton" name="rbMammalBehaveUnder">
                      <property name="text">
-                      <string comment="PO">teilweise über W.o.</string>
+                      <string comment="UW">unter Wassoberfläche</string>
                      </property>
                      <property name="dbvalue" stdset="0">
-                      <string>PO</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngMammalBhv</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QRadioButton" name="rbMammalBehaveFullOver">
-                     <property name="text">
-                      <string comment="EO">vollst. über W.o.</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>EO</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">btngMammalBhv</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QRadioButton" name="rbMammalBehaveFarUnder">
-                     <property name="text">
-                      <string comment="FU">weit unter W.o.</string>
-                     </property>
-                     <property name="dbvalue" stdset="0">
-                      <string>FU</string>
+                      <string>UW</string>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">btngMammalBhv</string>
@@ -1428,12 +1405,12 @@
   <buttongroup name="btngBirdAge"/>
   <buttongroup name="btngBirdQual"/>
   <buttongroup name="btngBirdGnd"/>
+  <buttongroup name="btngAnthroQual"/>
   <buttongroup name="btngMammalAge"/>
   <buttongroup name="btngMammalBhv"/>
   <buttongroup name="btngBirdBhv"/>
   <buttongroup name="btngNoSightQual"/>
   <buttongroup name="btngMammalQual"/>
-  <buttongroup name="btngAnthroQual"/>
   <buttongroup name="btngTrashQual"/>
  </buttongroups>
 </ui>
