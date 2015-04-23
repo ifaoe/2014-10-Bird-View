@@ -199,7 +199,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	return obj;
 }
 
-void DatabaseHandler::writeCensus(census * obj) {
+bool DatabaseHandler::writeCensus(census * obj) {
 	qDebug() << "Writing object data to database.";
 	QSqlTableModel table;
 	table.setTable("census");
@@ -216,13 +216,16 @@ void DatabaseHandler::writeCensus(census * obj) {
 		// remove first entry of record
 		// auto increment of id is handled by postgres
 		record.remove(0);
-		table.insertRecord(-1,record);
+		return table.insertRecord(-1,record);
 	} else { //UPDATE
 		qDebug() << "Update!";
 		record.setValue("fcns_id",table.record(0).value(0).toInt());
-		table.setRecord(0, record);
-		table.submitAll();
+		bool check = true;
+		check = check && table.setRecord(0, record);
+		check = check && table.submitAll();
+		return check;
 	}
+	return true;
 }
 
 /*

@@ -408,7 +408,15 @@ void MainWindow::handleSaveButton() {
 	}
 
 	// write object data to db
-	db->writeCensus(curObj);
+	if (!db->writeCensus(curObj)) {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(QString::fromUtf8("Fehler beim schreiben in die Datenbank."
+				"Der Datensatz wurde möglicherweise nicht gespeichert."));
+		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		delete msgBox;
+		return;
+	}
 	// refresh object table
 	if (curObj->censor != 1)
 		colorTableRow(Qt::green, currentRow);
