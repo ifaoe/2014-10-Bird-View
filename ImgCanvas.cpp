@@ -169,24 +169,6 @@ void ImgCanvas::handleCanvasClicked(const QgsPoint & point) {
 	msmLayer->commitChanges();
 }
 
-void ImgCanvas::paintEvent(QPaintEvent * event) {
-	QgsMapCanvas::paintEvent(event);
-// TODO: paintEvent
-//	if (msmList.size() == 2) {
-//		const QgsMapToPixel * mapper = this->getCoordinateTransform();
-//		QgsPoint p0 = msmList.at(0);
-//		QgsPoint p1 = msmList.at(1);
-//		QPen pen;
-//		pen.setColor(Qt::red);
-//		pen.setWidth(4);
-//		msmLine = new QPainter(this);
-//		msmLine->setPen(pen);
-//		msmLine->begin(this);
-//		msmLine->drawLine(mapper->transform(p0).x(), mapper->transform(p0).y(), mapper->transform(p1).x(), mapper->transform(p1).y());
-//		msmLine->end();
-//	}
-}
-
 QgsRasterLayer * ImgCanvas::getImageLayer() { return imgLayer; }
 
 void ImgCanvas::beginMeasurement() {

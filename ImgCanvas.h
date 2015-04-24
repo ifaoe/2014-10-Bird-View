@@ -46,7 +46,6 @@ public:
 private slots:
 	void handleCanvasClicked(const QgsPoint & point);
 private:
-	void paintEvent(QPaintEvent * event);
 	QgsLayerStack * layerStack = 0;
 	Ui::MainWindow *ui = 0;
 	ConfigHandler *cfg = 0;
@@ -59,8 +58,6 @@ private:
 	std::vector<QgsPoint> msmList;
 
 	QNetworkAccessManager* networkManager = 0;
-
-	QPainter * msmLine;
 };
 
 #endif /* IMGCANVAS_H_ */

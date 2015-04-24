@@ -193,7 +193,7 @@ void MainWindow::objectUpdateSelection() {
 	uiPreSelection(curObj);
 
 	// handle user selection
-	if ((curObj->censor == -1) || (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
+	if ((curObj->censor > 0) && (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
 		ui->btnDelete->setEnabled(false);
 		ui->btnSave->setEnabled(false);
 	} else {
