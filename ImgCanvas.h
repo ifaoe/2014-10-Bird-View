@@ -21,13 +21,14 @@
 #include <qgis.h>
 #include <qgsmapcanvas.h>
 #include <qgsrasterlayer.h>
+#include <qgsvectorlayer.h>
 #include <qgsrasterdataprovider.h>
 #include <qgsmaplayerregistry.h>
 #include <qgsmaptoolemitpoint.h>
 #include "QgsLayerStack.h"
 #include "ConfigHandler.h"
 #include "ui_mainwindow.h"
-#include "census.h"
+#include "census.hpp"
 
 class ImgCanvas: public QgsMapCanvas {
 	Q_OBJECT
@@ -40,23 +41,23 @@ public:
 	QgsPoint calcWorldPosition(int x, int y);
 	void calcPixelPosition(QgsPoint pos);
 	QgsRasterLayer * getImageLayer();
+	void beginMeasurement();
+	double endMeasurement();
 private slots:
 	void handleCanvasClicked(const QgsPoint & point);
 private:
-	void paintEvent(QPaintEvent * event);
 	QgsLayerStack * layerStack = 0;
 	Ui::MainWindow *ui = 0;
 	ConfigHandler *cfg = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
 	QgsRasterLayer * imgLayer = 0;
+	QgsVectorLayer * msmLayer = 0;
 	QgsRasterDataProvider* imgProvider = 0;
 
 	QgsMapToolEmitPoint *qgsEmitPointTool = 0;
-	QList<QgsPoint> msmList;
+	std::vector<QgsPoint> msmList;
 
 	QNetworkAccessManager* networkManager = 0;
-
-	QPainter * msmLine;
 };
 
 #endif /* IMGCANVAS_H_ */

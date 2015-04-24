@@ -171,7 +171,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	obj->usr = usr;
 	delete query;
 	qDebug() << "Getting object specific data for ID: " << objId;
-	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId
+	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual, length, width FROM census WHERE rcns_id=" + objId
 			+ " AND usr='" + usr + "'";
 	qDebug() << qstr;
 	// if there is already an entry in census db-table,
@@ -188,6 +188,8 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 		obj->remarks = query->value(7).toString();
 		obj->censor = query->value(8).toInt();
 		obj->imageQuality = query->value(9).toInt();
+		obj->length = query->value(10).toDouble();
+		obj->span = query->value(11).toDouble();
 	}
 	delete query;
 //	qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
@@ -245,6 +247,8 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	if (obj->direction >= 0) record->setValue("dir", obj->direction);
 	record->setValue("censor", obj->censor);
 	record->setValue("imgqual", obj->imageQuality);
+	if (obj->length >0) record->setValue("length", obj->length);
+	if (obj->span > 0) record->setValue("width", obj->span);
 }
 
 /*

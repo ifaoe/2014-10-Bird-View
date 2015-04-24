@@ -55,7 +55,12 @@ private slots:
 	void handleDeleteButton();
 	void handleSaveButton();
 	void handleSortingHeader(int section);
+
+	void handleBirdSpanMeasurement();
+	void handleBirdLengthMeasurement();
+	void handleMammalLengthMeasurement();
 private:
+	bool msm_running = false;
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
 	ImgCanvas *imgcvs = 0;
