@@ -568,6 +568,7 @@ void MainWindow::handleDirDial() {
  * the census struct.
  */
 void MainWindow::uiPreSelection(census * cobj) {
+	msm_running = false;
 
 	// clear remark boxes
 	ui->txtBirdRemarks->clear();
