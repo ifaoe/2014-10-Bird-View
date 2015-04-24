@@ -200,6 +200,9 @@ void MainWindow::objectUpdateSelection() {
 		ui->btnDelete->setEnabled(true);
 		ui->btnSave->setEnabled(true);
 	}
+	if (curObj->censor < 0)
+		ui->btnDelete->setEnabled(false);
+
 	if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) >= 2
 			|| db->getMaxCensor(QString::number(curObj->id)) >= 2) {
 		ui->cmbUsers->setDisabled(false);
