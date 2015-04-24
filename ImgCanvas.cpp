@@ -17,6 +17,8 @@
 #include <QNetworkAccessManager>
 #include <math.h>
 #include <QMessageBox>
+#include <qgsgeometry.h>
+#include <qgsvectordataprovider.h>
 
 ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg) : QgsMapCanvas(parent),ui(mUi), cfg(cfg) {
 	// TODO Auto-generated constructor stub
@@ -34,9 +36,15 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg) :
 
 	qgsEmitPointTool = new QgsMapToolEmitPoint(this);
 	networkManager = new QNetworkAccessManager(this);
-    connect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
-    		this, SLOT( handleCanvasClicked(const QgsPoint &)));
     setMapTool(qgsEmitPointTool);
+
+    // TODO: Variable UTM sector
+    QString props = QString("Point?")+
+                       QString("crs=epsg:32632");
+
+    msmLayer = new QgsVectorLayer(props, "msm", "memory");
+    layerStack->addMapLayer("msm",msmLayer, 10);
+
 }
 
 ImgCanvas::~ImgCanvas() {
@@ -153,19 +161,12 @@ void ImgCanvas::calcPixelPosition(QgsPoint pos) {
  * Handle clicks on the map canvas with regards to the measurement tool
  */
 void ImgCanvas::handleCanvasClicked(const QgsPoint & point) {
-	if (msmList.size() == 1) {
-		msmList.append(point);
-		QgsPoint p0 = msmList.at(0);
-		QgsPoint p1 = msmList.at(1);
-		double distance = sqrt(pow(p0.x()-p1.x(),2) + pow(p0.y() - p1.y(),2) );
-		ui->lblMsmTool->setText("Zweiter Punkt gesetzt. Berechnete Distanz :" + QString::number(distance) + "m");
-
-
-	} else {
-		msmList.clear();
-		msmList.append(point);
-		ui->lblMsmTool->setText("Erster Punkt gesetzt. Bitte 2. Punkt setzen.");
-	}
+	msmList.push_back(point);
+	QgsFeature fet;
+	fet.setGeometry(QgsGeometry::fromPoint(point));
+	msmLayer->startEditing();
+	msmLayer->addFeature(fet);
+	msmLayer->commitChanges();
 }
 
 void ImgCanvas::paintEvent(QPaintEvent * event) {
@@ -187,3 +188,30 @@ void ImgCanvas::paintEvent(QPaintEvent * event) {
 }
 
 QgsRasterLayer * ImgCanvas::getImageLayer() { return imgLayer; }
+
+void ImgCanvas::beginMeasurement() {
+	msmList.clear();
+    connect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
+    		this, SLOT( handleCanvasClicked(const QgsPoint &)));
+}
+
+double ImgCanvas::endMeasurement() {
+	double dist=0.0;
+	if (msmList.size() < 2) return 0.0;
+	for (uint i=0; i<msmList.size()-1; i++) {
+		dist += sqrt(msmList[i].sqrDist(msmList[i+1]));
+	}
+	disconnect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
+    		this, SLOT( handleCanvasClicked(const QgsPoint &)));
+	msmList.clear();
+	QgsFeatureIds ids;
+	QgsFeatureIterator fit = msmLayer->dataProvider()->getFeatures();
+	QgsFeature fet;
+	while(fit.nextFeature(fet)) {
+		ids.insert(fet.id());
+	}
+	msmLayer->startEditing();
+	msmLayer->dataProvider()->deleteFeatures(ids);
+	msmLayer->commitChanges();
+	return dist;
+}

@@ -98,6 +98,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
     connect(ui->tblFilters->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
     		SLOT(handleSortingHeader(int)));
+    connect(ui->btnBirdSizeSpan, SIGNAL(clicked()), this, SLOT(handleBirdSpanMeasurement()));
+    connect(ui->btnBirdSizeLength, SIGNAL(clicked()), this, SLOT(handleBirdLengthMeasurement()));
+    connect(ui->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
 }
 
 MainWindow::~MainWindow()
@@ -176,7 +179,6 @@ void MainWindow::objectUpdateSelection() {
 	// TODO: Cleanup.
 	// TODO: Fix: Crash on empty line
 	dialChecked = false;
-	ui->lblMsmTool->setText("Zum Beginn der Messung ersten Punkt anklicken.");
 	if (objSelector->selectedRows().isEmpty()) return;
 	currentRow = objSelector->selectedRows().at(0).row();
 	QString objId = ui->tblObjects->item(currentRow, 0)->text();
@@ -190,11 +192,27 @@ void MainWindow::objectUpdateSelection() {
 	ui->cmbUsers->addItems(censorList);
 	uiPreSelection(curObj);
 
-
-	if (imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
-		ui->btnSave->setEnabled(true);
-	} else {
+	// handle user selection
+	if ((curObj->censor == -1) || (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
+		ui->btnDelete->setEnabled(false);
 		ui->btnSave->setEnabled(false);
+	} else {
+		ui->btnDelete->setEnabled(true);
+		ui->btnSave->setEnabled(true);
+	}
+	if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) >= 2
+			|| db->getMaxCensor(QString::number(curObj->id)) >= 2) {
+		ui->cmbUsers->setDisabled(false);
+		ui->btnUserSelect->setDisabled(false);
+	} else {
+		ui->cmbUsers->clear();
+		ui->cmbUsers->setDisabled(true);
+		ui->btnUserSelect->setDisabled(true);
+	}
+
+	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
+		ui->btnSave->setEnabled(false);
+		ui->btnDelete->setEnabled(false);
 		return;
 	}
 	// If project done can't change anything
@@ -550,28 +568,16 @@ void MainWindow::handleDirDial() {
  * the census struct.
  */
 void MainWindow::uiPreSelection(census * cobj) {
-	// handle user selection
-	if ((cobj->censor == -1) || (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
-		ui->btnDelete->setEnabled(false);
-		ui->btnSave->setEnabled(false);
-	} else {
-		ui->btnDelete->setEnabled(true);
-		ui->btnSave->setEnabled(true);
-	}
-	if (db->getCensorCount(QString::number(cobj->id), "1", cfg->user()) >= 2
-			|| db->getMaxCensor(QString::number(cobj->id)) >= 2) {
-		ui->cmbUsers->setDisabled(false);
-		ui->btnUserSelect->setDisabled(false);
-	} else {
-		ui->cmbUsers->clear();
-		ui->cmbUsers->setDisabled(true);
-		ui->btnUserSelect->setDisabled(true);
-	}
 
 	// clear remark boxes
 	ui->txtBirdRemarks->clear();
 	ui->txtMammalRemarks->clear();
 	ui->txtNoSightRemarks->clear();
+
+	// clear size box
+	ui->lblMammalSizeLength->clear();
+	ui->lblBirdSizeLength->clear();
+	ui->lblBirdSizeSpan->clear();
 
 	// Recalculate values of the QDial to 0=North
 	qDebug() << "Dir: " << cobj->direction;
@@ -617,6 +623,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 				selectButtonByString(ui->btngBirdAge, cobj->age);
 			}
 			ui->txtBirdRemarks->setPlainText(cobj->remarks);
+			if (cobj->length > 0 ) ui->lblBirdSizeLength->setText(QString::number(cobj->length));
+			if (cobj->length > 0 ) ui->lblBirdSizeSpan->setText(QString::number(cobj->span));
 			ui->cmbBird->setFocus();
 		} else if (shTp == "M" ) { // Mammal Tab
 			ui->wdgTabTypes->setCurrentIndex(1);
@@ -629,6 +637,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 				selectButtonByString(ui->btngMammalAge, cobj->age);
 			}
 			ui->txtMammalRemarks->setPlainText(cobj->remarks);
+			if (cobj->length > 0 )ui->lblMammalSizeLength->setText(QString::number(cobj->length));
 			ui->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
 			ui->wdgTabTypes->setCurrentIndex(3);
@@ -805,7 +814,46 @@ void MainWindow::handleSortingHeader(int section) {
 		ui->tblObjects->sortByColumn(section, Qt::AscendingOrder);
 		sortSet.insert(section);
 	}
-
-
 }
+
+void MainWindow::handleBirdSpanMeasurement() {
+	if (!msm_running) {
+		imgcvs->beginMeasurement();
+		ui->lblBirdSizeSpan->clear();
+		curObj->span = -1.0;
+		msm_running = true;
+	} else {
+		curObj->span = imgcvs->endMeasurement();
+		ui->lblBirdSizeSpan->setText(QString::number(curObj->span));
+		msm_running = false;
+	}
+
+};
+
+void MainWindow::handleBirdLengthMeasurement() {
+	if (!msm_running) {
+		imgcvs->beginMeasurement();
+		ui->lblBirdSizeLength->clear();
+		curObj->length = -1.0;
+		msm_running = true;
+	} else {
+		curObj->length = imgcvs->endMeasurement();
+		ui->lblBirdSizeLength->setText(QString::number(curObj->length));
+		msm_running = false;
+	}
+};
+
+void MainWindow::handleMammalLengthMeasurement() {
+	if (!msm_running) {
+		imgcvs->beginMeasurement();
+		ui->lblMammalSizeLength->clear();
+		curObj->length=-1.0;
+		msm_running = true;
+	} else {
+		curObj->length = imgcvs->endMeasurement();
+		ui->lblMammalSizeLength->setText(QString::number(curObj->length));
+		msm_running = false;
+	}
+};
+
 

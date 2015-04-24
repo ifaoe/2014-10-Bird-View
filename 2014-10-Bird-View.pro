@@ -26,8 +26,8 @@ HEADERS  += mainwindow.h\
 		QgsLayerStack.h \
 		ConfigHandler.h \
 		DatabaseHandler.h \
-		census.h \
-		SessionDialog.h 
+		SessionDialog.h \
+		census.hpp
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui 
