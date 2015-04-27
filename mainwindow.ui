@@ -96,7 +96,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-93</y>
+         <y>0</y>
          <width>507</width>
          <height>1015</height>
         </rect>
@@ -948,7 +948,7 @@
                   <item row="0" column="1">
                    <widget class="QLabel" name="lblMammalSizeLength">
                     <property name="text">
-                     <string>TextLabel</string>
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -1327,6 +1327,7 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="btngMeasurements"/>
   <buttongroup name="btngBirdAge"/>
   <buttongroup name="btngBirdQual"/>
   <buttongroup name="btngBirdGnd"/>
@@ -1337,6 +1338,5 @@
   <buttongroup name="btngNoSightQual"/>
   <buttongroup name="btngMammalQual"/>
   <buttongroup name="btngTrashQual"/>
-  <buttongroup name="btngMeasurements"/>
  </buttongroups>
 </ui>

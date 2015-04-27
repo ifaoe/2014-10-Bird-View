@@ -820,7 +820,7 @@ void MainWindow::handleSortingHeader(int section) {
 void MainWindow::handleBirdSpanMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
-		ui->lblBirdSizeSpan->clear();
+		ui->lblBirdSizeSpan->setText("Bitte Messpunkte setzen.");
 		curObj->span = -1.0;
 		msm_running = true;
 	} else {
@@ -834,7 +834,7 @@ void MainWindow::handleBirdSpanMeasurement() {
 void MainWindow::handleBirdLengthMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
-		ui->lblBirdSizeLength->clear();
+		ui->lblBirdSizeLength->setText("Bitte Messpunkte setzen.");
 		curObj->length = -1.0;
 		msm_running = true;
 	} else {
@@ -847,7 +847,7 @@ void MainWindow::handleBirdLengthMeasurement() {
 void MainWindow::handleMammalLengthMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
-		ui->lblMammalSizeLength->clear();
+		ui->lblMammalSizeLength->setText("Bitte Messpunkte setzen.");
 		curObj->length=-1.0;
 		msm_running = true;
 	} else {
