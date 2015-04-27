@@ -584,6 +584,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 	ui->txtBirdRemarks->clear();
 	ui->txtMammalRemarks->clear();
 	ui->txtNoSightRemarks->clear();
+	ui->pteTrashRemarks->clear();
+	ui->pteAnthroRemarks->clear();
 
 	// clear size box
 	ui->lblMammalSizeLength->clear();
