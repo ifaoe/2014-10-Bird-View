@@ -96,7 +96,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-93</y>
          <width>507</width>
          <height>1015</height>
         </rect>
@@ -337,7 +337,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabBird">
            <property name="dbvalue" stdset="0">
@@ -483,7 +483,7 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item row="0" column="2">
                    <widget class="QRadioButton" name="rbBirdBehaveMig">
                     <property name="text">
                      <string comment="M">ziehend</string>
@@ -496,7 +496,7 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="1">
+                  <item row="0" column="3">
                    <widget class="QRadioButton" name="rbBirdBehaveDive">
                     <property name="text">
                      <string comment="D">tauchend</string>
@@ -689,6 +689,26 @@
                   <string>Größenmessung</string>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_17">
+                  <item row="2" column="2">
+                   <widget class="QLabel" name="lblBirdSizeSpanM">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="3">
+                   <widget class="QPushButton" name="btnBirdSizeLength">
+                    <property name="text">
+                     <string>Körperlänge</string>
+                    </property>
+                    <property name="msmId" stdset="0">
+                     <string>bird_length</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">btngMeasurements</string>
+                    </attribute>
+                   </widget>
+                  </item>
                   <item row="2" column="0">
                    <widget class="QPushButton" name="btnBirdSizeSpan">
                     <property name="maximumSize">
@@ -708,20 +728,7 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="2" column="2">
-                   <widget class="QPushButton" name="btnBirdSizeLength">
-                    <property name="text">
-                     <string>Körperlänge</string>
-                    </property>
-                    <property name="msmId" stdset="0">
-                     <string>bird_length</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">btngMeasurements</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="2" column="3">
+                  <item row="2" column="4">
                    <widget class="QLabel" name="lblBirdSizeLength">
                     <property name="text">
                      <string/>
@@ -730,6 +737,13 @@
                   </item>
                   <item row="2" column="1">
                    <widget class="QLabel" name="lblBirdSizeSpan">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="5">
+                   <widget class="QLabel" name="lblBirdSizeLengthM">
                     <property name="text">
                      <string/>
                     </property>
@@ -970,6 +984,29 @@
                      <string notr="true">btngMeasurements</string>
                     </attribute>
                    </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="lblMammalSizeLengthM">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="3">
+                   <spacer name="horizontalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>200</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </widget>

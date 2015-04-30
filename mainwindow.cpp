@@ -599,8 +599,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 
 	// clear size box
 	ui->lblMammalSizeLength->clear();
+	ui->lblMammalSizeLengthM->clear();
 	ui->lblBirdSizeLength->clear();
+	ui->lblBirdSizeLengthM->clear();
 	ui->lblBirdSizeSpan->clear();
+	ui->lblBirdSizeSpanM->clear();
 
 	// Recalculate values of the QDial to 0=North
 	qDebug() << "Dir: " << cobj->direction;
@@ -646,8 +649,14 @@ void MainWindow::uiPreSelection(census * cobj) {
 				selectButtonByString(ui->btngBirdAge, cobj->age);
 			}
 			ui->txtBirdRemarks->setPlainText(cobj->remarks);
-			if (cobj->length > 0 ) ui->lblBirdSizeLength->setText(QString::number(cobj->length));
-			if (cobj->length > 0 ) ui->lblBirdSizeSpan->setText(QString::number(cobj->span));
+			if (cobj->length > 0 ) {
+				ui->lblBirdSizeLength->setText(QString::number(cobj->length));
+				ui->lblBirdSizeLengthM->setText("m");
+			}
+			if (cobj->length > 0 ) {
+				ui->lblBirdSizeSpan->setText(QString::number(cobj->span));
+				ui->lblBirdSizeSpanM->setText("m");
+			}
 			ui->cmbBird->setFocus();
 		} else if (shTp == "M" ) { // Mammal Tab
 			ui->wdgTabTypes->setCurrentIndex(1);
@@ -660,7 +669,10 @@ void MainWindow::uiPreSelection(census * cobj) {
 				selectButtonByString(ui->btngMammalAge, cobj->age);
 			}
 			ui->txtMammalRemarks->setPlainText(cobj->remarks);
-			if (cobj->length > 0 )ui->lblMammalSizeLength->setText(QString::number(cobj->length));
+			if (cobj->length > 0 ){
+				ui->lblMammalSizeLength->setText(QString::number(cobj->length));
+				ui->lblMammalSizeLengthM->setText("m");
+			}
 			ui->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
 			ui->wdgTabTypes->setCurrentIndex(3);
@@ -843,11 +855,13 @@ void MainWindow::handleBirdSpanMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
 		ui->lblBirdSizeSpan->setText(trUtf8("Messung läuft."));
+		ui->lblBirdSizeSpanM->clear();
 		curObj->span = -1.0;
 		msm_running = true;
 	} else {
 		curObj->span = imgcvs->endMeasurement();
 		ui->lblBirdSizeSpan->setText(QString::number(curObj->span, 'f', 2));
+		ui->lblBirdSizeSpanM->setText("m");
 		msm_running = false;
 	}
 
@@ -857,11 +871,13 @@ void MainWindow::handleBirdLengthMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
 		ui->lblBirdSizeLength->setText(trUtf8("Messung läuft."));
+		ui->lblBirdSizeLengthM->clear();
 		curObj->length = -1.0;
 		msm_running = true;
 	} else {
 		curObj->length = imgcvs->endMeasurement();
 		ui->lblBirdSizeLength->setText(QString::number(curObj->length, 'f', 2));
+		ui->lblBirdSizeLengthM->setText("m");
 		msm_running = false;
 	}
 };
@@ -870,11 +886,13 @@ void MainWindow::handleMammalLengthMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
 		ui->lblMammalSizeLength->setText(trUtf8("Messung läuft."));
+		ui->lblMammalSizeLengthM->clear();
 		curObj->length=-1.0;
 		msm_running = true;
 	} else {
 		curObj->length = imgcvs->endMeasurement();
 		ui->lblMammalSizeLength->setText(QString::number(curObj->length, 'f', 2));
+		ui->lblMammalSizeLengthM->setText("m");
 		msm_running = false;
 	}
 };
