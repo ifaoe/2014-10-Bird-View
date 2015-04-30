@@ -33,7 +33,7 @@ public:
 	QStringList getMammalTypeList();
 	QStringList getUserList(QString objId);
 	census * getCensusData(QString objId);
-	void writeCensus(census * obj);
+	bool writeCensus(census * obj);
 	QString getProjectPath(QString session);
 //	void revisitObject(QString objId);
 	QMap<int, int> getObjectDone(QString usr, QString session);

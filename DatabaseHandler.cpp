@@ -48,7 +48,7 @@ DatabaseHandler::~DatabaseHandler() {
 QStringList DatabaseHandler::getSessionList() {
 	qDebug() << "Getting session list from database.";
 	QStringList sessionList;
-	QString qstr = "SELECT distinct(session) FROM raw_census ORDER BY session";
+	QString qstr = "SELECT project_id FROM projects WHERE active>0 ORDER BY project_id";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
 	while(query.next()) {
@@ -201,7 +201,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	return obj;
 }
 
-void DatabaseHandler::writeCensus(census * obj) {
+bool DatabaseHandler::writeCensus(census * obj) {
 	qDebug() << "Writing object data to database.";
 	QSqlTableModel table;
 	table.setTable("census");
@@ -218,13 +218,16 @@ void DatabaseHandler::writeCensus(census * obj) {
 		// remove first entry of record
 		// auto increment of id is handled by postgres
 		record.remove(0);
-		table.insertRecord(-1,record);
+		return table.insertRecord(-1,record);
 	} else { //UPDATE
 		qDebug() << "Update!";
 		record.setValue("fcns_id",table.record(0).value(0).toInt());
-		table.setRecord(0, record);
-		table.submitAll();
+		bool check = true;
+		check = check && table.setRecord(0, record);
+		check = check && table.submitAll();
+		return check;
 	}
+	return true;
 }
 
 /*
@@ -414,7 +417,7 @@ bool DatabaseHandler::getSessionActive(QString session) {
 	QString qstr = "SELECT active FROM projects WHERE project_id='" + session + "'";
 	QSqlQuery query(qstr);
 	if(query.next()) {
-		if (query.value(0).toInt() > 0)
+		if ((query.value(0).toInt() > 0) && (query.value(0).toInt() < 3))
 			return true;
 		else
 			return false;

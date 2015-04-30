@@ -203,6 +203,9 @@ void MainWindow::objectUpdateSelection() {
 		ui->btnDelete->setEnabled(true);
 		ui->btnSave->setEnabled(true);
 	}
+	if (curObj->censor < 0)
+		ui->btnDelete->setEnabled(false);
+
 	if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) >= 2
 			|| db->getMaxCensor(QString::number(curObj->id)) >= 2) {
 		ui->cmbUsers->setDisabled(false);
@@ -435,7 +438,15 @@ void MainWindow::handleSaveButton() {
 	}
 
 	// write object data to db
-	db->writeCensus(curObj);
+	if (!db->writeCensus(curObj)) {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(QString::fromUtf8("Fehler beim schreiben in die Datenbank."
+				"Der Datensatz wurde möglicherweise nicht gespeichert."));
+		msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		delete msgBox;
+		return;
+	}
 	// refresh object table
 	if (curObj->censor != 1)
 		colorTableRow(Qt::green, currentRow);
@@ -583,6 +594,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 	ui->txtBirdRemarks->clear();
 	ui->txtMammalRemarks->clear();
 	ui->txtNoSightRemarks->clear();
+	ui->pteTrashRemarks->clear();
+	ui->pteAnthroRemarks->clear();
 
 	// clear size box
 	ui->lblMammalSizeLength->clear();
