@@ -101,6 +101,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(ui->btnBirdSizeSpan, SIGNAL(clicked()), this, SLOT(handleBirdSpanMeasurement()));
     connect(ui->btnBirdSizeLength, SIGNAL(clicked()), this, SLOT(handleBirdLengthMeasurement()));
     connect(ui->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
+	ui->btnBirdSizeLength->setEnabled(false);
+	ui->btnBirdSizeSpan->setEnabled(false);
+	ui->btnMammalSizeLength->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -213,8 +216,14 @@ void MainWindow::objectUpdateSelection() {
 	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
 		ui->btnSave->setEnabled(false);
 		ui->btnDelete->setEnabled(false);
+		ui->btnBirdSizeLength->setEnabled(false);
+		ui->btnBirdSizeSpan->setEnabled(false);
+		ui->btnMammalSizeLength->setEnabled(false);
 		return;
 	}
+	ui->btnBirdSizeLength->setEnabled(true);
+	ui->btnBirdSizeSpan->setEnabled(true);
+	ui->btnMammalSizeLength->setEnabled(true);
 	// If project done can't change anything
 	if (!db->getSessionActive(session)) {
 		ui->btnSave->setEnabled(false);
@@ -820,12 +829,12 @@ void MainWindow::handleSortingHeader(int section) {
 void MainWindow::handleBirdSpanMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
-		ui->lblBirdSizeSpan->setText("Bitte Messpunkte setzen.");
+		ui->lblBirdSizeSpan->setText(trUtf8("Messung läuft."));
 		curObj->span = -1.0;
 		msm_running = true;
 	} else {
 		curObj->span = imgcvs->endMeasurement();
-		ui->lblBirdSizeSpan->setText(QString::number(curObj->span));
+		ui->lblBirdSizeSpan->setText(QString::number(curObj->span, 'f', 2));
 		msm_running = false;
 	}
 
@@ -834,12 +843,12 @@ void MainWindow::handleBirdSpanMeasurement() {
 void MainWindow::handleBirdLengthMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
-		ui->lblBirdSizeLength->setText("Bitte Messpunkte setzen.");
+		ui->lblBirdSizeLength->setText(trUtf8("Messung läuft."));
 		curObj->length = -1.0;
 		msm_running = true;
 	} else {
 		curObj->length = imgcvs->endMeasurement();
-		ui->lblBirdSizeLength->setText(QString::number(curObj->length));
+		ui->lblBirdSizeLength->setText(QString::number(curObj->length, 'f', 2));
 		msm_running = false;
 	}
 };
@@ -847,12 +856,12 @@ void MainWindow::handleBirdLengthMeasurement() {
 void MainWindow::handleMammalLengthMeasurement() {
 	if (!msm_running) {
 		imgcvs->beginMeasurement();
-		ui->lblMammalSizeLength->setText("Bitte Messpunkte setzen.");
+		ui->lblMammalSizeLength->setText(trUtf8("Messung läuft."));
 		curObj->length=-1.0;
 		msm_running = true;
 	} else {
 		curObj->length = imgcvs->endMeasurement();
-		ui->lblMammalSizeLength->setText(QString::number(curObj->length));
+		ui->lblMammalSizeLength->setText(QString::number(curObj->length, 'f', 2));
 		msm_running = false;
 	}
 };
