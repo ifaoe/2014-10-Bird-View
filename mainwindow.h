@@ -55,7 +55,7 @@ private slots:
 	void handleDeleteButton();
 	void handleSaveButton();
 	void handleSortingHeader(int section);
-
+	void handleStuk4Selection();
 	void handleBirdSpanMeasurement();
 	void handleBirdLengthMeasurement();
 	void handleMammalLengthMeasurement();
@@ -76,10 +76,6 @@ private:
     int mapMode = 0;
     QVBoxLayout *lytFrmImg;
     QWebView * geoMap;
-
-    QSignalMapper * btnBirdMapper;
-    QSignalMapper * btnMammalMapper;
-    QSignalMapper * btnNoSightMapper;
 
     QPushButton * btnZoomOneOne;
     QPushButton * btnToggleSource;

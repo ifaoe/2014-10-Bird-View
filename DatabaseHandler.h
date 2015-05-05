@@ -17,6 +17,7 @@
 #include <QSqlDatabase>
 #include <QStringList>
 #include <QComboBox>
+#include <QSqlQueryModel>
 #include "ConfigHandler.h"
 #include "census.hpp"
 
@@ -48,6 +49,9 @@ public:
 	QStringList getCensusList();
 	void deleteCensusData(QString objId, QString usr);
 	bool getSessionActive(QString session);
+	bool getAnthroObjectList(QComboBox * cmb);
+	QSqlQueryModel * getStuk4Behaviour();
+	QSqlQueryModel * getStuk4Associations();
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

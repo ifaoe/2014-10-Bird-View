@@ -19,7 +19,8 @@ SOURCES += main.cpp\
         QgsLayerStack.cpp \
         ConfigHandler.cpp \
         DatabaseHandler.cpp \
-        SessionDialog.cpp 
+        SessionDialog.cpp \
+        Stuk4Dialog.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -27,10 +28,12 @@ HEADERS  += mainwindow.h\
 		ConfigHandler.h \
 		DatabaseHandler.h \
 		SessionDialog.h \
-		census.hpp
+		census.hpp \
+		Stuk4Dialog.h
 
 FORMS    += mainwindow.ui \
-			sessiondialog.ui 
+			sessiondialog.ui \
+			stuk4codes.ui
 
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis

@@ -35,6 +35,8 @@ struct census {
 	int imageQuality = 0;
 	double span = -1;
 	double length = -1;
+	QStringList stuk4_beh;
+	QStringList stuk4_ass;
 };
 
 

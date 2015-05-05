@@ -81,13 +81,25 @@ QStringList DatabaseHandler::getMammalTypeList() {
 	QString qstr = "SELECT tx_name_de FROM taxa_mammal";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
-	while(query.next()) {
+	while(query.next())
 		birdList.append(query.value(0).toString());
-	}
-	if (birdList.empty()) {
+	if (birdList.empty())
 		qFatal("Bird type list is empty.");
-	}
 	return birdList;
+}
+
+bool DatabaseHandler::getAnthroObjectList(QComboBox * cmb) {
+	qDebug() << "Gettings list of anthropogenic objects from database.";
+	QString qstr = "SELECT object_id, name, notes FROM abiotic_objects WHERE type='ANTHRO'";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	if (query.size() == 0)
+		return false;
+	while(query.next()) {
+		QStringList tmpList = QStringList() << query.value(1).toString() << query.value(2).toString();
+		cmb->addItem(tmpList.join(": "), query.value(1).toString());
+	}
+	return true;
 }
 
 QStringList DatabaseHandler::getUserList(QString objId) {
@@ -171,8 +183,9 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	obj->usr = usr;
 	delete query;
 	qDebug() << "Getting object specific data for ID: " << objId;
-	qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual, length, width FROM census WHERE rcns_id=" + objId
-			+ " AND usr='" + usr + "'";
+	qstr =	"SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual, length, width"
+			", stuk4_beh, stuk4_ass "
+			"FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
 	qDebug() << qstr;
 	// if there is already an entry in census db-table,
 	// initialize census structure with these values
@@ -190,6 +203,8 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 		obj->imageQuality = query->value(9).toInt();
 		obj->length = query->value(10).toDouble();
 		obj->span = query->value(11).toDouble();
+		obj->stuk4_beh = query->value(12).toString().remove(QRegExp("[{}]")).split(",");
+		obj->stuk4_ass = query->value(13).toString().remove(QRegExp("[{}]")).split(",");
 	}
 	delete query;
 //	qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
@@ -218,6 +233,7 @@ bool DatabaseHandler::writeCensus(census * obj) {
 		// remove first entry of record
 		// auto increment of id is handled by postgres
 		record.remove(0);
+		qDebug() << table.lastError();
 		return table.insertRecord(-1,record);
 	} else { //UPDATE
 		qDebug() << "Update!";
@@ -225,6 +241,7 @@ bool DatabaseHandler::writeCensus(census * obj) {
 		bool check = true;
 		check = check && table.setRecord(0, record);
 		check = check && table.submitAll();
+		qDebug() << table.lastError();
 		return check;
 	}
 	return true;
@@ -245,10 +262,15 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	record->setValue("rem",obj->remarks.replace('"', " "));
 	record->setValue("usr",obj->usr);
 	if (obj->direction >= 0) record->setValue("dir", obj->direction);
+	else record->setNull("dir");
 	record->setValue("censor", obj->censor);
 	record->setValue("imgqual", obj->imageQuality);
 	if (obj->length >0) record->setValue("length", obj->length);
+	else record->setNull("length");
 	if (obj->span > 0) record->setValue("width", obj->span);
+	else record->setNull("width");
+	record->setValue("stuk4_beh", "{"+obj->stuk4_beh.join(",")+"}");
+	record->setValue("stuk4_ass", "{"+obj->stuk4_ass.join(",")+"}");
 }
 
 /*
@@ -425,3 +447,21 @@ bool DatabaseHandler::getSessionActive(QString session) {
 		return false;
 	}
 }
+
+QSqlQueryModel * DatabaseHandler::getStuk4Behaviour() {
+	QSqlQueryModel * model = new QSqlQueryModel;
+	model->setQuery("SELECT code, category, description FROM stuk4_codes where type='BEH'");
+	model->setHeaderData(0, Qt::Horizontal, "Code");
+	model->setHeaderData(1, Qt::Horizontal, "Kategorie");
+	model->setHeaderData(2, Qt::Horizontal, "Beschreibung");
+	return model;
+}
+
+QSqlQueryModel * DatabaseHandler::getStuk4Associations() {
+	QSqlQueryModel * model = new QSqlQueryModel;
+	model->setQuery("SELECT code, category, description FROM stuk4_codes where type='ASS'");
+	model->setHeaderData(0, Qt::Horizontal, "Code");
+	model->setHeaderData(1, Qt::Horizontal, "Kategorie");
+	model->setHeaderData(2, Qt::Horizontal, "Beschreibung");
+	return model;
+ }

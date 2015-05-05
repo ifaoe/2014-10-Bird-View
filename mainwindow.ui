@@ -96,9 +96,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-143</y>
          <width>507</width>
-         <height>1015</height>
+         <height>1065</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -324,13 +324,13 @@
           <property name="minimumSize">
            <size>
             <width>480</width>
-            <height>625</height>
+            <height>675</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>600</height>
+            <height>750</height>
            </size>
           </property>
           <property name="tabShape">
@@ -340,6 +340,12 @@
            <number>0</number>
           </property>
           <widget class="QWidget" name="tabBird">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="dbvalue" stdset="0">
             <string>BIRD</string>
            </property>
@@ -349,6 +355,12 @@
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
              <widget class="QWidget" name="wdgBird" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
                <item>
                 <widget class="QComboBox" name="cmbBird">
@@ -392,19 +404,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QRadioButton" name="rbBirdQual3">
-                    <property name="text">
-                     <string comment="3">3 - möglich</string>
-                    </property>
-                    <property name="dbvalue" stdset="0">
-                     <string>3</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">btngBirdQual</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QRadioButton" name="rbBirdQual2">
                     <property name="text">
@@ -412,6 +411,19 @@
                     </property>
                     <property name="dbvalue" stdset="0">
                      <string>2</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">btngBirdQual</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QRadioButton" name="rbBirdQual3">
+                    <property name="text">
+                     <string comment="3">3 - möglich</string>
+                    </property>
+                    <property name="dbvalue" stdset="0">
+                     <string>3</string>
                     </property>
                     <attribute name="buttonGroup">
                      <string notr="true">btngBirdQual</string>
@@ -477,32 +489,6 @@
                     </property>
                     <property name="dbvalue" stdset="0">
                      <string>SWIM</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">btngBirdBhv</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QRadioButton" name="rbBirdBehaveMig">
-                    <property name="text">
-                     <string comment="M">ziehend</string>
-                    </property>
-                    <property name="dbvalue" stdset="0">
-                     <string>MIG</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">btngBirdBhv</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QRadioButton" name="rbBirdBehaveDive">
-                    <property name="text">
-                     <string comment="D">tauchend</string>
-                    </property>
-                    <property name="dbvalue" stdset="0">
-                     <string>DIVE</string>
                     </property>
                     <attribute name="buttonGroup">
                      <string notr="true">btngBirdBhv</string>
@@ -684,6 +670,36 @@
                 </widget>
                </item>
                <item>
+                <widget class="QGroupBox" name="gbxStuk4Bird">
+                 <property name="title">
+                  <string>StUK4 Codes</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="0">
+                   <widget class="QToolButton" name="tbtStuk4CodesBird">
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="lblStuk4BehBird">
+                    <property name="text">
+                     <string>Verhalten:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="lblStuk4AssBird">
+                    <property name="text">
+                     <string>Assoziationen:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
                 <widget class="QGroupBox" name="gbxBirdSize">
                  <property name="title">
                   <string>Größenmessung</string>
@@ -773,6 +789,12 @@
            </layout>
           </widget>
           <widget class="QWidget" name="tabMammal">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="dbvalue" stdset="0">
             <string>MAMMAL</string>
            </property>
@@ -782,6 +804,12 @@
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QWidget" name="wdgMammal" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
                 <widget class="QComboBox" name="cmbMammal">
@@ -940,6 +968,36 @@
                 </widget>
                </item>
                <item>
+                <widget class="QGroupBox" name="gbxStuk4Mammal">
+                 <property name="title">
+                  <string>StUK4 Codes</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_13">
+                  <item row="0" column="0">
+                   <widget class="QToolButton" name="tbtStuk4CodesMammal">
+                    <property name="text">
+                     <string>...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="lblStuk4BehMammal">
+                    <property name="text">
+                     <string>Verhalten:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="lblStuk4AssMammal">
+                    <property name="text">
+                     <string>Assoziationen:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
                 <widget class="QGroupBox" name="gbxMammalSize">
                  <property name="title">
                   <string>Größenmessung</string>
@@ -997,6 +1055,12 @@
            </layout>
           </widget>
           <widget class="QWidget" name="tabNoSight">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1012,6 +1076,12 @@
            <layout class="QVBoxLayout" name="verticalLayout_10">
             <item>
              <widget class="QWidget" name="wdgNoSight" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
                <item>
                 <widget class="QGroupBox" name="gbxNoSightQuality">
@@ -1100,6 +1170,12 @@
            </layout>
           </widget>
           <widget class="QWidget" name="tabTrash">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="dbvalue" stdset="0">
             <string>TRASH</string>
            </property>
@@ -1109,6 +1185,12 @@
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <widget class="QWidget" name="wdgTrash" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <layout class="QVBoxLayout" name="verticalLayout_8">
                <item>
                 <widget class="QGroupBox" name="gbxTrashQuality">
@@ -1190,6 +1272,12 @@
            </layout>
           </widget>
           <widget class="QWidget" name="tabAnthro">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="dbvalue" stdset="0">
             <string>ANTHRO</string>
            </property>
@@ -1199,7 +1287,25 @@
            <layout class="QVBoxLayout" name="verticalLayout_11">
             <item>
              <widget class="QWidget" name="wdgAnthro" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <widget class="QGroupBox" name="gbxAnthroName">
+                 <property name="title">
+                  <string>Art des Objekts</string>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                   <widget class="QComboBox" name="cmbAnthroName"/>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
                <item>
                 <widget class="QGroupBox" name="gbxAnthroQuality">
                  <property name="title">
