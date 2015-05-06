@@ -41,6 +41,8 @@ public:
 	QgsPoint calcWorldPosition(int x, int y);
 	void calcPixelPosition(QgsPoint pos);
 	QgsRasterLayer * getImageLayer();
+	void setRasterBrightness(int value);
+	void setRasterContrast(int value);
 	void beginMeasurement();
 	double endMeasurement();
 private slots:

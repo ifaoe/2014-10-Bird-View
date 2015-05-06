@@ -38,7 +38,8 @@ FORMS    += mainwindow.ui \
 			stuk4codes.ui \
 			widget_sessions.ui\
 			widget_census.ui\
-			widget_objects.ui
+			widget_objects.ui \
+			widget_graphics.ui
 			
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis

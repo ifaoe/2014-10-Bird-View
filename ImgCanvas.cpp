@@ -197,3 +197,15 @@ double ImgCanvas::endMeasurement() {
 	msmLayer->commitChanges();
 	return dist;
 }
+
+void ImgCanvas::setRasterBrightness(int value) {
+	QgsRasterLayer * rlyr = static_cast<QgsRasterLayer*>(layerStack->getMapLayer("image"));
+	rlyr->brightnessFilter()->setBrightness(value);
+	refresh();
+}
+
+void ImgCanvas::setRasterContrast(int value) {
+	QgsRasterLayer * rlyr = static_cast<QgsRasterLayer*>(layerStack->getMapLayer("image"));
+	rlyr->brightnessFilter()->setContrast(value);
+	refresh();
+}

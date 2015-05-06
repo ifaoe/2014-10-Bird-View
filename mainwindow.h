@@ -28,6 +28,7 @@
 #include "ui_widget_sessions.h"
 #include "ui_widget_objects.h"
 #include "ui_widget_census.h"
+#include "ui_widget_graphics.h"
 
 namespace Ui {
 class MainWindow;
@@ -50,6 +51,9 @@ private slots:
 	void handleDirDial();
 	void handleUsrSelect();
 	void handleBrightnessSlider();
+	void handleContrastSlider();
+	void handleBrightnessReset();
+	void handleContrastReset();
 	void handleLineEditFilter();
 	void handleTypeFilter(int index);
 	void handleCensusFilter(int index);
@@ -99,6 +103,12 @@ private:
     Ui::wdgSessions * wdgSession;
     Ui::wdgObjects * wdgObjects;
     Ui::wdgCensus * wdgCensus;
+    Ui::wdgGraphics * wdgGraphics;
+
+    QTreeWidgetItem* twgSession = 0;
+	QTreeWidgetItem* twgObjects = 0;
+	QTreeWidgetItem* twgCensus = 0;
+	QTreeWidgetItem* twgGraphics = 0;
 
     QSet<int> sortSet;
 
