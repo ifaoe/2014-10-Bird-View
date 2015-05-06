@@ -20,7 +20,8 @@ SOURCES += main.cpp\
         ConfigHandler.cpp \
         DatabaseHandler.cpp \
         SessionDialog.cpp \
-        Stuk4Dialog.cpp
+        Stuk4Dialog.cpp \
+        QCategoryButton.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -29,12 +30,16 @@ HEADERS  += mainwindow.h\
 		DatabaseHandler.h \
 		SessionDialog.h \
 		census.hpp \
-		Stuk4Dialog.h
+		Stuk4Dialog.h \
+		QCategoryButton.h
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
-			stuk4codes.ui
-
+			stuk4codes.ui \
+			widget_sessions.ui\
+			widget_census.ui\
+			widget_objects.ui
+			
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis
 DEPENDPATH += /usr/include

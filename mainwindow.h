@@ -25,6 +25,9 @@
 #include "ImgCanvas.h"
 #include "DatabaseHandler.h"
 #include "ConfigHandler.h"
+#include "ui_widget_sessions.h"
+#include "ui_widget_objects.h"
+#include "ui_widget_census.h"
 
 namespace Ui {
 class MainWindow;
@@ -91,6 +94,11 @@ private:
     QLineEdit * pteFilterImg;
     QLineEdit * pteFilterId;
     QMap<QString, QString> filterMap;
+
+    // Treewidgets
+    Ui::wdgSessions * wdgSession;
+    Ui::wdgObjects * wdgObjects;
+    Ui::wdgCensus * wdgCensus;
 
     QSet<int> sortSet;
 
