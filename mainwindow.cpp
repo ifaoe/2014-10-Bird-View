@@ -20,6 +20,7 @@
 #include <QMessageBox>
 #include <qgsmultibandcolorrenderer.h>
 #include <QLineEdit>
+#include "Stuk4Dialog.h"
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -71,17 +72,15 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	ui->cmbSession->addItems(db->getSessionList());
 	ui->cmbBird->addItems(db->getBirdTypeList());
 	ui->cmbMammal->addItems(db->getMammalTypeList());
+	db->getAnthroObjectList(ui->cmbAnthroName);
 
 	objSelector = ui->tblObjects->selectionModel();
 	ui->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
 	ui->tblObjects->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	initMapView();
 
-    // connect signals
-	btnBirdMapper = new QSignalMapper;
-	btnMammalMapper = new QSignalMapper;
-	btnNoSightMapper = new QSignalMapper;
+
+	initMapView();
 
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(objectUpdateSelection()));
     connect(ui->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
@@ -98,12 +97,17 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
     connect(ui->tblFilters->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
     		SLOT(handleSortingHeader(int)));
+
+    connect(ui->tbtStuk4CodesBird, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
+    connect(ui->tbtStuk4CodesMammal, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
+
     connect(ui->btnBirdSizeSpan, SIGNAL(clicked()), this, SLOT(handleBirdSpanMeasurement()));
     connect(ui->btnBirdSizeLength, SIGNAL(clicked()), this, SLOT(handleBirdLengthMeasurement()));
     connect(ui->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
 	ui->btnBirdSizeLength->setEnabled(false);
 	ui->btnBirdSizeSpan->setEnabled(false);
 	ui->btnMammalSizeLength->setEnabled(false);
+
 }
 
 MainWindow::~MainWindow()
@@ -349,7 +353,7 @@ void MainWindow::handleSaveButton() {
 		curObj->remarks = ui->pteTrashRemarks->toPlainText();
 		curObj->direction = -1;
 	} else if (curObj->type == "ANTHRO") {
-		curObj->name = "";
+		curObj->name = ui->cmbAnthroName->itemData(ui->cmbAnthroName->currentIndex()).toString();
 		curObj->quality = ui->btngAnthroQual->checkedButton()->property("dbvalue").toInt();
 		curObj->behavior = "";
 		curObj->age = "";
@@ -605,6 +609,12 @@ void MainWindow::uiPreSelection(census * cobj) {
 	ui->lblBirdSizeSpan->clear();
 	ui->lblBirdSizeSpanM->clear();
 
+	//clear Stuk4 Code Labels
+	ui->lblStuk4BehBird->clear();
+	ui->lblStuk4AssBird->clear();
+	ui->lblStuk4BehMammal->clear();
+	ui->lblStuk4AssMammal->clear();
+
 	// Recalculate values of the QDial to 0=North
 	qDebug() << "Dir: " << cobj->direction;
 	if (cobj->direction >= 0 ) {
@@ -657,6 +667,9 @@ void MainWindow::uiPreSelection(census * cobj) {
 				ui->lblBirdSizeSpan->setText(QString::number(cobj->span));
 				ui->lblBirdSizeSpanM->setText("m");
 			}
+			ui->lblStuk4BehBird->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
+			ui->lblStuk4AssBird->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
+
 			ui->cmbBird->setFocus();
 		} else if (shTp == "M" ) { // Mammal Tab
 			ui->wdgTabTypes->setCurrentIndex(1);
@@ -673,6 +686,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 				ui->lblMammalSizeLength->setText(QString::number(cobj->length));
 				ui->lblMammalSizeLengthM->setText("m");
 			}
+			ui->lblStuk4BehMammal->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
+			ui->lblStuk4AssMammal->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
 			ui->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
 			ui->wdgTabTypes->setCurrentIndex(3);
@@ -681,6 +696,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 		} else if (shTp == "A" ) { // Anthro Tab
 			ui->wdgTabTypes->setCurrentIndex(4);
 			selectButtonByString(ui->btngAnthroQual, QString::number(cobj->quality));
+			ui->cmbAnthroName->findText(cobj->name, Qt::MatchStartsWith);
 			ui->pteAnthroRemarks->setPlainText(cobj->remarks);
 		} else { //NoSighting tab
 			ui->wdgTabTypes->setCurrentIndex(2);
@@ -897,4 +913,20 @@ void MainWindow::handleMammalLengthMeasurement() {
 	}
 };
 
+void MainWindow::handleStuk4Selection() {
+	if(curObj == 0) return;
+	Stuk4Dialog * dlg = new Stuk4Dialog(db, &curObj->stuk4_beh, &curObj->stuk4_ass);
+	dlg->exec();
+	delete dlg;
+	if (ui->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
+		ui->lblStuk4BehBird->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
+		ui->lblStuk4AssBird->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
+	} else if (ui->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
+		ui->lblStuk4BehMammal->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
+		ui->lblStuk4AssMammal->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
+	} else {
+		return;
+	}
+
+};
 
