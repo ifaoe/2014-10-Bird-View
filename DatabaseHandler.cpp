@@ -96,7 +96,11 @@ bool DatabaseHandler::getAnthroObjectList(QComboBox * cmb) {
 	if (query.size() == 0)
 		return false;
 	while(query.next()) {
-		QStringList tmpList = QStringList() << query.value(1).toString() << query.value(2).toString();
+		QStringList tmpList;
+		if (query.value(2).toString().isEmpty())
+			tmpList << query.value(1).toString();
+		else
+			tmpList << query.value(1).toString() << query.value(2).toString();
 		cmb->addItem(tmpList.join(": "), query.value(1).toString());
 	}
 	return true;

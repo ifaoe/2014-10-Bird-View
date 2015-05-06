@@ -594,6 +594,10 @@ void MainWindow::handleDirDial() {
 void MainWindow::uiPreSelection(census * cobj) {
 	msm_running = false;
 
+	// handle those different -- courtesy of the stuk4 table widget
+	curObj->stuk4_ass = cobj->stuk4_ass;
+	curObj->stuk4_beh = cobj->stuk4_beh;
+
 	// clear remark boxes
 	ui->txtBirdRemarks->clear();
 	ui->txtMammalRemarks->clear();
@@ -658,8 +662,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 			ui->txtBirdRemarks->setPlainText(cobj->remarks);
 			if (cobj->length > 0 ) ui->lblBirdSizeLength->setText(QString::number(cobj->length));
 			if (cobj->length > 0 ) ui->lblBirdSizeSpan->setText(QString::number(cobj->span));
-			ui->lblStuk4BehBird->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
-			ui->lblStuk4AssBird->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
+			ui->lblStuk4BehBird->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
+			ui->lblStuk4AssBird->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
 
 			ui->cmbBird->setFocus();
 		} else if (shTp == "M" ) { // Mammal Tab
@@ -674,8 +678,9 @@ void MainWindow::uiPreSelection(census * cobj) {
 			}
 			ui->txtMammalRemarks->setPlainText(cobj->remarks);
 			if (cobj->length > 0 )ui->lblMammalSizeLength->setText(QString::number(cobj->length));
-			ui->lblStuk4BehMammal->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
-			ui->lblStuk4AssMammal->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
+			ui->lblStuk4BehMammal->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
+			ui->lblStuk4AssMammal->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
+
 			ui->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
 			ui->wdgTabTypes->setCurrentIndex(3);
