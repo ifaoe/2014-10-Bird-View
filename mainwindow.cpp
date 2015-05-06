@@ -183,6 +183,7 @@ void MainWindow::populateObjectTable() {
 }
 
 void MainWindow::objectUpdateSelection() {
+	ui->sldBrightness->setValue(50);
 	imgcvs->endMeasurement();
 	msm_running = false;
 	// TODO: Cleanup.
@@ -325,12 +326,7 @@ void MainWindow::handleSaveButton() {
 		}
 		curObj->name = ui->cmbMammal->currentText();
 		curObj->quality = ui->btngMammalQual->checkedButton()->property("dbvalue").toInt();
-
-		if (ui->gbxMammalBehaviour->isChecked()) {
-			curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
-		} else {
-			curObj->behavior = "";
-		}
+		curObj->behavior = ui->btngMammalBhv->checkedButton()->property("dbvalue").toString();
 		if (ui->gbxMammalAge->isChecked()) {
 			curObj->age = ui->btngMammalAge->checkedButton()->property("dbvalue").toString();
 		} else {
@@ -715,10 +711,10 @@ void MainWindow::handleUsrSelect() {
 
 void MainWindow::handleBrightnessSlider() {
 	qDebug() << "Changing Brightness";
-	double scale = 1.0 - double(ui->sldBrightness->value())/100.0;
-	int maxval = int(scale * 65000.);
-	int minval = 0;
-	qDebug() << "Scale: " << scale << "Max. value: " << maxval;
+	double scale = double(ui->sldBrightness->value()-50)/100.0;
+	int maxval = 65535 - int(1.5*scale * 65535.);
+	int minval = 0 - int(1.5*scale * 65535.);
+	qDebug() << "Scale: " << scale << "Min. value: " << minval << "Max. value: " << maxval;
 	QgsRasterLayer * imgLayer = imgcvs->getImageLayer();
 	QgsRasterDataProvider * provider = imgLayer->dataProvider();
     QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
