@@ -21,7 +21,6 @@
 #include <qgsmultibandcolorrenderer.h>
 #include <QLineEdit>
 #include "Stuk4Dialog.h"
-#include "QCategoryButton.h"
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -38,8 +37,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 		{
 		twgSession = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgSession);
-		ui->wdgFrameTree->setItemWidget(twgSession, 0,
-		new QCategoryButton("Projektauswahl", ui->wdgFrameTree, twgSession));
+		cbtSession = new QCategoryButton("Projektauswahl", ui->wdgFrameTree, twgSession);
+		ui->wdgFrameTree->setItemWidget(twgSession, 0, cbtSession);
 
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
@@ -57,8 +56,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	{
 		twgObjects = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgObjects);
-		ui->wdgFrameTree->setItemWidget(twgObjects, 0,
-		new QCategoryButton("Objektauswahl", ui->wdgFrameTree, twgObjects));
+		cbtObjects = new QCategoryButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
+		ui->wdgFrameTree->setItemWidget(twgObjects, 0, cbtObjects);
 
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
@@ -76,8 +75,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	{
 		twgCensus = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgCensus);
-		ui->wdgFrameTree->setItemWidget(twgCensus, 0,
-		new QCategoryButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus));
+		cbtCensus = new QCategoryButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
+		ui->wdgFrameTree->setItemWidget(twgCensus, 0, cbtCensus);
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
 		twgCensus->addChild(wdgContainer);
@@ -91,7 +90,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 		wdgCensus->wdgTabTypes->setAutoFillBackground(true);
 
 		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-		twgCensus->setExpanded(false);
+		if (!cbtCensus->isChecked())
+			twgCensus->setExpanded(false);
 
 	}
 
@@ -99,8 +99,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	{
 		twgGraphics = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgGraphics);
-		ui->wdgFrameTree->setItemWidget(twgGraphics, 0,
-		new QCategoryButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics));
+		cbtGraphics = new QCategoryButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
+		ui->wdgFrameTree->setItemWidget(twgGraphics, 0, cbtGraphics);
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
 		twgGraphics->addChild(wdgContainer);
@@ -264,8 +264,10 @@ void MainWindow::populateObjectTable() {
 	}
 	delete query;
 	cfg->image_path = db->getProjectPath(session);
-	twgSession->setExpanded(false);
-	twgObjects->setExpanded(true);
+	if (!cbtSession->isChecked())
+		twgSession->setExpanded(false);
+	if (!cbtObjects->isChecked())
+		twgObjects->setExpanded(true);
 }
 
 void MainWindow::objectUpdateSelection() {
@@ -327,8 +329,10 @@ void MainWindow::objectUpdateSelection() {
 		wdgCensus->btnDelete->setEnabled(false);
 	}
 	handleBrightnessSlider();
-	twgObjects->setExpanded(false);
-	twgCensus->setExpanded(true);
+	if (!cbtObjects->isChecked())
+		twgObjects->setExpanded(false);
+	if (!cbtCensus->isChecked())
+		twgCensus->setExpanded(true);
 	ui->wdgFrameTree->scrollToItem(twgCensus);
 }
 
