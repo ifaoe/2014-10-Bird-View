@@ -32,7 +32,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	// create expandable widget type
 	ui->wdgFrameTree->setRootIsDecorated(false);
 	ui->wdgFrameTree->setIndentation(0);
-
+	ui->wdgFrameTree->setBackgroundRole(QPalette::Window);
+	ui->wdgFrameTree->setAutoFillBackground(true);
 	//create widget
 		{
 		twgSession = new QTreeWidgetItem();
@@ -46,6 +47,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 		QWidget *widget = new QWidget;
 		wdgSession = new Ui::wdgSessions;
 		wdgSession->setupUi(widget);
+		widget->setBackgroundRole(QPalette::Window);
+		widget->setAutoFillBackground(true);
 		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
 		twgSession->setExpanded(true);
 	}
@@ -63,6 +66,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 		QWidget *widget = new QWidget;
 		wdgObjects = new Ui::wdgObjects;
 		wdgObjects->setupUi(widget);
+		widget->setBackgroundRole(QPalette::Window);
+		widget->setAutoFillBackground(true);
 		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
 		twgObjects->setExpanded(false);
 	}
@@ -79,8 +84,15 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 		QWidget *widget = new QWidget;
 		wdgCensus = new Ui::wdgCensus;
 		wdgCensus->setupUi(widget);
+
+		widget->setBackgroundRole(QPalette::Window);
+		widget->setAutoFillBackground(true);
+		wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
+		wdgCensus->wdgTabTypes->setAutoFillBackground(true);
+
 		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
 		twgCensus->setExpanded(false);
+
 	}
 
 	//create widget
@@ -95,10 +107,11 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 		QWidget *widget = new QWidget;
 		wdgGraphics = new Ui::wdgGraphics;
 		wdgGraphics->setupUi(widget);
+		widget->setBackgroundRole(QPalette::Window);
+		widget->setAutoFillBackground(true);
 		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
 		twgGraphics->setExpanded(false);
 	}
-
 	wdgCensus->btnSave->setEnabled(false);
 	wdgCensus->btnDelete->setEnabled(false);
 	wdgObjects->tblObjects->setColumnCount(5);
@@ -787,68 +800,10 @@ void MainWindow::handleUsrSelect() {
 }
 
 void MainWindow::handleBrightnessSlider() {
-//	qDebug() << "Changing Brightness";
-//	double scale = wdgGraphics->sldBrightness->value()/100.0/2;
-//	int maxval = 65535 - int(scale * 65535.);
-//	int minval = 0 + int(scale * 65535.);
-//	qDebug() << "Scale: " << scale << "Min. value: " << minval << "Max. value: " << maxval;
-//	QgsRasterLayer * imgLayer = imgcvs->getImageLayer();
-//	QgsRasterDataProvider * provider = imgLayer->dataProvider();
-//    QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
-//    qgsContrastEnhRed->setMinimumValue(minval);
-//    qgsContrastEnhRed->setMaximumValue(maxval);
-//    qgsContrastEnhRed->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
-//
-//    QgsContrastEnhancement* qgsContrastEnhGreen = new QgsContrastEnhancement(QGis::UInt16);
-//    qgsContrastEnhGreen->setMinimumValue(minval);
-//    qgsContrastEnhGreen->setMaximumValue(maxval);
-//    qgsContrastEnhGreen->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
-//
-//    QgsContrastEnhancement* qgsContrastEnhBlue = new QgsContrastEnhancement(QGis::UInt16);
-//    qgsContrastEnhBlue->setMinimumValue(minval);
-//    qgsContrastEnhBlue->setMaximumValue(maxval);
-//    qgsContrastEnhBlue->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
-//
-//    QgsMultiBandColorRenderer* renderer = new QgsMultiBandColorRenderer( provider , 1, 2, 3,
-//    		qgsContrastEnhRed, qgsContrastEnhGreen, qgsContrastEnhBlue);
-//
-//    imgLayer->setRenderer(renderer);
-//    imgcvs->refresh();
-//
-//    qDebug() << "Done.";
 	imgcvs->setRasterBrightness(wdgGraphics->sldBrightness->value());
 }
 
 void MainWindow::handleContrastSlider() {
-//	qDebug() << "Changing Contrast";
-//	double scale = double()/100.0/2;
-//	int minval = 0 + 0.5*pow(double(wdgGraphics->sldContrastMin->value())/100.0,2)*65535;
-//	int maxval = 65535 - 0.5*pow(double(wdgGraphics->sldContrastMax->value())/100.0,2)*65535;
-//	qDebug() << "Scale: " << scale << "Min. value: " << minval << "Max. value: " << maxval;
-//	QgsRasterLayer * imgLayer = imgcvs->getImageLayer();
-//	QgsRasterDataProvider * provider = imgLayer->dataProvider();
-//    QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
-//    qgsContrastEnhRed->setMinimumValue(minval);
-//    qgsContrastEnhRed->setMaximumValue(maxval);
-//    qgsContrastEnhRed->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
-//
-//    QgsContrastEnhancement* qgsContrastEnhGreen = new QgsContrastEnhancement(QGis::UInt16);
-//    qgsContrastEnhGreen->setMinimumValue(minval);
-//    qgsContrastEnhGreen->setMaximumValue(maxval);
-//    qgsContrastEnhGreen->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
-//
-//    QgsContrastEnhancement* qgsContrastEnhBlue = new QgsContrastEnhancement(QGis::UInt16);
-//    qgsContrastEnhBlue->setMinimumValue(minval);
-//    qgsContrastEnhBlue->setMaximumValue(maxval);
-//    qgsContrastEnhBlue->setContrastEnhancementAlgorithm ( QgsContrastEnhancement::StretchToMinimumMaximum);
-//
-//    QgsMultiBandColorRenderer* renderer = new QgsMultiBandColorRenderer( provider , 1, 2, 3,
-//    		qgsContrastEnhRed, qgsContrastEnhGreen, qgsContrastEnhBlue);
-//
-//    imgLayer->setRenderer(renderer);
-//    imgcvs->refresh();
-//
-//    qDebug() << "Done.";
 	imgcvs->setRasterContrast(wdgGraphics->sldContrast->value());
 }
 
@@ -875,8 +830,6 @@ void MainWindow::initFilters() {
 	wdgObjects->tblFilters->setColumnWidth(4, 80);
 
 	wdgObjects->tblFilters->horizontalHeader()->setStretchLastSection(true);
-
-//	wdgObjects->tblFilters->horizontalHeaderItem(0)->setData()
 
 	wdgObjects->tblFilters->setRowCount(1);
 
