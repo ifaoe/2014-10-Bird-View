@@ -9,7 +9,7 @@
 #define QCATEGORYCHECKBUTTON_H_
 
 #include <QPushButton>
-#include <QCheckBox>
+#include <QToolButton>
 #include <QTreeWidget>
 
 class QCategoryCheckButton: public QFrame {
@@ -26,7 +26,7 @@ private slots:
 private:
     QTreeWidgetItem* m_pItem;
     QPushButton * btnCategory;
-    QPushButton * chbCategory;
+    QToolButton * chbCategory;
 };
 
 #endif /* QCATEGORYCHECKBUTTON_H_ */

@@ -15,15 +15,17 @@ QCategoryCheckButton::QCategoryCheckButton( const QString& a_Text,
 {
 	setFrameStyle(QFrame::Raised);
 	btnCategory = new QPushButton(a_Text, this);
-	chbCategory = new QPushButton;
+	chbCategory = new QToolButton;
 	chbCategory->setCheckable(true);
 	chbCategory->setChecked(false);
+
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(chbCategory);
-	chbCategory->setFixedSize(30,30);
 	layout->addWidget(btnCategory);
 	layout->setSpacing(0);
 	layout->setContentsMargins(0,0,0,0);
+//	layout->setStretch(0,1);
+//	layout->setStretch(1,12);
 	setLayout(layout);
 	setContentsMargins(0,0,0,0);
 
