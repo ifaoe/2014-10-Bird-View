@@ -21,7 +21,8 @@ SOURCES += main.cpp\
         DatabaseHandler.cpp \
         SessionDialog.cpp \
         Stuk4Dialog.cpp \
-        QCategoryButton.cpp
+        QCategoryButton.cpp \
+        QCategoryCheckButton.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h\
 		SessionDialog.h \
 		census.hpp \
 		Stuk4Dialog.h \
-		QCategoryButton.h
+		QCategoryButton.h \
+		QCategoryCheckButton.h
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \

@@ -25,11 +25,11 @@
 #include "ImgCanvas.h"
 #include "DatabaseHandler.h"
 #include "ConfigHandler.h"
+#include "QCategoryCheckButton.h"
 #include "ui_widget_sessions.h"
 #include "ui_widget_objects.h"
 #include "ui_widget_census.h"
 #include "ui_widget_graphics.h"
-#include "QCategoryButton.h"
 
 namespace Ui {
 class MainWindow;
@@ -111,10 +111,10 @@ private:
 	QTreeWidgetItem* twgCensus = 0;
 	QTreeWidgetItem* twgGraphics = 0;
 
-	QCategoryButton* cbtSession = 0;
-	QCategoryButton* cbtObjects = 0;
-	QCategoryButton* cbtCensus = 0;
-	QCategoryButton* cbtGraphics = 0;
+	QCategoryCheckButton* cbtSession = 0;
+	QCategoryCheckButton* cbtObjects = 0;
+	QCategoryCheckButton* cbtCensus = 0;
+	QCategoryCheckButton* cbtGraphics = 0;
 
     QSet<int> sortSet;
 

@@ -31,19 +31,21 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	// create expandable widget type
 	ui->wdgFrameTree->setRootIsDecorated(false);
 	ui->wdgFrameTree->setIndentation(0);
+	ui->wdgFrameTree->viewport()->setBackgroundRole(QPalette::Background);
 	ui->wdgFrameTree->setBackgroundRole(QPalette::Window);
 	ui->wdgFrameTree->setAutoFillBackground(true);
+	ui->wdgFrameTree->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	//create widget
 		{
 		twgSession = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgSession);
-		cbtSession = new QCategoryButton("Projektauswahl", ui->wdgFrameTree, twgSession);
+		cbtSession = new QCategoryCheckButton("Projektauswahl", ui->wdgFrameTree, twgSession);
 		ui->wdgFrameTree->setItemWidget(twgSession, 0, cbtSession);
 
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
 		twgSession->addChild(wdgContainer);
-		QWidget *widget = new QWidget;
+		QFrame *widget = new QFrame;
 		wdgSession = new Ui::wdgSessions;
 		wdgSession->setupUi(widget);
 		widget->setBackgroundRole(QPalette::Window);
@@ -56,13 +58,13 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	{
 		twgObjects = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgObjects);
-		cbtObjects = new QCategoryButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
+		cbtObjects = new QCategoryCheckButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
 		ui->wdgFrameTree->setItemWidget(twgObjects, 0, cbtObjects);
 
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
 		twgObjects->addChild(wdgContainer);
-		QWidget *widget = new QWidget;
+		QFrame *widget = new QFrame;
 		wdgObjects = new Ui::wdgObjects;
 		wdgObjects->setupUi(widget);
 		widget->setBackgroundRole(QPalette::Window);
@@ -75,17 +77,18 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	{
 		twgCensus = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgCensus);
-		cbtCensus = new QCategoryButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
+		cbtCensus = new QCategoryCheckButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
 		ui->wdgFrameTree->setItemWidget(twgCensus, 0, cbtCensus);
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
 		twgCensus->addChild(wdgContainer);
-		QWidget *widget = new QWidget;
+		QFrame *widget = new QFrame;
 		wdgCensus = new Ui::wdgCensus;
 		wdgCensus->setupUi(widget);
-
 		widget->setBackgroundRole(QPalette::Window);
 		widget->setAutoFillBackground(true);
+		widget->resize(0,0);
+		wdgCensus->wdgTabTypes->setContentsMargins(0,0,0,0);
 		wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
 		wdgCensus->wdgTabTypes->setAutoFillBackground(true);
 
@@ -99,12 +102,12 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	{
 		twgGraphics = new QTreeWidgetItem();
 		ui->wdgFrameTree->addTopLevelItem(twgGraphics);
-		cbtGraphics = new QCategoryButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
+		cbtGraphics = new QCategoryCheckButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
 		ui->wdgFrameTree->setItemWidget(twgGraphics, 0, cbtGraphics);
 		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
 		wdgContainer->setDisabled(true);
 		twgGraphics->addChild(wdgContainer);
-		QWidget *widget = new QWidget;
+		QFrame *widget = new QFrame;
 		wdgGraphics = new Ui::wdgGraphics;
 		wdgGraphics->setupUi(widget);
 		widget->setBackgroundRole(QPalette::Window);
