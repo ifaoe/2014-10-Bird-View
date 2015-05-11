@@ -67,6 +67,7 @@ private slots:
 	void handleBirdSpanMeasurement();
 	void handleBirdLengthMeasurement();
 	void handleMammalLengthMeasurement();
+	void handleGroupSelection();
 private:
 	bool msm_running = false;
 	QgsProviderRegistry *prvRegistry = 0;
