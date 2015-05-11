@@ -26,7 +26,7 @@ private slots:
 private:
     QTreeWidgetItem* m_pItem;
     QPushButton * btnCategory;
-    QToolButton * chbCategory;
+    QPushButton * chbCategory;
 };
 
 #endif /* QCATEGORYCHECKBUTTON_H_ */
