@@ -212,6 +212,8 @@ void MainWindow::populateObjectTable() {
 	objSelector->clearSelection();
 	wdgObjects->tblObjects->clear();
 	wdgObjects->tblObjects->model()->removeRows(0,wdgObjects->tblObjects->rowCount());
+	wdgObjects->tblObjects->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+
 	QSqlQuery *query = db->getObjectResult( session, cfg->user(), filter);
 	int row = 0;
 	QMap<int, QString> usrCensus = db->getUserCensus(cfg->user(), session);
@@ -235,11 +237,11 @@ void MainWindow::populateObjectTable() {
 		QTableWidgetItem * census = new QTableWidgetItem(query->value(6).toString());
 
 
-		id->setTextAlignment(Qt::AlignHCenter);
-		type->setTextAlignment(Qt::AlignHCenter);
-		cam->setTextAlignment(Qt::AlignHCenter);
-		img->setTextAlignment(Qt::AlignHCenter);
-		census->setTextAlignment(Qt::AlignHCenter);
+		id->setTextAlignment(Qt::AlignCenter);
+		type->setTextAlignment(Qt::AlignCenter);
+		cam->setTextAlignment(Qt::AlignCenter);
+		img->setTextAlignment(Qt::AlignCenter);
+		census->setTextAlignment(Qt::AlignCenter);
 
 		id->setFlags(id->flags() & ~Qt::ItemIsEditable);
 		type->setFlags(id->flags() & ~Qt::ItemIsEditable);
@@ -267,6 +269,11 @@ void MainWindow::populateObjectTable() {
 	}
 	delete query;
 	cfg->image_path = db->getProjectPath(session);
+	wdgObjects->tblObjects->setMinimumSize(wdgObjects->tblObjects->width(), 50);
+	wdgObjects->tblObjects->setMaximumSize(wdgObjects->tblObjects->width(),
+			wdgObjects->tblObjects->rowHeight(0)*6);
+	wdgObjects->wdgObjectsTable->adjustSize();
+
 	if (!cbtSession->isChecked())
 		twgSession->setExpanded(false);
 	if (!cbtObjects->isChecked())
@@ -839,6 +846,7 @@ void MainWindow::initFilters() {
 	wdgObjects->tblFilters->horizontalHeader()->setStretchLastSection(true);
 
 	wdgObjects->tblFilters->setRowCount(1);
+	wdgObjects->tblFilters->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
 	cmbFilterCam = new QComboBox();
 	cmbFilterType = new QComboBox();
@@ -876,6 +884,13 @@ void MainWindow::initFilters() {
 	connect(cmbFilterType, SIGNAL(currentIndexChanged(int)), this, SLOT(handleTypeFilter(int)));
 	connect(cmbFilterCensus, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensusFilter(int)));
 	connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter(int)));
+
+	wdgObjects->tblFilters->setMinimumSize(
+			wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
+			wdgObjects->tblFilters->horizontalHeader()->height());
+	wdgObjects->tblFilters->setMaximumSize(
+			wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
+			wdgObjects->tblFilters->horizontalHeader()->height());
 }
 
 void MainWindow::handleLineEditFilter() {

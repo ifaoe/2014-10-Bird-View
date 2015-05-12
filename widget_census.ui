@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>467</width>
-    <height>718</height>
+    <height>664</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -115,6 +115,9 @@
           <string>Bestimmungsqualität</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdQual1">
             <property name="text">
@@ -197,6 +200,9 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_11">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbBirdFemale">
             <property name="text">
@@ -250,6 +256,9 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdAgeAdult">
             <property name="text">
@@ -368,6 +377,9 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdBehaveFly">
             <property name="sizePolicy">
@@ -418,6 +430,9 @@
           <string>StUK4 Codes</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="0" column="0">
            <widget class="QToolButton" name="tbtStuk4CodesBird">
             <property name="text">
@@ -448,6 +463,9 @@
           <string>Größenmessung</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_17">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item row="2" column="0">
            <widget class="QPushButton" name="btnBirdSizeSpan">
             <property name="maximumSize">
