@@ -15,10 +15,9 @@ QCategoryCheckButton::QCategoryCheckButton( const QString& a_Text,
 {
 	setFrameStyle(QFrame::Raised);
 	btnCategory = new QPushButton(a_Text, this);
-	chbCategory = new QPushButton("", this);
+	chbCategory = new QPushButton;
 	chbCategory->setCheckable(true);
 	chbCategory->setChecked(false);
-	chbCategory->setFixedSize(btnCategory->height(),btnCategory->height());
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(chbCategory);
@@ -33,6 +32,9 @@ QCategoryCheckButton::QCategoryCheckButton( const QString& a_Text,
 
     connect(btnCategory, SIGNAL(pressed()), this, SLOT(ButtonPressed()));
     connect(chbCategory, SIGNAL(clicked()), this, SLOT(CheckBoxSwitched()));
+
+    btnCategory->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+    chbCategory->setFixedSize(btnCategory->height(),btnCategory->height());
 }
 
 void QCategoryCheckButton::ButtonPressed()

@@ -21,6 +21,8 @@
 
 int main(int argc, char *argv[])
 {
+	QApplication::setDesktopSettingsAware(false);
+	QApplication::setStyle("GTK+");
     QApplication a(argc, argv);
     ConfigHandler *cfg = new ConfigHandler(argc, argv);
 
