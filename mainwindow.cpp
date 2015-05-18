@@ -18,7 +18,6 @@
 #include <QSqlQuery>
 #include <QMotifStyle>
 #include <QMessageBox>
-#include <qgsmultibandcolorrenderer.h>
 #include <QLineEdit>
 #include "Stuk4Dialog.h"
 
@@ -269,10 +268,14 @@ void MainWindow::populateObjectTable() {
 	}
 	delete query;
 	cfg->image_path = db->getProjectPath(session);
-	wdgObjects->tblObjects->setMinimumSize(wdgObjects->tblObjects->width(), 50);
-	wdgObjects->tblObjects->setMaximumSize(wdgObjects->tblObjects->width(),
-			wdgObjects->tblObjects->rowHeight(0)*6);
-	wdgObjects->wdgObjectsTable->adjustSize();
+	if (wdgObjects->tblObjects->rowCount() > 0) {
+		wdgObjects->tblObjects->setMinimumSize(wdgObjects->tblObjects->width(), 50);
+		wdgObjects->tblObjects->setMaximumSize(wdgObjects->tblObjects->width(),
+				wdgObjects->tblObjects->rowHeight(0)*6);
+		wdgObjects->wdgObjectsTable->adjustSize();
+	} else {
+		wdgObjects->wdgObjectsTable->adjustSize();
+	}
 
 	if (!cbtSession->isChecked())
 		twgSession->setExpanded(false);

@@ -25,11 +25,11 @@
 #include "ImgCanvas.h"
 #include "DatabaseHandler.h"
 #include "ConfigHandler.h"
-#include "QCategoryCheckButton.h"
 #include "ui_widget_sessions.h"
 #include "ui_widget_objects.h"
 #include "ui_widget_census.h"
 #include "ui_widget_graphics.h"
+#include "QCategoryCheckButton.h"
 
 namespace Ui {
 class MainWindow;
