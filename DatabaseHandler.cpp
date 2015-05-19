@@ -188,7 +188,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	delete query;
 	qDebug() << "Getting object specific data for ID: " << objId;
 	qstr =	"SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual, length, width"
-			", stuk4_beh, stuk4_ass "
+			", stuk4_beh, stuk4_ass, group_objects "
 			"FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
 	qDebug() << qstr;
 	// if there is already an entry in census db-table,
@@ -209,14 +209,9 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 		obj->span = query->value(11).toDouble();
 		obj->stuk4_beh = query->value(12).toString().remove(QRegExp("[{}]")).split(",");
 		obj->stuk4_ass = query->value(13).toString().remove(QRegExp("[{}]")).split(",");
+		obj->group = query->value(14).toString().remove(QRegExp("[{}]")).split(",");
 	}
 	delete query;
-//	qstr = "SELECT max(censor) FROM census WHERE rcns_id=" + objId;
-//	query = new QSqlQuery(qstr);
-//	if (query->next()) {
-//		obj->censor = query->value(0).toInt();
-//	}
-//	delete query;
 	return obj;
 }
 
@@ -275,6 +270,7 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	else record->setNull("width");
 	record->setValue("stuk4_beh", "{"+obj->stuk4_beh.join(",")+"}");
 	record->setValue("stuk4_ass", "{"+obj->stuk4_ass.join(",")+"}");
+	record->setValue("group_objects", "{"+obj->group.join(",")+"}");
 }
 
 /*
@@ -454,7 +450,7 @@ bool DatabaseHandler::getSessionActive(QString session) {
 
 QSqlQueryModel * DatabaseHandler::getStuk4Behaviour() {
 	QSqlQueryModel * model = new QSqlQueryModel;
-	model->setQuery("SELECT code, category, description FROM stuk4_codes where type='BEH'");
+	model->setQuery("SELECT code, category, description FROM stuk4_codes where type='BEH' ORDER BY code");
 	model->setHeaderData(0, Qt::Horizontal, "Code");
 	model->setHeaderData(1, Qt::Horizontal, "Kategorie");
 	model->setHeaderData(2, Qt::Horizontal, "Beschreibung");
@@ -463,9 +459,57 @@ QSqlQueryModel * DatabaseHandler::getStuk4Behaviour() {
 
 QSqlQueryModel * DatabaseHandler::getStuk4Associations() {
 	QSqlQueryModel * model = new QSqlQueryModel;
-	model->setQuery("SELECT code, category, description FROM stuk4_codes where type='ASS'");
+	model->setQuery("SELECT code, category, description FROM stuk4_codes where type='ASS' ORDER BY code");
 	model->setHeaderData(0, Qt::Horizontal, "Code");
 	model->setHeaderData(1, Qt::Horizontal, "Kategorie");
 	model->setHeaderData(2, Qt::Horizontal, "Beschreibung");
 	return model;
  }
+
+QSqlQueryModel * DatabaseHandler::getCloseObjects(census * obj) {
+	QSqlQueryModel * model = new QSqlQueryModel;
+	QString qstr = "SELECT sync_id FROM sync_utm32 WHERE cam" + QString::number(obj->camera) + "_id='"
+			+ obj->image + "'";
+	QSqlQuery query(qstr);
+	int sync_id;
+	if (query.next())
+		sync_id = query.value(0).toInt();
+	else {
+		qDebug() << qstr;
+		return model;
+	}
+
+
+
+	query.clear();
+
+	QStringList sidList = QStringList() << QString::number(sync_id-1) << QString::number(sync_id)
+										<< QString::number(sync_id+1);
+	qstr = "SELECT cam, img FROM image_properties WHERE sync_id IN (" +sidList.join(",")+ ")";
+	query.exec(qstr);
+
+	QStringList condList;
+	while(query.next()) {
+		condList.append("(cam='" + query.value(0).toString()
+					+ "' AND img='" +query.value(1).toString()+ "')");
+	}
+	/*
+	 * TODO: Add distance comparison
+	 */
+	qstr = "SELECT rcns_id, cam, img, ux, uy, tp, "
+			"ST_Distance( (SELECT ST_SetSRID(ST_Point(ux,uy),32632) FROM raw_census "
+			"where rcns_id=" + QString::number(obj->id) + ") "
+			", ST_SetSRID(ST_Point(ux,uy),32632) ) as dist FROM raw_census "
+			"WHERE (" + condList.join(" OR ") + ") AND rcns_id!=" + QString::number(obj->id) +
+			" AND session='" + obj->session + "' ORDER BY dist";
+	qDebug() << qstr;
+	model->setQuery(qstr);
+	model->setHeaderData(0, Qt::Horizontal, "Object Id");
+	model->setHeaderData(1, Qt::Horizontal, "Kamera");
+	model->setHeaderData(2, Qt::Horizontal, "Bildnummer");
+	model->setHeaderData(3, Qt::Horizontal, "UTM X");
+	model->setHeaderData(4, Qt::Horizontal, "UTM Y");
+	model->setHeaderData(5, Qt::Horizontal, "Vorsortierung");
+	model->setHeaderData(6, Qt::Horizontal, "Entfernung in m");
+	return model;
+}

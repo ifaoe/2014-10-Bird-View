@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>467</width>
-    <height>664</height>
+    <height>786</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -510,6 +510,35 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="gbxGroupBird">
+         <property name="title">
+          <string>Gruppenbestimmung</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="1">
+           <widget class="QLabel" name="lblGroupBirdObjects">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>3</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QToolButton" name="tbtGroupBird">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="lblBirdRemarks">
          <property name="text">
           <string>Bemerkungen:</string>
@@ -568,18 +597,15 @@
       <attribute name="title">
        <string>Meeressäuger</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="spacing">
-        <number>3</number>
-       </property>
-       <item>
+      <layout class="QGridLayout" name="gridLayout_14">
+       <item row="0" column="0" colspan="2">
         <widget class="QComboBox" name="cmbMammal">
          <property name="editable">
           <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="1" column="0" colspan="2">
         <widget class="QGroupBox" name="gbxMammalQuality">
          <property name="title">
           <string>Bestimmungsqualität</string>
@@ -643,7 +669,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0" colspan="2">
         <widget class="QGroupBox" name="gbxMammalBehaviour">
          <property name="title">
           <string>Verhalten</string>
@@ -687,7 +713,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="gbxMammalAge">
          <property name="title">
           <string>Alter</string>
@@ -731,8 +757,11 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="4" column="0" colspan="2">
         <widget class="QGroupBox" name="gbxStuk4Mammal">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="title">
           <string>StUK4 Codes</string>
          </property>
@@ -761,7 +790,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="5" column="0" rowspan="2" colspan="2">
         <widget class="QGroupBox" name="gbxMammalSize">
          <property name="title">
           <string>Größenmessung</string>
@@ -793,14 +822,14 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="8" column="0" colspan="2">
         <widget class="QLabel" name="lblMammalRemarks">
          <property name="text">
           <string>Bemerkungen:</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="10" column="0" colspan="2">
         <widget class="QPlainTextEdit" name="txtMammalRemarks">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -822,7 +851,7 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="11" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -834,6 +863,35 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="7" column="0">
+        <widget class="QGroupBox" name="gbxGroupMammal">
+         <property name="title">
+          <string>Gruppenbestimmung</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_12">
+          <item row="0" column="0">
+           <widget class="QToolButton" name="tbtGroupMammal">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="lblGroupMammalObjects">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>3</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -868,13 +926,7 @@
          <property name="title">
           <string>Bestimmungsqualität</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_23">
+         <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbNoSightQual1">
             <property name="text">
@@ -885,6 +937,19 @@
             </property>
             <property name="dbvalue" stdset="0">
              <string>1</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">btngNoSightQual</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="rbNoSightQual2">
+            <property name="text">
+             <string comment="2">sehr wahrscheinlich</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>2</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">btngNoSightQual</string>
@@ -911,19 +976,6 @@
             </property>
             <property name="dbvalue" stdset="0">
              <string>4</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngNoSightQual</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rbNoSightQual2">
-            <property name="text">
-             <string comment="2">sehr wahrscheinlich</string>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>2</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">btngNoSightQual</string>
@@ -1002,17 +1054,14 @@
          <property name="title">
           <string>Bestimmungsqualität</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_27">
-          <item row="1" column="0">
-           <widget class="QRadioButton" name="rbTrashQual1">
+         <layout class="QGridLayout" name="gridLayout_27" rowstretch="0,0,0,0">
+          <item row="2" column="1">
+           <widget class="QRadioButton" name="rbTrashQual4">
             <property name="text">
-             <string comment="1">sicher</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
+             <string comment="4">potenziell</string>
             </property>
             <property name="dbvalue" stdset="0">
-             <string>1</string>
+             <string>4</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">btngTrashQual</string>
@@ -1045,13 +1094,16 @@
             </attribute>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QRadioButton" name="rbTrashQual4">
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="rbTrashQual1">
             <property name="text">
-             <string comment="4">potenziell</string>
+             <string comment="1">sicher</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
             <property name="dbvalue" stdset="0">
-             <string>4</string>
+             <string>1</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">btngTrashQual</string>

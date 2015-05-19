@@ -52,6 +52,7 @@ public:
 	bool getAnthroObjectList(QComboBox * cmb);
 	QSqlQueryModel * getStuk4Behaviour();
 	QSqlQueryModel * getStuk4Associations();
+	QSqlQueryModel * getCloseObjects(census * obj);
 private:
 	QSqlDatabase *db;
 	ConfigHandler *cfg;

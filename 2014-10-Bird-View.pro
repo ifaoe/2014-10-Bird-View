@@ -22,7 +22,8 @@ SOURCES += main.cpp\
         SessionDialog.cpp \
         Stuk4Dialog.cpp \
         QCategoryButton.cpp \
-        QCategoryCheckButton.cpp
+        QCategoryCheckButton.cpp \
+        GroupSelection.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -33,7 +34,8 @@ HEADERS  += mainwindow.h\
 		census.hpp \
 		Stuk4Dialog.h \
 		QCategoryButton.h \
-		QCategoryCheckButton.h
+		QCategoryCheckButton.h \
+		GroupSelection.h
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
@@ -41,7 +43,8 @@ FORMS    += mainwindow.ui \
 			widget_sessions.ui\
 			widget_census.ui\
 			widget_objects.ui \
-			widget_graphics.ui
+			widget_graphics.ui \
+			dialog_groupid.ui
 			
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis

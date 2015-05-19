@@ -37,6 +37,7 @@ struct census {
 	double length = -1;
 	QStringList stuk4_beh;
 	QStringList stuk4_ass;
+	QStringList group;
 };
 
 

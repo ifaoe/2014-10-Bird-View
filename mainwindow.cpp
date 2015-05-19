@@ -18,8 +18,10 @@
 #include <QSqlQuery>
 #include <QMotifStyle>
 #include <QMessageBox>
+#include <qgsmultibandcolorrenderer.h>
 #include <QLineEdit>
 #include "Stuk4Dialog.h"
+#include "GroupSelection.h"
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -190,6 +192,10 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgCensus->btnBirdSizeSpan, SIGNAL(clicked()), this, SLOT(handleBirdSpanMeasurement()));
     connect(wdgCensus->btnBirdSizeLength, SIGNAL(clicked()), this, SLOT(handleBirdLengthMeasurement()));
     connect(wdgCensus->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
+
+
+    connect(wdgCensus->tbtGroupBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
+    connect(wdgCensus->tbtGroupMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
 
     wdgCensus->btnBirdSizeLength->setEnabled(false);
     wdgCensus->btnBirdSizeSpan->setEnabled(false);
@@ -723,6 +729,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 	wdgCensus->lblStuk4BehMammal->setText("Verhalten:");
 	wdgCensus->lblStuk4AssMammal->setText("Assoziationen:");
 
+	//clear group list labels
+	wdgCensus->lblGroupBirdObjects->setText("Gruppe:");
+	wdgCensus->lblGroupMammalObjects->setText("Gruppe:");
+
+
 	// Recalculate values of the QDial to 0=North
 	qDebug() << "Dir: " << cobj->direction;
 	if (cobj->direction >= 0 ) {
@@ -771,6 +782,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 			if (cobj->length > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
 			wdgCensus->lblStuk4BehBird->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
 			wdgCensus->lblStuk4AssBird->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
+			wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + cobj->group.join(", "));
 
 			wdgCensus->cmbBird->setFocus();
 		} else if (shTp == "M" ) { // Mammal Tab
@@ -787,6 +799,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 			if (cobj->length > 0 )wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
 			wdgCensus->lblStuk4BehMammal->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
 			wdgCensus->lblStuk4AssMammal->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
+			wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + cobj->group.join(", "));
 
 			wdgCensus->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
@@ -948,6 +961,9 @@ bool MainWindow::compareResults(census * curObj, census * cenObj) {
 	agree = agree && (curObj->type == cenObj->type);
 	if (curObj->quality == 4 || cenObj->quality == 4)
 		agree = agree && (curObj->quality == cenObj->quality);
+	agree = agree && (curObj->group == cenObj->group);
+	agree = agree && (curObj->stuk4_ass == cenObj->stuk4_ass);
+	agree = agree && (curObj->stuk4_beh == cenObj->stuk4_beh);
 	return agree;
 }
 
@@ -1030,3 +1046,17 @@ void MainWindow::handleStuk4Selection() {
 
 };
 
+void MainWindow::handleGroupSelection() {
+	if (curObj == 0) return;
+	GroupSelection * dlg = new GroupSelection(db, curObj, this);
+	dlg->exec();
+	delete dlg;
+	if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
+		wdgCensus->lblGroupBirdObjects->setText("Gruppe:" + curObj->group.join(", "));
+	} else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
+		wdgCensus->lblGroupMammalObjects->setText("Gruppe:" + curObj->group.join(", "));
+	} else {
+		return;
+	}
+	return;
+}
