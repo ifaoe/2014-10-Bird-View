@@ -177,61 +177,86 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="gbxBirdGender">
+        <widget class="QGroupBox" name="gbxBirdBehavior">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="title">
-          <string>Geschlecht</string>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
+          <string>Verhalten</string>
          </property>
          <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
           <bool>false</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_11">
+         <layout class="QGridLayout" name="gridLayout">
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rbBirdFemale">
-            <property name="text">
-             <string comment="F">weiblich</string>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>F</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngBirdSex</string>
-            </attribute>
-           </widget>
-          </item>
           <item row="0" column="0">
-           <widget class="QRadioButton" name="rbBirdMale">
-            <property name="enabled">
-             <bool>false</bool>
+           <widget class="QRadioButton" name="rbBirdBehaveFly">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
             <property name="text">
-             <string comment="M">männlich</string>
+             <string comment="F">fliegend</string>
             </property>
             <property name="checked">
              <bool>true</bool>
             </property>
             <property name="dbvalue" stdset="0">
-             <string>M</string>
+             <string>FLY</string>
             </property>
             <attribute name="buttonGroup">
-             <string notr="true">btngBirdSex</string>
+             <string notr="true">btngBirdBeh</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="rbBirdBehaveSwim">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string comment="S">schwimmend</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>SWIM</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">btngBirdBeh</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QRadioButton" name="rbBirdBehaveDive">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>tauchend</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>DIVE</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">btngBirdBeh</string>
             </attribute>
            </widget>
           </item>
@@ -357,67 +382,61 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="gbxBirdBehavior">
+        <widget class="QGroupBox" name="gbxBirdGender">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="title">
-          <string>Verhalten</string>
-         </property>
-         <property name="checkable">
+         <property name="autoFillBackground">
           <bool>false</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout">
+         <property name="title">
+          <string>Geschlecht</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_11">
           <property name="bottomMargin">
            <number>0</number>
           </property>
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="rbBirdFemale">
+            <property name="text">
+             <string comment="F">weiblich</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>F</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">btngBirdSex</string>
+            </attribute>
+           </widget>
+          </item>
           <item row="0" column="0">
-           <widget class="QRadioButton" name="rbBirdBehaveFly">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QRadioButton" name="rbBirdMale">
+            <property name="enabled">
+             <bool>false</bool>
             </property>
             <property name="text">
-             <string comment="F">fliegend</string>
+             <string comment="M">männlich</string>
             </property>
             <property name="checked">
              <bool>true</bool>
             </property>
             <property name="dbvalue" stdset="0">
-             <string>FLY</string>
+             <string>M</string>
             </property>
             <attribute name="buttonGroup">
-             <string notr="true">btngBirdBeh</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rbBirdBehaveSwim">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string comment="S">schwimmend</string>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>SWIM</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngBirdBeh</string>
+             <string notr="true">btngBirdSex</string>
             </attribute>
            </widget>
           </item>
@@ -518,11 +537,25 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="0" column="1">
-           <widget class="QLabel" name="lblGroupBirdObjects">
+          <item row="0" column="0">
+           <widget class="QToolButton" name="tbtGroupBird">
+            <property name="text">
+             <string>Gruppe</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="tbtFamilyBird">
+            <property name="text">
+             <string>Familie</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLabel" name="lblFamilyBird">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>3</horstretch>
+              <horstretch>1</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
@@ -531,10 +564,16 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QToolButton" name="tbtGroupBird">
+          <item row="0" column="1">
+           <widget class="QLabel" name="lblGroupBirdObjects">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>...</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -867,7 +906,27 @@
            <widget class="QLabel" name="lblGroupMammalObjects">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>3</horstretch>
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="tbtFamilyMammal">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLabel" name="lblFamilyMammal">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>1</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
@@ -1070,6 +1129,13 @@
        <property name="spacing">
         <number>3</number>
        </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>GroupBox</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QGroupBox" name="gbxTrashQuality">
          <property name="title">

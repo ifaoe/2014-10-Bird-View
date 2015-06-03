@@ -188,7 +188,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	delete query;
 	qDebug() << "Getting object specific data for ID: " << objId;
 	qstr =	"SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual, length, width"
-			", stuk4_beh, stuk4_ass, group_objects "
+			", stuk4_beh, stuk4_ass, group_objects, family_group "
 			"FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
 	qDebug() << qstr;
 	// if there is already an entry in census db-table,
@@ -210,6 +210,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 		obj->stuk4_beh = query->value(12).toString().remove(QRegExp("[{}]")).split(",");
 		obj->stuk4_ass = query->value(13).toString().remove(QRegExp("[{}]")).split(",");
 		obj->group = query->value(14).toString().remove(QRegExp("[{}]")).split(",");
+		obj->family = query->value(15).toString().remove(QRegExp("[{}]")).split(",");
 	}
 	delete query;
 	return obj;
@@ -232,8 +233,9 @@ bool DatabaseHandler::writeCensus(census * obj) {
 		// remove first entry of record
 		// auto increment of id is handled by postgres
 		record.remove(0);
+		bool done = table.insertRecord(-1,record);
 		qDebug() << table.lastError();
-		return table.insertRecord(-1,record);
+		return done;
 	} else { //UPDATE
 		qDebug() << "Update!";
 		record.setValue("fcns_id",table.record(0).value(0).toInt());
@@ -271,6 +273,7 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
 	record->setValue("stuk4_beh", "{"+obj->stuk4_beh.join(",")+"}");
 	record->setValue("stuk4_ass", "{"+obj->stuk4_ass.join(",")+"}");
 	record->setValue("group_objects", "{"+obj->group.join(",")+"}");
+	record->setValue("family_group", "{"+obj->family.join(",")+"}");
 }
 
 /*

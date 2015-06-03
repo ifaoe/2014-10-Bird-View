@@ -38,6 +38,7 @@ struct census {
 	QStringList stuk4_beh;
 	QStringList stuk4_ass;
 	QStringList group;
+	QStringList family;
 };
 
 
