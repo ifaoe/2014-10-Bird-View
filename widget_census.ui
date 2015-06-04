@@ -898,7 +898,7 @@
           <item row="0" column="0">
            <widget class="QToolButton" name="tbtGroupMammal">
             <property name="text">
-             <string>...</string>
+             <string>Gruppe</string>
             </property>
            </widget>
           </item>
@@ -918,7 +918,7 @@
           <item row="0" column="2">
            <widget class="QToolButton" name="tbtFamilyMammal">
             <property name="text">
-             <string>...</string>
+             <string>Familie</string>
             </property>
            </widget>
           </item>

@@ -65,7 +65,7 @@ QStringList DatabaseHandler::getBirdTypeList() {
 	QStringList birdList;
 	QString qstr = "SELECT tx_name_de FROM taxa_bird";
 	qDebug() << qstr;
-	QSqlQuery query("SELECT tx_name_de FROM taxa_bird");
+	QSqlQuery query("SELECT tx_name_de FROM taxa_bird ORDER BY seabird DESC, tx_name_de");
 	while(query.next()) {
 		birdList.append(query.value(0).toString());
 	}
