@@ -168,16 +168,20 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
 	initMapView();
 
-    connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(objectUpdateSelection()));
+    connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+    		this, SLOT(objectUpdateSelection()));
     connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
     connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
     connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
     connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
     connect(wdgCensus->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
-    connect(wdgGraphics->sldBrightness, SIGNAL(sliderReleased()), this, SLOT(handleBrightnessSlider()));
-    connect(wdgGraphics->sldContrast, SIGNAL(sliderReleased()), this, SLOT(handleContrastSlider()));
-    connect(wdgGraphics->btnBrightnessReset, SIGNAL(clicked()), this, SLOT(handleBrightnessReset()));
+    connect(wdgGraphics->sldBrightness, SIGNAL(sliderReleased()),
+    		this, SLOT(handleBrightnessSlider()));
+    connect(wdgGraphics->sldContrast, SIGNAL(sliderReleased()),
+    		this, SLOT(handleContrastSlider()));
+    connect(wdgGraphics->btnBrightnessReset, SIGNAL(clicked()),
+    		this, SLOT(handleBrightnessReset()));
     connect(wdgGraphics->btnContrastReset, SIGNAL(clicked()), this, SLOT(handleContrastReset()));
 
     connect(wdgCensus->btnSave, SIGNAL(released()), this, SLOT(handleSaveButton()));
@@ -375,7 +379,8 @@ void MainWindow::handleSaveButton() {
 	curObj->type = wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 
 	if(curObj->type == "BIRD") {
-		if ((wdgCensus->btngBirdBeh->checkedButton()->property("dbvalue").toString() == "FLY") && (dialChecked == false)) {
+		if ((wdgCensus->btngBirdBeh->checkedButton()->property("dbvalue").toString() == "FLY")
+				&& (dialChecked == false)) {
 				QMessageBox * msgBox = new QMessageBox();
 				msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
 				QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
@@ -470,7 +475,8 @@ void MainWindow::handleSaveButton() {
 		curObj->remarks = wdgCensus->pteTrashRemarks->toPlainText();
 		curObj->direction = -1;
 	} else if (curObj->type == "ANTHRO") {
-		curObj->name = wdgCensus->cmbAnthroName->itemData(wdgCensus->cmbAnthroName->currentIndex()).toString();
+		curObj->name = wdgCensus->cmbAnthroName->itemData(
+				wdgCensus->cmbAnthroName->currentIndex()).toString();
 		curObj->quality = wdgCensus->btngAnthroQual->checkedButton()->property("dbvalue").toInt();
 		curObj->behavior = "";
 		curObj->age = "";
@@ -613,9 +619,10 @@ void MainWindow::handleMapToolButton() {
 	if (curObj == 0) return;
 	QString scale="8";
 	QString url = "";
-	url += "http://www.openstreetmap.org/?mlat=" + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
+	url += "http://www.openstreetmap.org/?mlat="
+			+ QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
 	url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
-//	url += "http://maps.google.com/maps?q=" + QString::number(curObj->ly) + "," + QString::number(curObj->lx);
+
 	if (sender() == btnMapModeImg) {
 		qDebug() << "Load URL: " << url;
 		geoMap->load(QUrl(url));
@@ -804,7 +811,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 				selectButtonByString(wdgCensus->btngMammalAge, cobj->age);
 			}
 			wdgCensus->txtMammalRemarks->setPlainText(cobj->remarks);
-			if (cobj->length > 0 )wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
+			if (cobj->length > 0 )
+				wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
 			wdgCensus->lblStuk4BehMammal->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
 			wdgCensus->lblStuk4AssMammal->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
 			wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + cobj->group.join(", "));
@@ -859,8 +867,8 @@ void MainWindow::handleContrastReset() {
 }
 
 void MainWindow::initFilters() {
-	wdgObjects->tblFilters->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "Typ" <<
-				"Bestimmung");
+	wdgObjects->tblFilters->setHorizontalHeaderLabels(
+			QStringList() << "ID" << "IMG" << "CAM" << "Typ" << "Bestimmung");
 	wdgObjects->tblFilters->horizontalHeader()->setHighlightSections(false);
 	wdgObjects->tblFilters->setSelectionMode(QAbstractItemView::NoSelection);
 
@@ -888,12 +896,20 @@ void MainWindow::initFilters() {
 	wdgObjects->tblFilters->setCellWidget(0,3,cmbFilterType);
 	wdgObjects->tblFilters->setCellWidget(0,4,cmbFilterCensus);
 
-	wdgObjects->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
-	wdgObjects->cmbFilterCensor->addItem(trUtf8("Unbearbeitet"),
+	wdgObjects->cmbFilterUserCensor->addItem(trUtf8(""), QVariant(""));
+	wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Unbearbeitet"),
 			QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
-	wdgObjects->cmbFilterCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL"));
-	wdgObjects->cmbFilterCensor->addItem(trUtf8("Endbestimmt"),QVariant(" AND mc>1"));
+	wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL"));
+
+	wdgObjects->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
+	wdgObjects->cmbFilterCensor->addItem(trUtf8("Unbestimmt"),QVariant(" AND (mc=0 OR mc IS NULL)"));
+//	wdgObjects->cmbFilterCensor->setItemData( 1, QColor( Qt::white ), Qt::BackgroundRole );
+	wdgObjects->cmbFilterCensor->addItem(trUtf8("Erstbestimmt"),QVariant(" AND mc=1 AND cnt=1"));
+//	wdgObjects->cmbFilterCensor->setItemData( 2, QColor( Qt::gray ), Qt::BackgroundRole );
 	wdgObjects->cmbFilterCensor->addItem(trUtf8("Unstimmigkeiten"),QVariant(" AND mc=1 AND cnt>1"));
+//	wdgObjects->cmbFilterCensor->setItemData( 3, QColor( Qt::red ), Qt::BackgroundRole );
+	wdgObjects->cmbFilterCensor->addItem(trUtf8("Enbestimmt"),QVariant(" AND mc>1"));
+//	wdgObjects->cmbFilterCensor->setItemData( 4, QColor( Qt::green ), Qt::BackgroundRole );
 
 	cmbFilterCam->addItem(trUtf8(""), QVariant(""));
 	cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));
@@ -910,7 +926,11 @@ void MainWindow::initFilters() {
 	connect(cmbFilterCam, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCamFilter(int)));
 	connect(cmbFilterType, SIGNAL(currentIndexChanged(int)), this, SLOT(handleTypeFilter(int)));
 	connect(cmbFilterCensus, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensusFilter(int)));
-	connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter(int)));
+
+	connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)),
+			this, SLOT(handleCensorFilter()));
+	connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)),
+			this, SLOT(handleCensorFilter()));
 
 	wdgObjects->tblFilters->setMinimumSize(
 			wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
@@ -932,8 +952,11 @@ void MainWindow::handleLineEditFilter() {
 	populateObjectTable();
 }
 
-void MainWindow::handleCensorFilter(int index) {
-	filterMap["Censor"] = wdgObjects->cmbFilterCensor->itemData(index).toString();
+void MainWindow::handleCensorFilter() {
+	filterMap["UserCensor"] = wdgObjects->cmbFilterUserCensor->itemData(
+			wdgObjects->cmbFilterUserCensor->currentIndex()).toString();
+	filterMap["Censor"] = wdgObjects->cmbFilterCensor->itemData(
+			wdgObjects->cmbFilterCensor->currentIndex()).toString();
 	populateObjectTable();
 }
 

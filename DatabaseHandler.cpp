@@ -63,9 +63,9 @@ QStringList DatabaseHandler::getSessionList() {
 QStringList DatabaseHandler::getBirdTypeList() {
 	qDebug() << "Getting bird type list from database.";
 	QStringList birdList;
-	QString qstr = "SELECT tx_name_de FROM taxa_bird";
+	QString qstr = "SELECT tx_name_de FROM taxa_bird ORDER BY seabird DESC, tx_name_de";
 	qDebug() << qstr;
-	QSqlQuery query("SELECT tx_name_de FROM taxa_bird ORDER BY seabird DESC, tx_name_de");
+	QSqlQuery query(qstr);
 	while(query.next()) {
 		birdList.append(query.value(0).toString());
 	}
