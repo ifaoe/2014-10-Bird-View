@@ -23,8 +23,7 @@ SOURCES += main.cpp\
         Stuk4Dialog.cpp \
         QCategoryButton.cpp \
         QCategoryCheckButton.cpp \
-        GroupSelection.cpp \
-        FamilySelection.cpp
+        GroupSelection.cpp 
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -36,8 +35,7 @@ HEADERS  += mainwindow.h\
 		Stuk4Dialog.h \
 		QCategoryButton.h \
 		QCategoryCheckButton.h \
-		GroupSelection.h \
-		FamilySelection.h
+		GroupSelection.h 
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
