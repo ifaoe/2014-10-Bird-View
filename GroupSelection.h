@@ -24,7 +24,7 @@ private:
 	DatabaseHandler * db;
 	census * cobj;
 	Ui::dlgGroupSelection * dlg;
-	QModelIndex getObjectIndex(QString id);
+	QModelIndex getObjectIndex(QTableView * tbl, QString id);
 	QWidget * parent;
 protected:
 	void resizeEvent(QResizeEvent * e);

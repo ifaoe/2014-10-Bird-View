@@ -26,13 +26,33 @@ DatabaseHandler::DatabaseHandler(ConfigHandler *cfgArg) :cfg(cfgArg) {
 	if (!db->isValid()) {
 		qFatal("Database invalid: QPSQL");
 	}
+
 	db->setHostName(cfg->dbHost);
 	db->setDatabaseName(cfg->dbName);
 	db->setPort(cfg->dbPort.toInt());
 	db->setUserName(cfg->dbUser);
 	db->setPassword(cfg->dbPass);
-	qDebug() << "Opening Database " + cfg->dbName + " on Host " + cfg->dbHost + ".";
+	qDebug() << "Opening Database " + cfg->dbName + " on Host " + db->hostName() + ".";
 	if (!db->open()) {
+		qFatal("Could not open Database");
+	} else {
+		qDebug() << "Database opened.";
+	}
+
+	fileDb = new QSqlDatabase();
+	*fileDb = QSqlDatabase::addDatabase("QPSQL","file");
+
+	if (!fileDb->isValid()) {
+			qFatal("Database invalid: QPSQL");
+		}
+
+	fileDb->setHostName(cfg->dbFile);
+	fileDb->setDatabaseName(cfg->dbName);
+	fileDb->setPort(cfg->dbPort.toInt());
+	fileDb->setUserName(cfg->dbUser);
+	fileDb->setPassword(cfg->dbPass);
+	qDebug() << "Opening Database " + cfg->dbName + " on Host " + fileDb->hostName() + ".";
+	if (!fileDb->open()) {
 		qFatal("Could not open Database");
 	} else {
 		qDebug() << "Database opened.";
@@ -125,7 +145,8 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 
 QString DatabaseHandler::getProjectPath(QString session) {
 	qDebug() << "Getting session path list from database.";
-	QSqlQuery query("SELECT path FROM projects WHERE project_id='" + session + "'");
+	QSqlQuery query("SELECT path FROM projects WHERE project_id='" + session + "'",
+			*fileDb);
 	if (query.size() == -1) return "/net";
 	while(query.next()) {
 		return query.value(0).toString();

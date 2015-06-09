@@ -55,6 +55,7 @@ public:
 	QSqlQueryModel * getCloseObjects(census * obj);
 private:
 	QSqlDatabase *db;
+	QSqlDatabase *fileDb;
 	ConfigHandler *cfg;
 
 	void setRecordTable(QSqlRecord * record, census * obj);

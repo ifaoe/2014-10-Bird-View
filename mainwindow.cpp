@@ -199,11 +199,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgCensus->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
 
 
-    connect(wdgCensus->tbtGroupBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
-    connect(wdgCensus->tbtGroupMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
-
-    connect(wdgCensus->tbtFamilyBird, SIGNAL(clicked()), this, SLOT(handleFamilySelection()));
-    connect(wdgCensus->tbtFamilyMammal, SIGNAL(clicked()), this, SLOT(handleFamilySelection()));
+    connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
+    connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
 
     wdgCensus->btnBirdSizeLength->setEnabled(false);
     wdgCensus->btnBirdSizeSpan->setEnabled(false);
@@ -792,7 +789,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 			}
 			wdgCensus->txtBirdRemarks->setPlainText(cobj->remarks);
 			if (cobj->length > 0 ) wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length));
-			if (cobj->length > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
+			if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
 
 			wdgCensus->lblStuk4BehBird->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
 			wdgCensus->lblStuk4AssBird->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
@@ -815,8 +812,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 				wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
 			wdgCensus->lblStuk4BehMammal->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
 			wdgCensus->lblStuk4AssMammal->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
-			wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + cobj->group.join(", "));
-			wdgCensus->lblFamilyMammal->setText("Familienv.: " + cobj->family.join(", "));
+			wdgCensus->lblGroupMammalObjects->setText(cobj->group.join(", "));
+			wdgCensus->lblFamilyMammal->setText(cobj->family.join(", "));
 
 			wdgCensus->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
@@ -1054,7 +1051,8 @@ void MainWindow::handleMammalLengthMeasurement() {
 		msm_running = true;
 	} else {
 		curObj->length = imgcvs->endMeasurement();
-		wdgCensus->lblMammalSizeLength->setText(QString::number(curObj->length, 'f', 2));
+		if (curObj->length > 0)
+			wdgCensus->lblMammalSizeLength->setText(QString::number(curObj->length, 'f', 2));
 		msm_running = false;
 		wdgCensus->btnBirdSizeSpan->setEnabled(false);
 		wdgCensus->btnBirdSizeLength->setEnabled(false);

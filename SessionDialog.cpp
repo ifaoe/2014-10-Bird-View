@@ -17,12 +17,13 @@
 SessionDialog::SessionDialog(ConfigHandler * cfg) : cfg(cfg), dlg(new Ui::dlgModeSelect) {
 	// TODO Auto-generated constructor stub
 	dlg->setupUi(this);
-	dlg->cmbSource->addItem("Lokale Daten", "local");
-	dlg->cmbSource->addItem("Platform-Z", "pfz");
+//	dlg->cmbSource->addItem("Lokale Daten", "local");
+//	dlg->cmbSource->addItem("Platform-Z", "pfz");
 
 	QStringList dbList = cfg->getDbList();
 	qDebug() << dbList.size() << " databases found.";
 	dlg->cmbDatabase->addItems(dbList);
+	dlg->cmbSource->addItems(dbList);
 
 	connect(dlg->btnYes, SIGNAL(released()), this, SLOT(handleYesButton()));
 	connect(dlg->btnNo, SIGNAL(released()), this, SLOT(handleNoButton()));
@@ -37,9 +38,9 @@ SessionDialog::~SessionDialog() {
 void SessionDialog::handleYesButton() {
 	qDebug() << "Starting application.";
 	qDebug() << "Using Database: " << dlg->cmbDatabase->currentText();
-	cfg->parseCfgFile(dlg->cmbDatabase->currentText());
+	cfg->parseCfgFile(dlg->cmbDatabase->currentText(),dlg->cmbSource->currentText());
 	qDebug() << "Using data source: " << dlg->cmbSource->currentText();
-	cfg->setSessionType( dlg->cmbSource->itemData(dlg->cmbSource->currentIndex()).toString() );
+//	cfg->setSessionType( dlg->cmbSource->itemData(dlg->cmbSource->currentIndex()).toString() );
 	this->close();
 }
 

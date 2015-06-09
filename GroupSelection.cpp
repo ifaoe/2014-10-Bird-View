@@ -17,10 +17,22 @@ GroupSelection::GroupSelection(DatabaseHandler * aDb, census * cobj, QWidget * p
 	dlg->tbvGroupSelection->horizontalHeader()->setStretchLastSection(true);
 	dlg->tbvGroupSelection->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
 
+	dlg->tbvFamilySelection->setModel(db->getCloseObjects(cobj));
+	dlg->tbvFamilySelection->resizeColumnsToContents();
+	dlg->tbvFamilySelection->horizontalHeader()->setStretchLastSection(true);
+	dlg->tbvFamilySelection->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
+
 	for (int i=0; i<cobj->group.size(); i++) {
-		QModelIndex tmpind = getObjectIndex(cobj->group[i]);
+		QModelIndex tmpind = getObjectIndex(dlg->tbvGroupSelection,cobj->group[i]);
 		if (tmpind.isValid())
 			dlg->tbvGroupSelection->selectionModel()->select(tmpind,
+					QItemSelectionModel::Select|QItemSelectionModel::Rows);
+	}
+
+	for (int i=0; i<cobj->family.size(); i++) {
+		QModelIndex tmpind = getObjectIndex(dlg->tbvFamilySelection, cobj->family[i]);
+		if (tmpind.isValid())
+			dlg->tbvFamilySelection->selectionModel()->select(tmpind,
 					QItemSelectionModel::Select|QItemSelectionModel::Rows);
 	}
 
@@ -37,7 +49,7 @@ GroupSelection::~GroupSelection() {
 void GroupSelection::resizeEvent(QResizeEvent * e) {
 	QDialog::resizeEvent(e);
 	dlg->tbvGroupSelection->resizeRowsToContents();
-	dlg->tbvGroupSelection->resizeRowsToContents();
+	dlg->tbvFamilySelection->resizeRowsToContents();
 }
 
 void GroupSelection::handleSaveButton() {
@@ -50,6 +62,18 @@ void GroupSelection::handleSaveButton() {
 						dlg->tbvGroupSelection->model()->index(row,0)).toString());
 	}
 	qSort(cobj->group);
+
+	cobj->family.clear();
+	index.clear();
+	index = dlg->tbvFamilySelection->selectionModel()->selectedRows();
+	for (int i=0; i<index.size(); i++) {
+		int row = index[i].row();
+		cobj->family.push_back(
+				dlg->tbvFamilySelection->model()->data(
+						dlg->tbvFamilySelection->model()->index(row,0)).toString());
+	}
+	qSort(cobj->family);
+
 	this->close();
 }
 
@@ -58,10 +82,10 @@ void GroupSelection::handleDiscardButton() {
 	this->close();
 }
 
-QModelIndex GroupSelection::getObjectIndex(QString obj) {
-	for(int i=0; i<dlg->tbvGroupSelection->model()->rowCount(); i++) {
-		QModelIndex ind = dlg->tbvGroupSelection->model()->index(i,0);
-		if (dlg->tbvGroupSelection->model()->data(ind).toString() == obj)
+QModelIndex GroupSelection::getObjectIndex(QTableView *tbl, QString obj) {
+	for(int i=0; i<tbl->model()->rowCount(); i++) {
+		QModelIndex ind = tbl->model()->index(i,0);
+		if (tbl->model()->data(ind).toString() == obj)
 			return ind;
 	}
 	return QModelIndex();

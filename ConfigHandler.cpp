@@ -61,9 +61,10 @@ ConfigHandler::~ConfigHandler() {
 
 QString ConfigHandler::user() { return usr; }
 
-void ConfigHandler::parseCfgFile(QString database) {
+void ConfigHandler::parseCfgFile(QString database, QString filedb) {
 //	boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
 	dbHost = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".host") );
+	dbFile = QString::fromStdString( cfg.get<std::string>(filedb.toStdString() + ".host") );
 	dbName = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".name") );
 	dbUser = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".user") );
 	dbPass = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".pass") );

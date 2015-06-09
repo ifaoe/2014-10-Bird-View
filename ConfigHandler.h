@@ -26,13 +26,14 @@ public:
 	virtual ~ConfigHandler();
 
 	QString dbHost = "localhost";
+	QString dbFile = "localhost";
 	QString dbName = "daisi";
 	QString dbUser = "daisi";
 	QString dbPass = "18ifaoe184";
 	QString dbPort = "5432";
 	QString user();
 	QString image_path = "/net";
-	void parseCfgFile(QString database);
+	void parseCfgFile(QString database, QString filedb);
 	QStringList getDbList();
 	QString getSessionType();
 	void setSessionType(QString type);
