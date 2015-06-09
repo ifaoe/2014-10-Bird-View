@@ -27,11 +27,11 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWdgGroups">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGroup">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Gruppenbestimmung</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -84,13 +84,19 @@
      </widget>
      <widget class="QWidget" name="tabFamily">
       <attribute name="title">
-       <string>Tab 2</string>
+       <string>Familienverband</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
         <widget class="QTableView" name="tbvFamilySelection">
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <attribute name="verticalHeaderVisible">
           <bool>false</bool>

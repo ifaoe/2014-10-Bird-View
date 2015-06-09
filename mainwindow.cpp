@@ -811,8 +811,8 @@ void MainWindow::uiPreSelection(census * cobj) {
 				wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
 			wdgCensus->lblStuk4BehMammal->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
 			wdgCensus->lblStuk4AssMammal->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
-			wdgCensus->lblGroupMammalObjects->setText(cobj->group.join(", "));
-			wdgCensus->lblFamilyMammal->setText(cobj->family.join(", "));
+			wdgCensus->lblGroupMammalObjects->setText("Gruppe: " +cobj->group.join(", "));
+			wdgCensus->lblFamilyMammal->setText("Familienv.: " + cobj->family.join(", "));
 
 			wdgCensus->cmbMammal->setFocus();
 		} else if (shTp == "T" ) { // Trash Tab
@@ -1081,9 +1081,11 @@ void MainWindow::handleGroupSelection() {
 	dlg->exec();
 	delete dlg;
 	if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
-		wdgCensus->lblGroupBirdObjects->setText(curObj->group.join(", "));
+		wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + curObj->group.join(", "));
+		wdgCensus->lblFamilyBird->setText("Familienv.: " + curObj->family.join(", "));
 	} else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
-		wdgCensus->lblGroupMammalObjects->setText(curObj->group.join(", "));
+		wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + curObj->group.join(", "));
+		wdgCensus->lblFamilyMammal->setText("Familienv.: " + curObj->family.join(", "));
 	} else {
 		return;
 	}
