@@ -22,7 +22,6 @@
 #include <QLineEdit>
 #include "Stuk4Dialog.h"
 #include "GroupSelection.h"
-#include "FamilySelection.h"
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -1091,17 +1090,4 @@ void MainWindow::handleGroupSelection() {
 	return;
 }
 
-void MainWindow::handleFamilySelection() {
-	if (curObj == 0) return;
-	FamilySelection * dlg = new FamilySelection(db, curObj, this);
-	dlg->exec();
-	delete dlg;
-	if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
-		wdgCensus->lblFamilyBird->setText(curObj->family.join(", "));
-	} else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
-		wdgCensus->lblFamilyMammal->setText(curObj->family.join(", "));
-	} else {
-		return;
-	}
-	return;
-}
+
