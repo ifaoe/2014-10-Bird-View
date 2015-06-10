@@ -120,6 +120,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 MainWindow::~MainWindow()
 {
     delete ui;
+    measurementWindow->close();
+    delete measurementWindow;
 }
 
 void MainWindow::populateObjectTable() {
@@ -207,8 +209,8 @@ void MainWindow::populateObjectTable() {
 void MainWindow::objectUpdateSelection() {
 	wdgGraphics->sldBrightness->setValue(0);
 	wdgGraphics->sldContrast->setValue(0);
-	imgcvs->endMeasurement();
-	msm_running = false;
+
+
 	// TODO: Cleanup.
 	// TODO: Fix: Crash on empty line
 	dialChecked = false;
@@ -595,9 +597,8 @@ void MainWindow::handleDirDial() {
  * the census struct.
  */
 void MainWindow::uiPreSelection(census * cobj) {
-	msm_running = false;
 
-	// handle those different -- courtesy of the stuk4 table widget
+	// handle those differently -- courtesy of the stuk4 table widget
 	curObj->stuk4_ass = cobj->stuk4_ass;
 	curObj->stuk4_beh = cobj->stuk4_beh;
 
@@ -935,8 +936,8 @@ void MainWindow::handleGroupSelection() {
 }
 
 void MainWindow::conductMeasurement(double * length, QLabel * label) {
+	measurementWindow->move(size().width()*0.75,size().height()*0.25);
 	measurementWindow->startMeasurement(length, label);
-	measurementWindow->show();
 }
 
 void MainWindow::handleMiscMeasurement() {

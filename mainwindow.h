@@ -73,7 +73,6 @@ private slots:
 	void handleFlightInfoAction();
 
 private:
-	bool msm_running = false;
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
 	ImgCanvas *imgcvs = 0;

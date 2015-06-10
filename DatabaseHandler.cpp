@@ -110,7 +110,8 @@ QStringList DatabaseHandler::getMammalTypeList() {
 
 bool DatabaseHandler::getAnthroObjectList(QComboBox * cmb) {
 	qDebug() << "Gettings list of anthropogenic objects from database.";
-	QString qstr = "SELECT object_id, name, notes FROM abiotic_objects WHERE type='ANTHRO'";
+	QString qstr = "SELECT object_id, name, notes FROM abiotic_objects WHERE type='ANTHRO' "
+			"ORDER BY object_id";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
 	if (query.size() == 0)

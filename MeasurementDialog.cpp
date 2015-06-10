@@ -6,6 +6,7 @@
  */
 
 #include "MeasurementDialog.h"
+#include <QPushButton>
 
 MeasurementDialog::MeasurementDialog(ImgCanvas * cvs)
 : cvs(cvs), dlg(new Ui::dlgMeasurement) {
@@ -30,7 +31,12 @@ void MeasurementDialog::updateInfoMessage(QString text) {
 }
 
 void MeasurementDialog::handleAccept() {
-	if (value == 0 || label == 0) this->close();
+	running=false;
+	close();
+	if (value == 0 || label == 0) {
+		cvs->endMeasurement();
+		return;
+	}
 	*value = cvs->endMeasurement();
 	if (*value > 0) {
 		label->setText(QString::number(*value) + " m");
@@ -38,22 +44,30 @@ void MeasurementDialog::handleAccept() {
 		*value=-1.0;
 		label->clear();
 	}
-
-	this->close();
 }
 
 void MeasurementDialog::handleReject() {
-	if (value == 0 || label == 0) this->close();
+	running=false;
 	cvs->endMeasurement();
-	label->clear();
-	*value = -1.0;
-	this->close();
+	close();
+	if (value != 0 && label != 0) {
+		label->clear();
+		*value = -1.0;
+	}
 }
 
 void MeasurementDialog::startMeasurement(double * val, QLabel * lbl) {
+	if (running) return;
+	running = true;
 	updateStatusMessage(QString::fromUtf8("Messung läuft."));
 	updateInfoMessage(QString::fromUtf8("Bitte Messpunkte setzen."));
 	value = val;
 	label = lbl;
 	cvs->beginMeasurement(this);
+
+	if (value == 0 || label == 0)
+		dlg->btbMeasurement->button(QDialogButtonBox::Save)->hide();
+	else
+		dlg->btbMeasurement->button(QDialogButtonBox::Save)->show();
+	show();
 }

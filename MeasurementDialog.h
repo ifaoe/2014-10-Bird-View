@@ -26,6 +26,7 @@ private:
 	ImgCanvas * cvs = 0;
 	double * value = 0;
 	QLabel * label = 0;
+	bool running = false;
 	Ui::dlgMeasurement * dlg = 0;
 private slots:
 	void handleAccept();
