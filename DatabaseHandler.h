@@ -53,6 +53,7 @@ public:
 	QSqlQueryModel * getStuk4Behaviour();
 	QSqlQueryModel * getStuk4Associations();
 	QSqlQueryModel * getCloseObjects(census * obj);
+	QStringList getFlightInfoList(QString cam, QString flight, QString img);
 private:
 	QSqlDatabase *db;
 	QSqlDatabase *fileDb;

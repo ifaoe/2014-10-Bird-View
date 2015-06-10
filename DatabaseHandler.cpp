@@ -537,3 +537,6 @@ QSqlQueryModel * DatabaseHandler::getCloseObjects(census * obj) {
 	model->setHeaderData(6, Qt::Horizontal, "Entfernung in m");
 	return model;
 }
+
+QStringList DatabaseHandler::getFlightInfoList(QString cam, QString flight, QString img) {
+}

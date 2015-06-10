@@ -30,6 +30,7 @@
 #include "ui_widget_census.h"
 #include "ui_widget_graphics.h"
 #include "QCategoryCheckButton.h"
+#include "MeasurementDialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -68,6 +69,9 @@ private slots:
 	void handleBirdLengthMeasurement();
 	void handleMammalLengthMeasurement();
 	void handleGroupSelection();
+	void handleMiscMeasurement();
+	void handleFlightInfoAction();
+
 private:
 	bool msm_running = false;
 	QgsProviderRegistry *prvRegistry = 0;
@@ -86,10 +90,11 @@ private:
     QVBoxLayout *lytFrmImg;
     QWebView * geoMap;
 
-    QPushButton * btnZoomOneOne;
-    QPushButton * btnToggleSource;
-    QPushButton * btnMapModeImg;
-    QPushButton * btnMapModeGeo;
+//    QPushButton * btnZoomOneOne;
+//    QPushButton * btnToggleSource;
+//    QPushButton * btnMapModeImg;
+//    QPushButton * btnMapModeGeo;
+
     QDial * dirDial;
     bool dialChecked = false;
 
@@ -119,14 +124,16 @@ private:
 
     QSet<int> sortSet;
 
+    MeasurementDialog * measurementWindow;
+
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableRow(QColor color, int row);
     void initMapView();
     void uiPreSelection(census * cobj);
     void initFilters();
+    void initCollapsibleMenu();
     bool compareResults(census * cobj, census * pobj);
-protected:
-    void resizeEvent(QResizeEvent *event);
+    void conductMeasurement(double * length, QLabel * label);
 };
 
 #endif // MAINWINDOW_H

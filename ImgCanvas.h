@@ -25,10 +25,14 @@
 #include <qgsrasterdataprovider.h>
 #include <qgsmaplayerregistry.h>
 #include <qgsmaptoolemitpoint.h>
+#include <qgsgeometry.h>
 #include "QgsLayerStack.h"
 #include "ConfigHandler.h"
 #include "ui_mainwindow.h"
 #include "census.hpp"
+#include "MeasurementDialog.h"
+
+class MeasurementDialog;
 
 class ImgCanvas: public QgsMapCanvas {
 	Q_OBJECT
@@ -43,7 +47,8 @@ public:
 	QgsRasterLayer * getImageLayer();
 	void setRasterBrightness(int value);
 	void setRasterContrast(int value);
-	void beginMeasurement();
+	void beginMeasurement(MeasurementDialog * msmWindow);
+	double getCurrentMeasurement();
 	double endMeasurement();
 private slots:
 	void handleCanvasClicked(const QgsPoint & point);
@@ -57,9 +62,13 @@ private:
 	QgsRasterDataProvider* imgProvider = 0;
 
 	QgsMapToolEmitPoint *qgsEmitPointTool = 0;
-	std::vector<QgsPoint> msmList;
+//	std::vector<QgsPoint> msmList;
+	QgsPolyline msmList;
+	double msmValue=-1;
 
 	QNetworkAccessManager* networkManager = 0;
+
+	MeasurementDialog * msmWindow = 0;
 };
 
 #endif /* IMGCANVAS_H_ */

@@ -29,104 +29,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	Q_UNUSED(parent);
 	ui->setupUi(this);
 
-	// create expandable widget type
-	ui->wdgFrameTree->setRootIsDecorated(false);
-	ui->wdgFrameTree->setIndentation(0);
-	ui->wdgFrameTree->viewport()->setBackgroundRole(QPalette::Background);
-	ui->wdgFrameTree->setBackgroundRole(QPalette::Window);
-	ui->wdgFrameTree->setAutoFillBackground(true);
-	ui->wdgFrameTree->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-	//create widget
-		{
-		twgSession = new QTreeWidgetItem();
-		ui->wdgFrameTree->addTopLevelItem(twgSession);
-		cbtSession = new QCategoryCheckButton("Projektauswahl", ui->wdgFrameTree, twgSession);
-		ui->wdgFrameTree->setItemWidget(twgSession, 0, cbtSession);
-
-		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-		wdgContainer->setDisabled(true);
-		twgSession->addChild(wdgContainer);
-		QFrame *widget = new QFrame;
-		wdgSession = new Ui::wdgSessions;
-		wdgSession->setupUi(widget);
-		widget->setBackgroundRole(QPalette::Window);
-		widget->setAutoFillBackground(true);
-		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-		twgSession->setExpanded(true);
-	}
-
-	//create widget
-	{
-		twgObjects = new QTreeWidgetItem();
-		ui->wdgFrameTree->addTopLevelItem(twgObjects);
-		cbtObjects = new QCategoryCheckButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
-		ui->wdgFrameTree->setItemWidget(twgObjects, 0, cbtObjects);
-
-		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-		wdgContainer->setDisabled(true);
-		twgObjects->addChild(wdgContainer);
-		QFrame *widget = new QFrame;
-		wdgObjects = new Ui::wdgObjects;
-		wdgObjects->setupUi(widget);
-		widget->setBackgroundRole(QPalette::Window);
-		widget->setAutoFillBackground(true);
-		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-		twgObjects->setExpanded(false);
-	}
-
-	//create widget
-	{
-		twgCensus = new QTreeWidgetItem();
-		ui->wdgFrameTree->addTopLevelItem(twgCensus);
-		cbtCensus = new QCategoryCheckButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
-		ui->wdgFrameTree->setItemWidget(twgCensus, 0, cbtCensus);
-		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-		wdgContainer->setDisabled(true);
-		twgCensus->addChild(wdgContainer);
-		QFrame *widget = new QFrame;
-		wdgCensus = new Ui::wdgCensus;
-		wdgCensus->setupUi(widget);
-		widget->setBackgroundRole(QPalette::Window);
-		widget->setAutoFillBackground(true);
-		widget->resize(0,0);
-		wdgCensus->wdgTabTypes->setContentsMargins(0,0,0,0);
-		wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
-		wdgCensus->wdgTabTypes->setAutoFillBackground(true);
-
-		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-		if (!cbtCensus->isChecked())
-			twgCensus->setExpanded(false);
-
-	}
-
-	//create widget
-	{
-		twgGraphics = new QTreeWidgetItem();
-		ui->wdgFrameTree->addTopLevelItem(twgGraphics);
-		cbtGraphics = new QCategoryCheckButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
-		ui->wdgFrameTree->setItemWidget(twgGraphics, 0, cbtGraphics);
-		QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-		wdgContainer->setDisabled(true);
-		twgGraphics->addChild(wdgContainer);
-		QFrame *widget = new QFrame;
-		wdgGraphics = new Ui::wdgGraphics;
-		wdgGraphics->setupUi(widget);
-		widget->setBackgroundRole(QPalette::Window);
-		widget->setAutoFillBackground(true);
-		ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-		twgGraphics->setExpanded(false);
-	}
-	wdgCensus->btnSave->setEnabled(false);
-	wdgCensus->btnDelete->setEnabled(false);
-	wdgObjects->tblObjects->setColumnCount(5);
-	wdgObjects->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
-			"CEN");
-	wdgObjects->tblObjects->setColumnWidth(0, 75);
-	wdgObjects->tblObjects->setColumnWidth(1, 80);
-	wdgObjects->tblObjects->setColumnWidth(2, 40);
-	wdgObjects->tblObjects->setColumnWidth(3, 50);
-	wdgObjects->tblObjects->setColumnWidth(4, 50);
-
+	initCollapsibleMenu();
 	initFilters();
 
     prvRegistry = QgsProviderRegistry::instance();
@@ -167,12 +70,16 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
 	initMapView();
 
+	measurementWindow = new MeasurementDialog(imgcvs);
+
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
     		this, SLOT(objectUpdateSelection()));
     connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
-    connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-    connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-    connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
+//    connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
+//    connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
+    connect(ui->actionMapView, SIGNAL(triggered()), this, SLOT(handleMapToolButton()));
+//    connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
+    connect(ui->action1_1_Zoom, SIGNAL(triggered()), this, SLOT(handleOneToOneZoom()));
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
     connect(wdgCensus->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
     connect(wdgGraphics->sldBrightness, SIGNAL(sliderReleased()),
@@ -200,6 +107,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
     connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
     connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
+
+    connect(ui->actionMeasurement, SIGNAL(triggered()), this, SLOT(handleMiscMeasurement()));
 
     wdgCensus->btnBirdSizeLength->setEnabled(false);
     wdgCensus->btnBirdSizeSpan->setEnabled(false);
@@ -619,7 +528,7 @@ void MainWindow::handleMapToolButton() {
 			+ QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
 	url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
 
-	if (sender() == btnMapModeImg) {
+	if (ui->actionMapView->isChecked()) {
 		qDebug() << "Load URL: " << url;
 		geoMap->load(QUrl(url));
 		geoMap->show();
@@ -659,21 +568,6 @@ void MainWindow::initMapView() {
 	lytFrmImg->addWidget(imgcvs);
 	ui->wdgImg->setLayout(lytFrmImg);
 
-	// Setup buttons
-	btnMapModeImg = new QPushButton(imgcvs);
-	btnMapModeImg->setText("Karte");
-
-
-	btnMapModeGeo = new QPushButton(geoMap);
-	btnMapModeGeo->setText("Bild");
-
-
-	btnZoomOneOne = new QPushButton(imgcvs);
-	btnZoomOneOne->setText("1:1");
-
-//	btnToggleSource = new QPushButton(imgcvs);
-//	btnToggleSource->setText("Quelle");
-
 	// Add QDial for direction
 	dirDial = new QDial(imgcvs);
 	dirDial->setFixedSize(80,80);
@@ -683,17 +577,6 @@ void MainWindow::initMapView() {
 	dirDial->setWrapping(true);
 	dirDial->setNotchesVisible(false);
 	dirDial->setStyle(new QMotifStyle);
-}
-
-/*
- * Dynamically place the buttons and elements on the image canvas
- */
-void MainWindow::resizeEvent(QResizeEvent * event) {
-	Q_UNUSED(event);
-	int wdgSizeX = ui->wdgImg->size().width();
-	btnMapModeImg->move(wdgSizeX-100,40);
-	btnMapModeGeo->move(wdgSizeX-160,80);
-	btnZoomOneOne->move(wdgSizeX-100,10);
 }
 
 /*
@@ -737,11 +620,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 	wdgCensus->lblStuk4AssMammal->setText("Assoziationen:");
 
 	//clear group list labels
-	wdgCensus->lblGroupBirdObjects->clear();
-	wdgCensus->lblGroupMammalObjects->clear();
+	wdgCensus->lblGroupBirdObjects->setText("Gruppe:");
+	wdgCensus->lblGroupMammalObjects->setText("Gruppe:");
 
-	wdgCensus->lblFamilyBird->clear();
-	wdgCensus->lblFamilyMammal->clear();
+	wdgCensus->lblFamilyBird->setText("Familienv.:");
+	wdgCensus->lblFamilyMammal->setText("Familienv.:");
 
 	// Recalculate values of the QDial to 0=North
 	qDebug() << "Dir: " << cobj->direction;
@@ -1006,56 +889,15 @@ void MainWindow::handleSortingHeader(int section) {
 }
 
 void MainWindow::handleBirdSpanMeasurement() {
-	if (!msm_running) {
-		wdgCensus->btnBirdSizeLength->setEnabled(false);
-		wdgCensus->btnMammalSizeLength->setEnabled(false);
-		imgcvs->beginMeasurement();
-		wdgCensus->lblBirdSizeSpan->setText(trUtf8("Messung läuft."));
-		curObj->span = -1.0;
-		msm_running = true;
-	} else {
-		curObj->span = imgcvs->endMeasurement();
-		wdgCensus->lblBirdSizeSpan->setText(QString::number(curObj->span, 'f', 2));
-		msm_running = false;
-		wdgCensus->btnBirdSizeLength->setEnabled(true);
-		wdgCensus->btnMammalSizeLength->setEnabled(true);
-	}
-
+	conductMeasurement(&curObj->span, wdgCensus->lblBirdSizeSpan);
 };
 
 void MainWindow::handleBirdLengthMeasurement() {
-	if (!msm_running) {
-		wdgCensus->btnBirdSizeSpan->setEnabled(false);
-		wdgCensus->btnMammalSizeLength->setEnabled(false);
-		imgcvs->beginMeasurement();
-		wdgCensus->lblBirdSizeLength->setText(trUtf8("Messung läuft."));
-		curObj->length = -1.0;
-		msm_running = true;
-	} else {
-		curObj->length = imgcvs->endMeasurement();
-		wdgCensus->lblBirdSizeLength->setText(QString::number(curObj->length, 'f', 2));
-		msm_running = false;
-		wdgCensus->btnBirdSizeSpan->setEnabled(true);
-		wdgCensus->btnMammalSizeLength->setEnabled(true);
-	}
+	conductMeasurement(&curObj->length, wdgCensus->lblBirdSizeLength);
 };
 
 void MainWindow::handleMammalLengthMeasurement() {
-	if (!msm_running) {
-		wdgCensus->btnBirdSizeSpan->setEnabled(false);
-		wdgCensus->btnBirdSizeLength->setEnabled(false);
-		imgcvs->beginMeasurement();
-		wdgCensus->lblMammalSizeLength->setText(trUtf8("Messung läuft."));
-		curObj->length=-1.0;
-		msm_running = true;
-	} else {
-		curObj->length = imgcvs->endMeasurement();
-		if (curObj->length > 0)
-			wdgCensus->lblMammalSizeLength->setText(QString::number(curObj->length, 'f', 2));
-		msm_running = false;
-		wdgCensus->btnBirdSizeSpan->setEnabled(false);
-		wdgCensus->btnBirdSizeLength->setEnabled(false);
-	}
+	conductMeasurement(&curObj->length, wdgCensus->lblMammalSizeLength);
 };
 
 void MainWindow::handleStuk4Selection() {
@@ -1092,4 +934,114 @@ void MainWindow::handleGroupSelection() {
 	return;
 }
 
+void MainWindow::conductMeasurement(double * length, QLabel * label) {
+	measurementWindow->startMeasurement(length, label);
+	measurementWindow->show();
+}
 
+void MainWindow::handleMiscMeasurement() {
+	conductMeasurement(0,0);
+}
+
+void MainWindow::handleFlightInfoAction() {
+}
+
+void MainWindow::initCollapsibleMenu(){
+	// create expandable widget type
+		ui->wdgFrameTree->setRootIsDecorated(false);
+		ui->wdgFrameTree->setIndentation(0);
+		ui->wdgFrameTree->viewport()->setBackgroundRole(QPalette::Background);
+		ui->wdgFrameTree->setBackgroundRole(QPalette::Window);
+		ui->wdgFrameTree->setAutoFillBackground(true);
+		ui->wdgFrameTree->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+		//create widget
+			{
+			twgSession = new QTreeWidgetItem();
+			ui->wdgFrameTree->addTopLevelItem(twgSession);
+			cbtSession = new QCategoryCheckButton("Projektauswahl", ui->wdgFrameTree, twgSession);
+			ui->wdgFrameTree->setItemWidget(twgSession, 0, cbtSession);
+
+			QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+			wdgContainer->setDisabled(true);
+			twgSession->addChild(wdgContainer);
+			QFrame *widget = new QFrame;
+			wdgSession = new Ui::wdgSessions;
+			wdgSession->setupUi(widget);
+			widget->setBackgroundRole(QPalette::Window);
+			widget->setAutoFillBackground(true);
+			ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+			twgSession->setExpanded(true);
+		}
+
+		//create widget
+		{
+			twgObjects = new QTreeWidgetItem();
+			ui->wdgFrameTree->addTopLevelItem(twgObjects);
+			cbtObjects = new QCategoryCheckButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
+			ui->wdgFrameTree->setItemWidget(twgObjects, 0, cbtObjects);
+
+			QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+			wdgContainer->setDisabled(true);
+			twgObjects->addChild(wdgContainer);
+			QFrame *widget = new QFrame;
+			wdgObjects = new Ui::wdgObjects;
+			wdgObjects->setupUi(widget);
+			widget->setBackgroundRole(QPalette::Window);
+			widget->setAutoFillBackground(true);
+			ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+			twgObjects->setExpanded(false);
+		}
+
+		//create widget
+		{
+			twgCensus = new QTreeWidgetItem();
+			ui->wdgFrameTree->addTopLevelItem(twgCensus);
+			cbtCensus = new QCategoryCheckButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
+			ui->wdgFrameTree->setItemWidget(twgCensus, 0, cbtCensus);
+			QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+			wdgContainer->setDisabled(true);
+			twgCensus->addChild(wdgContainer);
+			QFrame *widget = new QFrame;
+			wdgCensus = new Ui::wdgCensus;
+			wdgCensus->setupUi(widget);
+			widget->setBackgroundRole(QPalette::Window);
+			widget->setAutoFillBackground(true);
+			widget->resize(0,0);
+			wdgCensus->wdgTabTypes->setContentsMargins(0,0,0,0);
+			wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
+			wdgCensus->wdgTabTypes->setAutoFillBackground(true);
+
+			ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+			if (!cbtCensus->isChecked())
+				twgCensus->setExpanded(false);
+
+		}
+
+		//create widget
+		{
+			twgGraphics = new QTreeWidgetItem();
+			ui->wdgFrameTree->addTopLevelItem(twgGraphics);
+			cbtGraphics = new QCategoryCheckButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
+			ui->wdgFrameTree->setItemWidget(twgGraphics, 0, cbtGraphics);
+			QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+			wdgContainer->setDisabled(true);
+			twgGraphics->addChild(wdgContainer);
+			QFrame *widget = new QFrame;
+			wdgGraphics = new Ui::wdgGraphics;
+			wdgGraphics->setupUi(widget);
+			widget->setBackgroundRole(QPalette::Window);
+			widget->setAutoFillBackground(true);
+			ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+			twgGraphics->setExpanded(false);
+		}
+		wdgCensus->btnSave->setEnabled(false);
+		wdgCensus->btnDelete->setEnabled(false);
+		wdgObjects->tblObjects->setColumnCount(5);
+		wdgObjects->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
+				"CEN");
+		wdgObjects->tblObjects->setColumnWidth(0, 75);
+		wdgObjects->tblObjects->setColumnWidth(1, 80);
+		wdgObjects->tblObjects->setColumnWidth(2, 40);
+		wdgObjects->tblObjects->setColumnWidth(3, 50);
+		wdgObjects->tblObjects->setColumnWidth(4, 50);
+}

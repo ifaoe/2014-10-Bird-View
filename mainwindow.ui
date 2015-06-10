@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1217</width>
-    <height>972</height>
+    <width>922</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -81,6 +81,48 @@
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action1_1_Zoom"/>
+   <addaction name="actionMapView"/>
+   <addaction name="actionMeasurement"/>
+  </widget>
+  <action name="action1_1_Zoom">
+   <property name="text">
+    <string>1:1 Zoom</string>
+   </property>
+  </action>
+  <action name="actionMapView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Karte</string>
+   </property>
+  </action>
+  <action name="actionMeasurement">
+   <property name="text">
+    <string>Messung</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

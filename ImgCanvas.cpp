@@ -20,7 +20,8 @@
 #include <qgsgeometry.h>
 #include <qgsvectordataprovider.h>
 
-ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg) : QgsMapCanvas(parent),ui(mUi), cfg(cfg) {
+ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg)
+	: QgsMapCanvas(parent),ui(mUi), cfg(cfg) {
 	// TODO Auto-generated constructor stub
 
     enableAntiAliasing(true);
@@ -54,6 +55,7 @@ ImgCanvas::~ImgCanvas() {
 }
 
 bool ImgCanvas::loadObject(census * obj, double * pos) {
+	msmValue = -1.0;
 	if(imgLayer) {
 		layerStack->removeMapLayer("image");
 //		delete imgLayer;
@@ -61,28 +63,9 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 //		imgProvider = imgLayer->dataProvider();
 	}
 	this->refresh();
-	QString file;
-	if (cfg->getSessionType() == "local") {
 
-		file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
-		qDebug() << "Loading file " << file;
-	} else if (cfg->getSessionType() == "pfz") {
-		QString img = QString::number(obj->id) + "-" + obj->image + ".tif";
-		QUrl url("http://platform-z.ifaoe.de/daisi/" + obj->session + "/cam" + QString::number(obj->camera) + "/crop/" + img);
-		qDebug() << "Getting cropped image from" << url.toString();
-		QEventLoop eventloop;
-		QNetworkReply* reply = networkManager->get(QNetworkRequest(url));
-	    connect(networkManager, SIGNAL(finished(QNetworkReply*)),
-	            &eventloop, SLOT(quit()));
-	    eventloop.exec(QEventLoop::ExcludeUserInputEvents);
-		QFile imgfile("/tmp/birdview-tmp" + QString::number(obj->id) + ".tif");
-		imgfile.open(QIODevice::WriteOnly);
-		imgfile.write(reply->readAll());
-		imgfile.close();
-		file = "/tmp/birdview-tmp" + QString::number(obj->id) + ".tif";
-	} else {
-		return false;
-	}
+	QString file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
+	qDebug() << "Loading file " << file;
 
 	QFileInfo info(file);
     if ( !info.isFile() || !info.isReadable() ) {
@@ -167,22 +150,27 @@ void ImgCanvas::handleCanvasClicked(const QgsPoint & point) {
 	msmLayer->startEditing();
 	msmLayer->addFeature(fet);
 	msmLayer->commitChanges();
+
+	if (msmList.size() > 1) {
+		msmValue = QgsGeometry::fromPolyline(msmList)->length();
+		msmWindow->updateInfoMessage(
+			QString::fromUtf8("Momentane Länge: ") + QString::number(msmValue));
+	}
 }
 
 QgsRasterLayer * ImgCanvas::getImageLayer() { return imgLayer; }
 
-void ImgCanvas::beginMeasurement() {
+void ImgCanvas::beginMeasurement(MeasurementDialog * msmDialog) {
 	msmList.clear();
+	msmValue = -1.0;
+	msmWindow = msmDialog;
     connect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
     		this, SLOT( handleCanvasClicked(const QgsPoint &)));
+
 }
 
 double ImgCanvas::endMeasurement() {
-	double dist=0.0;
-	if (msmList.size() < 2) return 0.0;
-	for (uint i=0; i<msmList.size()-1; i++) {
-		dist += sqrt(msmList[i].sqrDist(msmList[i+1]));
-	}
+
 	disconnect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
     		this, SLOT( handleCanvasClicked(const QgsPoint &)));
 	msmList.clear();
@@ -195,7 +183,7 @@ double ImgCanvas::endMeasurement() {
 	msmLayer->startEditing();
 	msmLayer->dataProvider()->deleteFeatures(ids);
 	msmLayer->commitChanges();
-	return dist;
+	return msmValue;
 }
 
 void ImgCanvas::setRasterBrightness(int value) {
@@ -208,4 +196,8 @@ void ImgCanvas::setRasterContrast(int value) {
 	QgsRasterLayer * rlyr = static_cast<QgsRasterLayer*>(layerStack->getMapLayer("image"));
 	rlyr->brightnessFilter()->setContrast(value);
 	refresh();
+}
+
+double ImgCanvas::getCurrentMeasurement() {
+	return msmValue;
 }
