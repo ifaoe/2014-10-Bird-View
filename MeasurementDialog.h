@@ -10,6 +10,7 @@
 #include "ui_dialog_measurement.h"
 #include "ImgCanvas.h"
 #include "census.hpp"
+#include <QCloseEvent>
 
 class ImgCanvas;
 
