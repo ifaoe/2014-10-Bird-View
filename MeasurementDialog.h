@@ -23,6 +23,7 @@ public:
 	void updateInfoMessage(QString text);
 	void startMeasurement(double * value, QLabel * label);
 private:
+	void closeEvent(QCloseEvent *e);
 	ImgCanvas * cvs = 0;
 	double * value = 0;
 	QLabel * label = 0;

@@ -71,3 +71,14 @@ void MeasurementDialog::startMeasurement(double * val, QLabel * lbl) {
 		dlg->btbMeasurement->button(QDialogButtonBox::Save)->show();
 	show();
 }
+
+void MeasurementDialog::closeEvent(QCloseEvent * e) {
+//	running=false;
+//	cvs->endMeasurement();
+//	close();
+//	if (value != 0 && label != 0) {
+//		label->clear();
+//		*value = -1.0;
+//	}
+	e->ignore();
+}
