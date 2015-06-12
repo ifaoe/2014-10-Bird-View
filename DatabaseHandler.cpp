@@ -170,21 +170,6 @@ QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QStr
 	return query;
 }
 
-double * DatabaseHandler::getObjectPosition(QString objId) {
-	double *pos = new double[2];
-	QString qstr = "SELECT ux, uy, px, py FROM raw_census WHERE rcns_id=" + objId;
-	qDebug() << qstr;
-	QSqlQuery * query = new QSqlQuery(qstr);
-	if (query->next()) {
-		pos[0] = query->value(0).toDouble();
-		pos[1] = query->value(1).toDouble();
-	} else {
-		qDebug() << "Couldn't get position data for object id " << objId;
-	}
-	delete query;
-	return pos;
-}
-
 census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	qDebug() << "Getting raw object data for object ID: " << objId;
 	QString qstr = "SELECT rcns_id, session, epsg, cam, img, tp, px, py, ux, uy, lx, ly FROM raw_census WHERE rcns_id=" + objId;
@@ -539,5 +524,17 @@ QSqlQueryModel * DatabaseHandler::getCloseObjects(census * obj) {
 	return model;
 }
 
-QStringList DatabaseHandler::getFlightInfoList(QString cam, QString flight, QString img) {
+QSqlQueryModel * DatabaseHandler::getImageObjects(census * obj) {
+	QSqlQueryModel * model = new QSqlQueryModel;
+	QString qstr = "SELECT rcns_id, tp, ux, uy FROM raw_census WHERE cam='" +
+			QString::number(obj->camera) + "' AND img='" + obj->image + "' AND session='"
+			+ obj->session + "' ORDER BY rcns_id";
+	qDebug() << qstr;
+	model->setQuery(qstr);
+	model->setHeaderData(0, Qt::Horizontal, "Object Id");
+	model->setHeaderData(1, Qt::Horizontal, "Typ");
+	model->setHeaderData(2, Qt::Horizontal, "UTM X");
+	model->setHeaderData(3, Qt::Horizontal, "UTM Y");
+	return model;
 }
+

@@ -19,9 +19,11 @@
 #include <QMessageBox>
 #include <qgsgeometry.h>
 #include <qgsvectordataprovider.h>
+#include <QSqlRecord>
 
-ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg)
-	: QgsMapCanvas(parent),ui(mUi), cfg(cfg) {
+
+ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, DatabaseHandler *db)
+	: QgsMapCanvas(parent),ui(mUi), cfg(cfg), db(db) {
 	// TODO Auto-generated constructor stub
 
     enableAntiAliasing(true);
@@ -36,8 +38,11 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg)
 	layerStack = new QgsLayerStack(this);
 
 	qgsEmitPointTool = new QgsMapToolEmitPoint(this);
+	qgsMapPanTool = new QgsMapToolPan(this);
 	networkManager = new QNetworkAccessManager(this);
-    setMapTool(qgsEmitPointTool);
+
+	setMapTool(qgsMapPanTool);
+
 
     // TODO: Variable UTM sector
     QString props = QString("Point?")+
@@ -45,6 +50,28 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg)
 
     msmLayer = new QgsVectorLayer(props, "msm", "memory");
     layerStack->addMapLayer("msm",msmLayer, 10);
+
+    objLayer = new QgsVectorLayer(props, "obj", "memory");
+    QList<QgsField> attFields;
+    attFields.append(QgsField("ID",QVariant::Int,"rcns_id"));
+    objLabels = objLayer->label();
+    objLayer->dataProvider()->addAttributes(attFields);
+    objLabels->setLabelField(QgsLabel::Text,0);
+	QgsLabelAttributes * labelAtt = objLabels->labelAttributes();
+	labelAtt->setAlignment(Qt::AlignCenter);
+	labelAtt->setColor(Qt::green);
+	labelAtt->setOffset(15,15,QgsLabelAttributes::PointUnits);
+	labelAtt->setSize(14,QgsLabelAttributes::PointUnits);
+
+    objLayer->enableLabels(false);
+    objLayer->setLayerTransparency(100);
+
+    layerStack->addMapLayer("obj",objLayer, 20);
+//    handleHideObjectMarkers();
+
+    layerStack->refreshLayerSet();
+
+    connect(ui->btnObjectMarkers, SIGNAL(clicked()), this, SLOT(handleHideObjectMarkers()));
 
 }
 
@@ -54,7 +81,7 @@ ImgCanvas::~ImgCanvas() {
 	delete layerStack;
 }
 
-bool ImgCanvas::loadObject(census * obj, double * pos) {
+bool ImgCanvas::loadObject(census * obj) {
 	msmValue = -1.0;
 	if(imgLayer) {
 		layerStack->removeMapLayer("image");
@@ -90,7 +117,7 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 
     layerStack->addMapLayer("image", imgLayer, 100);
     setExtent(fullExtent());
-    centerOnWorldPosition(pos[0], pos[1], 1.0);
+    centerOnWorldPosition(obj->ux, obj->uy, 1.0);
     if ( !imgLayer->isValid() ) {
     	qDebug() << "Warning: Imagelayer is invalid!";
 
@@ -101,6 +128,27 @@ bool ImgCanvas::loadObject(census * obj, double * pos) {
 		delete imgerror;
 		return false;
     }
+
+	QgsFeatureIds ids;
+	QgsFeatureIterator fit = objLayer->dataProvider()->getFeatures();
+	QgsFeature fet;
+	while(fit.nextFeature(fet)) {
+		ids.insert(fet.id());
+	}
+
+    objModel = db->getImageObjects(obj);
+    objLayer->startEditing();
+    objLayer->dataProvider()->deleteFeatures(ids);
+    for (int i=0; i<objModel->rowCount(); i++) {
+    	double ux = objModel->record(i).value(2).toDouble();
+    	double uy = objModel->record(i).value(3).toDouble();
+    	QgsFeature fet(objLayer->dataProvider()->fields());
+    	fet.setAttribute("ID",objModel->record(i).value(0).toInt());
+    	fet.setGeometry(QgsGeometry::fromPoint(QgsPoint(ux,uy)));
+    	objLayer->addFeature(fet);
+    }
+    objLayer->commitChanges();
+
     return true;
 }
 
@@ -164,13 +212,14 @@ void ImgCanvas::beginMeasurement(MeasurementDialog * msmDialog) {
 	msmList.clear();
 	msmValue = -1.0;
 	msmWindow = msmDialog;
+	setMapTool(qgsEmitPointTool);
     connect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
     		this, SLOT( handleCanvasClicked(const QgsPoint &)));
 
 }
 
 double ImgCanvas::endMeasurement() {
-
+	setMapTool(qgsMapPanTool);
 	disconnect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
     		this, SLOT( handleCanvasClicked(const QgsPoint &)));
 	msmList.clear();
@@ -200,4 +249,15 @@ void ImgCanvas::setRasterContrast(int value) {
 
 double ImgCanvas::getCurrentMeasurement() {
 	return msmValue;
+}
+
+void ImgCanvas::handleHideObjectMarkers() {
+	if (ui->btnObjectMarkers->isChecked()){
+		objLayer->setLayerTransparency(0);
+		objLayer->enableLabels(true);
+	} else {
+		objLayer->setLayerTransparency(100);
+		objLayer->enableLabels(false);
+	}
+	refresh();
 }

@@ -29,7 +29,6 @@ public:
 	QStringList getSessionList();
 	QSqlQuery * getObjectResult(QString session, QString user, QString filter="", QString order="");
 	census * getRawObjectData(QString objId, QString usr);
-	double * getObjectPosition(QString objId);
 	QStringList getBirdTypeList();
 	QStringList getMammalTypeList();
 	QStringList getUserList(QString objId);
@@ -53,6 +52,7 @@ public:
 	QSqlQueryModel * getStuk4Behaviour();
 	QSqlQueryModel * getStuk4Associations();
 	QSqlQueryModel * getCloseObjects(census * obj);
+	QSqlQueryModel * getImageObjects(census * obj);
 	QStringList getFlightInfoList(QString cam, QString flight, QString img);
 private:
 	QSqlDatabase *db;

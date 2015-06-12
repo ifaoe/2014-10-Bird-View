@@ -37,7 +37,7 @@ HEADERS  += mainwindow.h\
 		QCategoryButton.h \
 		QCategoryCheckButton.h \
 		GroupSelection.h \
-        MeasurementDialog.h
+        MeasurementDialog.h 
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
@@ -47,7 +47,8 @@ FORMS    += mainwindow.ui \
 			widget_objects.ui \
 			widget_graphics.ui \
 			dialog_groupid.ui \
-			dialog_measurement.ui
+			dialog_measurement.ui \
+			widget_multicensus.ui
 			
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis

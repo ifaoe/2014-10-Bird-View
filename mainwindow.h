@@ -29,6 +29,7 @@
 #include "ui_widget_objects.h"
 #include "ui_widget_census.h"
 #include "ui_widget_graphics.h"
+#include "ui_widget_multicensus.h"
 #include "QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
 
@@ -71,7 +72,6 @@ private slots:
 	void handleGroupSelection();
 	void handleMiscMeasurement();
 	void handleFlightInfoAction();
-
 private:
 	QgsProviderRegistry *prvRegistry = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
@@ -110,16 +110,19 @@ private:
     Ui::wdgObjects * wdgObjects;
     Ui::wdgCensus * wdgCensus;
     Ui::wdgGraphics * wdgGraphics;
+    Ui::wdgMultiCensus * wdgMultiCensus;
 
     QTreeWidgetItem* twgSession = 0;
 	QTreeWidgetItem* twgObjects = 0;
 	QTreeWidgetItem* twgCensus = 0;
 	QTreeWidgetItem* twgGraphics = 0;
+	QTreeWidgetItem* twgMultiCensus = 0;
 
 	QCategoryCheckButton* cbtSession = 0;
 	QCategoryCheckButton* cbtObjects = 0;
 	QCategoryCheckButton* cbtCensus = 0;
 	QCategoryCheckButton* cbtGraphics = 0;
+	QCategoryCheckButton* cbtMultiCensus = 0;
 
     QSet<int> sortSet;
 

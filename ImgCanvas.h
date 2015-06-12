@@ -25,21 +25,26 @@
 #include <qgsrasterdataprovider.h>
 #include <qgsmaplayerregistry.h>
 #include <qgsmaptoolemitpoint.h>
+#include <qgsmaptoolpan.h>
 #include <qgsgeometry.h>
 #include "QgsLayerStack.h"
 #include "ConfigHandler.h"
+#include "DatabaseHandler.h"
 #include "ui_mainwindow.h"
 #include "census.hpp"
 #include "MeasurementDialog.h"
+#include <qgslabel.h>
+#include <qgslabelattributes.h>
+#include <qgsfield.h>
 
 class MeasurementDialog;
 
 class ImgCanvas: public QgsMapCanvas {
 	Q_OBJECT
 public:
-	ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler * cfg);
+	ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler * cfg, DatabaseHandler *db);
 	virtual ~ImgCanvas();
-	bool loadObject(census * obj, double * pos);
+	bool loadObject(census * obj);
 	void centerOnPixelPosition(int x, int y, double scale);
 	void centerOnWorldPosition(double ux, double uy, double scale);
 	QgsPoint calcWorldPosition(int x, int y);
@@ -52,16 +57,19 @@ public:
 	double endMeasurement();
 private slots:
 	void handleCanvasClicked(const QgsPoint & point);
+	void handleHideObjectMarkers();
 private:
 	QgsLayerStack * layerStack = 0;
 	Ui::MainWindow *ui = 0;
 	ConfigHandler *cfg = 0;
+	DatabaseHandler *db = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
 	QgsRasterLayer * imgLayer = 0;
 	QgsVectorLayer * msmLayer = 0;
 	QgsRasterDataProvider* imgProvider = 0;
 
 	QgsMapToolEmitPoint *qgsEmitPointTool = 0;
+	QgsMapToolPan * qgsMapPanTool = 0;
 //	std::vector<QgsPoint> msmList;
 	QgsPolyline msmList;
 	double msmValue=-1;
@@ -69,6 +77,14 @@ private:
 	QNetworkAccessManager* networkManager = 0;
 
 	MeasurementDialog * msmWindow = 0;
+
+	QSqlQueryModel * objModel = 0;
+	QgsVectorLayer * objLayer = 0;
+	QgsLabel * objLabels = 0;
+	QgsLabelAttributes * objLabelAttributes = 0;
+
+
+	void populateObjectLayer(census * obj);
 };
 
 #endif /* IMGCANVAS_H_ */

@@ -66,8 +66,6 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	wdgObjects->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
 	wdgObjects->tblObjects->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-
-
 	initMapView();
 
 	measurementWindow = new MeasurementDialog(imgcvs);
@@ -77,9 +75,10 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
 //    connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
 //    connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-    connect(ui->actionMapView, SIGNAL(triggered()), this, SLOT(handleMapToolButton()));
-//    connect(btnZoomOneOne, SIGNAL(released()), this, SLOT(handleOneToOneZoom()));
-    connect(ui->action1_1_Zoom, SIGNAL(triggered()), this, SLOT(handleOneToOneZoom()));
+//    connect(ui->actionMapView, SIGNAL(triggered()), this, SLOT(handleMapToolButton()));
+    connect(ui->btnMapView, SIGNAL(clicked()), this, SLOT(handleMapToolButton()));
+    connect(ui->btnZoomOneOne, SIGNAL(clicked()), this, SLOT(handleOneToOneZoom()));
+//    connect(ui->action1_1_Zoom, SIGNAL(triggered()), this, SLOT(handleOneToOneZoom()));
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
     connect(wdgCensus->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
     connect(wdgGraphics->sldBrightness, SIGNAL(sliderReleased()),
@@ -108,13 +107,14 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
     connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
 
-    connect(ui->actionMeasurement, SIGNAL(triggered()), this, SLOT(handleMiscMeasurement()));
+    connect(ui->btnMiscMeasurement, SIGNAL(clicked()), this, SLOT(handleMiscMeasurement()));
 
     wdgCensus->btnBirdSizeLength->setEnabled(false);
     wdgCensus->btnBirdSizeSpan->setEnabled(false);
     wdgCensus->btnMammalSizeLength->setEnabled(false);
 
-//    wdgCensus->gbxStuk4Mammal->setHidden(true);
+    ui->statusBar->showMessage("Bereit. Kein Objekt geladen.");
+
 }
 
 MainWindow::~MainWindow()
@@ -210,9 +210,6 @@ void MainWindow::objectUpdateSelection() {
 	wdgGraphics->sldBrightness->setValue(0);
 	wdgGraphics->sldContrast->setValue(0);
 
-
-	// TODO: Cleanup.
-	// TODO: Fix: Crash on empty line
 	dialChecked = false;
 	if (objSelector->selectedRows().isEmpty()) return;
 	currentRow = objSelector->selectedRows().at(0).row();
@@ -222,6 +219,7 @@ void MainWindow::objectUpdateSelection() {
 	QString type = wdgObjects->tblObjects->item(currentRow, 3)->text();
 	wdgCensus->cmbUsers->clear();
 	curObj = db->getRawObjectData(objId, cfg->user());
+
 	if (curObj->type.isEmpty()) curObj->type = type;
 	censorList = db->getUserList(objId);
 	wdgCensus->cmbUsers->addItems(censorList);
@@ -248,7 +246,7 @@ void MainWindow::objectUpdateSelection() {
 		wdgCensus->btnUserSelect->setDisabled(true);
 	}
 
-	if (!imgcvs->loadObject(curObj, db->getObjectPosition(objId))) {
+	if (!imgcvs->loadObject(curObj)) {
 		wdgCensus->btnSave->setEnabled(false);
 		wdgCensus->btnDelete->setEnabled(false);
 		wdgCensus->btnBirdSizeLength->setEnabled(false);
@@ -269,7 +267,25 @@ void MainWindow::objectUpdateSelection() {
 		twgObjects->setExpanded(false);
 	if (!cbtCensus->isChecked())
 		twgCensus->setExpanded(true);
+
+
 	ui->wdgFrameTree->scrollToItem(twgCensus);
+
+//	wdgMultiCensus->tbvMultiCensus->setModel(db->getImageObjects(curObj));
+//	wdgMultiCensus->tbvMultiCensus->selectionModel()->clearSelection();
+//
+//	for(int i=0; i<wdgMultiCensus->tbvMultiCensus->model()->rowCount(); i++) {
+//		QModelIndex ind = wdgMultiCensus->tbvMultiCensus->model()->index(i,0);
+//		if (wdgMultiCensus->tbvMultiCensus->model()->data(ind).toInt() == curObj->id) {
+//			wdgMultiCensus->tbvMultiCensus->selectRow(i);
+//			break;
+//		}
+//	}
+
+	ui->statusBar->showMessage(
+			QString("Project: %1, Kamera: %2, Bild: %3, Objekt ID: %4")
+			.arg(curObj->session).arg(curObj->camera).arg(curObj->image).arg(curObj->id)
+			);
 }
 
 
@@ -281,7 +297,6 @@ void MainWindow::objectUpdateSelection() {
 
 void MainWindow::handleSaveButton() {
 	qDebug() << "Trying to save as user: " << curObj->usr;
-//	QString objId = wdgObjects->tblObject->item(currentRow, 0)->text();
 
 	curObj->type = wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 
@@ -530,7 +545,7 @@ void MainWindow::handleMapToolButton() {
 			+ QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
 	url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
 
-	if (ui->actionMapView->isChecked()) {
+	if (ui->btnMapView->isChecked()) {
 		qDebug() << "Load URL: " << url;
 		geoMap->load(QUrl(url));
 		geoMap->show();
@@ -563,7 +578,7 @@ void MainWindow::handleOneToOneZoom() {
 
 void MainWindow::initMapView() {
 	// Setup image and map
-	imgcvs = new ImgCanvas(ui->wdgImg, ui, cfg);
+	imgcvs = new ImgCanvas(ui->wdgImg, ui, cfg, db);
 	geoMap = new QWebView(ui->wdgImg);
 	lytFrmImg = new QVBoxLayout;
 	lytFrmImg->setMargin(0);
@@ -1018,6 +1033,32 @@ void MainWindow::initCollapsibleMenu(){
 
 		}
 
+//		//create widget
+//		{
+//			twgMultiCensus = new QTreeWidgetItem();
+//			ui->wdgFrameTree->addTopLevelItem(twgMultiCensus);
+//			cbtMultiCensus = new QCategoryCheckButton("Mehrfachbestimmung", ui->wdgFrameTree, twgMultiCensus);
+//			ui->wdgFrameTree->setItemWidget(twgMultiCensus, 0, cbtMultiCensus);
+//			QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+//			wdgContainer->setDisabled(true);
+//			twgMultiCensus->addChild(wdgContainer);
+//			QFrame *widget = new QFrame;
+//			wdgMultiCensus = new Ui::wdgMultiCensus;
+//			wdgMultiCensus->setupUi(widget);
+//			widget->setBackgroundRole(QPalette::Window);
+//			widget->setAutoFillBackground(true);
+//			widget->resize(0,0);
+//
+//			wdgMultiCensus->tbvMultiCensus->horizontalHeader()->setStretchLastSection(true);
+//			wdgMultiCensus->tbvMultiCensus
+//				->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
+//
+//			ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+//			if (!cbtMultiCensus->isChecked())
+//				twgMultiCensus->setExpanded(false);
+//
+//		}
+
 		//create widget
 		{
 			twgGraphics = new QTreeWidgetItem();
@@ -1035,6 +1076,7 @@ void MainWindow::initCollapsibleMenu(){
 			ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
 			twgGraphics->setExpanded(false);
 		}
+
 		wdgCensus->btnSave->setEnabled(false);
 		wdgCensus->btnDelete->setEnabled(false);
 		wdgObjects->tblObjects->setColumnCount(5);

@@ -29,10 +29,10 @@ public:
 	bool setLayerPriority(QString layerName, int priority);
 	QgsMapLayer * getMapLayer(QString layerName);
 	QList<QString> getLayerNames();
-
+	void refreshLayerSet();
 private:
 	void registerMapLayers();
-	void refreshLayerSet();
+
 	QgsMapLayerRegistry* qgsLyrRegistry = 0;
 	QgsMapCanvas *mapCanvas;
 	QMap<int,QgsMapLayer*> lyrMap;	// Sorted in ascending order by key: c++ standard
