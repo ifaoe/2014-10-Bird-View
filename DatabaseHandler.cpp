@@ -183,7 +183,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
 	obj->id = query->value(0).toInt();
 	obj->session = query->value(1).toString();
 	obj->epsg = query->value(2).toString();
-	obj->camera = query->value(3).toInt();
+	obj->camera = query->value(3).toString();
 	obj->image = query->value(4).toString();
 	obj->px = query->value(6).toInt();
 	obj->py = query->value(7).toInt();
@@ -478,7 +478,7 @@ QSqlQueryModel * DatabaseHandler::getStuk4Associations() {
 
 QSqlQueryModel * DatabaseHandler::getCloseObjects(census * obj) {
 	QSqlQueryModel * model = new QSqlQueryModel;
-	QString qstr = "SELECT sync_id FROM sync_utm32 WHERE cam" + QString::number(obj->camera) + "_id='"
+	QString qstr = "SELECT sync_id FROM sync_utm32 WHERE cam" + obj->camera + "_id='"
 			+ obj->image + "'";
 	QSqlQuery query(qstr);
 	int sync_id;
@@ -527,7 +527,7 @@ QSqlQueryModel * DatabaseHandler::getCloseObjects(census * obj) {
 QSqlQueryModel * DatabaseHandler::getImageObjects(census * obj) {
 	QSqlQueryModel * model = new QSqlQueryModel;
 	QString qstr = "SELECT rcns_id, tp, ux, uy FROM raw_census WHERE cam='" +
-			QString::number(obj->camera) + "' AND img='" + obj->image + "' AND session='"
+			obj->camera + "' AND img='" + obj->image + "' AND session='"
 			+ obj->session + "' ORDER BY rcns_id";
 	qDebug() << qstr;
 	model->setQuery(qstr);

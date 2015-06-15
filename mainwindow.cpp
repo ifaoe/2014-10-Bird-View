@@ -21,7 +21,6 @@
 #include <qgsmultibandcolorrenderer.h>
 #include <QLineEdit>
 #include "Stuk4Dialog.h"
-#include "GroupSelection.h"
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
 	QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -69,6 +68,7 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 	initMapView();
 
 	measurementWindow = new MeasurementDialog(imgcvs);
+	grpSelectDialog = new GroupSelection(db, this);
 
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
     		this, SLOT(objectUpdateSelection()));
@@ -271,6 +271,8 @@ void MainWindow::objectUpdateSelection() {
 
 
 	ui->wdgFrameTree->scrollToItem(twgCensus);
+
+	grpSelectDialog->loadObject(curObj);
 
 //	wdgMultiCensus->tbvMultiCensus->setModel(db->getImageObjects(curObj));
 //	wdgMultiCensus->tbvMultiCensus->selectionModel()->clearSelection();
@@ -625,6 +627,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 		wdgCensus->lblMammalSizeLength->clear();
 		wdgCensus->lblBirdSizeLength->clear();
 		wdgCensus->lblBirdSizeSpan->clear();
+		return;
 	}
 
 	// handle those differently -- courtesy of the stuk4 table widget
@@ -949,17 +952,19 @@ void MainWindow::handleStuk4Selection() {
 
 void MainWindow::handleGroupSelection() {
 	if (curObj == 0) return;
-	GroupSelection * dlg = new GroupSelection(db, curObj, this);
-	dlg->exec();
-	delete dlg;
-	if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
-		wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + curObj->group.join(", "));
-		wdgCensus->lblFamilyBird->setText("Familienv.: " + curObj->family.join(", "));
-	} else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
-		wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + curObj->group.join(", "));
-		wdgCensus->lblFamilyMammal->setText("Familienv.: " + curObj->family.join(", "));
+	if (grpSelectDialog->isHidden()) {
+		grpSelectDialog->show();
+		if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
+			wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + curObj->group.join(", "));
+			wdgCensus->lblFamilyBird->setText("Familienv.: " + curObj->family.join(", "));
+		} else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
+			wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + curObj->group.join(", "));
+			wdgCensus->lblFamilyMammal->setText("Familienv.: " + curObj->family.join(", "));
+		} else {
+			return;
+		}
 	} else {
-		return;
+		grpSelectDialog->close();
 	}
 	return;
 }

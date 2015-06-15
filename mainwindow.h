@@ -32,6 +32,7 @@
 #include "ui_widget_multicensus.h"
 #include "QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
+#include "GroupSelection.h"
 
 namespace Ui {
 class MainWindow;
@@ -126,7 +127,9 @@ private:
 
     QSet<int> sortSet;
 
-    MeasurementDialog * measurementWindow;
+    MeasurementDialog * measurementWindow = 0;
+
+    GroupSelection * grpSelectDialog = 0;
 
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableRow(QColor color, int row);

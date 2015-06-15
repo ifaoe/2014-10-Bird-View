@@ -8,38 +8,17 @@
 #include "GroupSelection.h"
 #include "census.hpp"
 
-GroupSelection::GroupSelection(DatabaseHandler * aDb, census * cobj, QWidget * parent)
-	: db(aDb), cobj(cobj), dlg(new Ui::dlgGroupSelection), parent(parent){
+GroupSelection::GroupSelection(DatabaseHandler * aDb, QWidget * parent)
+	: db(aDb), dlg(new Ui::dlgGroupSelection), parent(parent){
 	// TODO Auto-generated constructor stub
 	dlg->setupUi(this);
-	dlg->tbvGroupSelection->setModel(db->getCloseObjects(cobj));
-	dlg->tbvGroupSelection->resizeColumnsToContents();
-	dlg->tbvGroupSelection->horizontalHeader()->setStretchLastSection(true);
-	dlg->tbvGroupSelection->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
 
-	dlg->tbvFamilySelection->setModel(db->getCloseObjects(cobj));
-	dlg->tbvFamilySelection->resizeColumnsToContents();
-	dlg->tbvFamilySelection->horizontalHeader()->setStretchLastSection(true);
-	dlg->tbvFamilySelection->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
-
-	for (int i=0; i<cobj->group.size(); i++) {
-		QModelIndex tmpind = getObjectIndex(dlg->tbvGroupSelection,cobj->group[i]);
-		if (tmpind.isValid())
-			dlg->tbvGroupSelection->selectionModel()->select(tmpind,
-					QItemSelectionModel::Select|QItemSelectionModel::Rows);
-	}
-
-	for (int i=0; i<cobj->family.size(); i++) {
-		QModelIndex tmpind = getObjectIndex(dlg->tbvFamilySelection, cobj->family[i]);
-		if (tmpind.isValid())
-			dlg->tbvFamilySelection->selectionModel()->select(tmpind,
-					QItemSelectionModel::Select|QItemSelectionModel::Rows);
-	}
+	setWindowFlags(windowFlags()|Qt::WindowStaysOnTopHint);
+	setWindowModality(Qt::NonModal);
+	setModal(false);
 
 	connect(dlg->btbGroupSelection, SIGNAL(accepted()), this, SLOT(handleSaveButton()));
 	connect(dlg->btbGroupSelection, SIGNAL(rejected()), this, SLOT(handleDiscardButton()));
-
-	setModal(true);
 }
 
 GroupSelection::~GroupSelection() {
@@ -89,4 +68,32 @@ QModelIndex GroupSelection::getObjectIndex(QTableView *tbl, QString obj) {
 			return ind;
 	}
 	return QModelIndex();
+}
+
+void GroupSelection::loadObject(census * obj) {
+	cobj = obj;
+
+	dlg->tbvGroupSelection->setModel(db->getCloseObjects(cobj));
+	dlg->tbvGroupSelection->resizeColumnsToContents();
+	dlg->tbvGroupSelection->horizontalHeader()->setStretchLastSection(true);
+	dlg->tbvGroupSelection->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
+
+	dlg->tbvFamilySelection->setModel(db->getCloseObjects(cobj));
+	dlg->tbvFamilySelection->resizeColumnsToContents();
+	dlg->tbvFamilySelection->horizontalHeader()->setStretchLastSection(true);
+	dlg->tbvFamilySelection->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
+
+	for (int i=0; i<cobj->group.size(); i++) {
+		QModelIndex tmpind = getObjectIndex(dlg->tbvGroupSelection,cobj->group[i]);
+		if (tmpind.isValid())
+			dlg->tbvGroupSelection->selectionModel()->select(tmpind,
+					QItemSelectionModel::Select|QItemSelectionModel::Rows);
+	}
+
+	for (int i=0; i<cobj->family.size(); i++) {
+		QModelIndex tmpind = getObjectIndex(dlg->tbvFamilySelection, cobj->family[i]);
+		if (tmpind.isValid())
+			dlg->tbvFamilySelection->selectionModel()->select(tmpind,
+					QItemSelectionModel::Select|QItemSelectionModel::Rows);
+	}
 }

@@ -98,7 +98,7 @@ bool ImgCanvas::loadObject(census * obj) {
 		return true;
 	}
 
-	QString file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
+	QString file = cfg->image_path + "/cam" + obj->camera + "/geo/" + obj->image + ".tif";
 	qDebug() << "Loading file " << file;
 
 	QFileInfo info(file);

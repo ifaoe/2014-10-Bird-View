@@ -15,8 +15,9 @@
 class GroupSelection: public QDialog {
 	Q_OBJECT;
 public:
-	GroupSelection(DatabaseHandler * db, census * cobj, QWidget * parent = 0);
+	GroupSelection(DatabaseHandler * db, QWidget * parent = 0);
 	virtual ~GroupSelection();
+	void loadObject(census * cobj);
 private slots:
 	void handleSaveButton();
 	void handleDiscardButton();
