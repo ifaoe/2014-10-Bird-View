@@ -60,8 +60,8 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
 	QgsLabelAttributes * labelAtt = objLabels->labelAttributes();
 	labelAtt->setAlignment(Qt::AlignCenter);
 	labelAtt->setColor(Qt::green);
-	labelAtt->setOffset(15,15,QgsLabelAttributes::PointUnits);
-	labelAtt->setSize(14,QgsLabelAttributes::PointUnits);
+	labelAtt->setOffset(20,20,QgsLabelAttributes::PointUnits);
+	labelAtt->setSize(12,QgsLabelAttributes::PointUnits);
 
     objLayer->enableLabels(false);
     objLayer->setLayerTransparency(100);
@@ -71,7 +71,8 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
 
     layerStack->refreshLayerSet();
 
-    connect(ui->btnObjectMarkers, SIGNAL(clicked()), this, SLOT(handleHideObjectMarkers()));
+//    connect(ui->btnObjectMarkers, SIGNAL(clicked()), this, SLOT(handleHideObjectMarkers()));
+    connect(ui->actionMarkierungen, SIGNAL(triggered()), this, SLOT(handleHideObjectMarkers()));
 
 }
 
@@ -90,6 +91,12 @@ bool ImgCanvas::loadObject(census * obj) {
 //		imgProvider = imgLayer->dataProvider();
 	}
 	this->refresh();
+
+	// check if still same image
+	if (curSession == obj->session && curCam == obj->camera && curImg == obj->image) {
+		centerOnWorldPosition(obj->ux, obj->uy, 1.0);
+		return true;
+	}
 
 	QString file = cfg->image_path + "/cam" + QString::number(obj->camera) + "/geo/" + obj->image + ".tif";
 	qDebug() << "Loading file " << file;
@@ -252,7 +259,8 @@ double ImgCanvas::getCurrentMeasurement() {
 }
 
 void ImgCanvas::handleHideObjectMarkers() {
-	if (ui->btnObjectMarkers->isChecked()){
+//	if (ui->btnObjectMarkers->isChecked()){
+	if (ui->actionMarkierungen->isChecked()){
 		objLayer->setLayerTransparency(0);
 		objLayer->enableLabels(true);
 	} else {

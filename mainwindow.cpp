@@ -75,10 +75,10 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
 //    connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
 //    connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-//    connect(ui->actionMapView, SIGNAL(triggered()), this, SLOT(handleMapToolButton()));
-    connect(ui->btnMapView, SIGNAL(clicked()), this, SLOT(handleMapToolButton()));
-    connect(ui->btnZoomOneOne, SIGNAL(clicked()), this, SLOT(handleOneToOneZoom()));
-//    connect(ui->action1_1_Zoom, SIGNAL(triggered()), this, SLOT(handleOneToOneZoom()));
+    connect(ui->actionKarte, SIGNAL(triggered()), this, SLOT(handleMapToolButton()));
+//    connect(ui->btnMapView, SIGNAL(clicked()), this, SLOT(handleMapToolButton()));
+//    connect(ui->btnZoomOneOne, SIGNAL(clicked()), this, SLOT(handleOneToOneZoom()));
+    connect(ui->action1_1_Zoom, SIGNAL(triggered()), this, SLOT(handleOneToOneZoom()));
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
     connect(wdgCensus->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
     connect(wdgGraphics->sldBrightness, SIGNAL(sliderReleased()),
@@ -107,7 +107,8 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
     connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
 
-    connect(ui->btnMiscMeasurement, SIGNAL(clicked()), this, SLOT(handleMiscMeasurement()));
+//    connect(ui->btnMiscMeasurement, SIGNAL(clicked()), this, SLOT(handleMiscMeasurement()));
+    connect(ui->actionMessung, SIGNAL(triggered()), this, SLOT(handleMiscMeasurement()));
 
     wdgCensus->btnBirdSizeLength->setEnabled(false);
     wdgCensus->btnBirdSizeSpan->setEnabled(false);
@@ -545,7 +546,8 @@ void MainWindow::handleMapToolButton() {
 			+ QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
 	url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
 
-	if (ui->btnMapView->isChecked()) {
+//	if (ui->btnMapView->isChecked()) {
+	if (ui->actionKarte->isChecked()) {
 		qDebug() << "Load URL: " << url;
 		geoMap->load(QUrl(url));
 		geoMap->show();
@@ -612,6 +614,18 @@ void MainWindow::handleDirDial() {
  * the census struct.
  */
 void MainWindow::uiPreSelection(census * cobj) {
+
+	// Save Census checkbox ticked?
+	// save all info but size and direction
+	if (wdgCensus->chbSaveCensus->isChecked()) {
+		dirDial->setValue(180);
+		dialChecked = false;
+
+		// clear size box
+		wdgCensus->lblMammalSizeLength->clear();
+		wdgCensus->lblBirdSizeLength->clear();
+		wdgCensus->lblBirdSizeSpan->clear();
+	}
 
 	// handle those differently -- courtesy of the stuk4 table widget
 	curObj->stuk4_ass = cobj->stuk4_ass;

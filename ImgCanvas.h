@@ -83,6 +83,9 @@ private:
 	QgsLabel * objLabels = 0;
 	QgsLabelAttributes * objLabelAttributes = 0;
 
+	QString curSession = "";
+	QString curCam = "";
+	QString curImg = "";
 
 	void populateObjectLayer(census * obj);
 };
