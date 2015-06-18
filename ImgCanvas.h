@@ -37,6 +37,7 @@
 #include <qgslabelattributes.h>
 #include <qgsfield.h>
 #include "QgsMapMarker.h"
+#include "QgsMapLabel.h"
 
 class MeasurementDialog;
 
@@ -66,7 +67,6 @@ private:
 	DatabaseHandler *db = 0;
 	QgsMapLayerRegistry *lyrRegistry = 0;
 	QgsRasterLayer * imgLayer = 0;
-	QgsVectorLayer * msmLayer = 0;
 	QgsRasterDataProvider* imgProvider = 0;
 
 	QgsMapToolEmitPoint *qgsEmitPointTool = 0;
@@ -81,11 +81,9 @@ private:
 	double msmValue=-1;
 	std::vector<QgsMapMarker*> msmMarkers;
 	std::vector<QgsMapMarker*> objMarkers;
+	std::vector<QgsMapLabel*> objLabels;
 
 	QSqlQueryModel * objModel = 0;
-	QgsVectorLayer * objLayer = 0;
-	QgsLabel * objLabels = 0;
-	QgsLabelAttributes * objLabelAttributes = 0;
 
 	QString curSession = "";
 	QString curCam = "";

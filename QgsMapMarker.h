@@ -16,6 +16,11 @@ public:
 	QgsMapMarker(QgsMapCanvas * canvas);
 	virtual ~QgsMapMarker();
 	void paint( QPainter * p);
+	void setFill(bool filled = false);
+	void setText(QString label = "");
+	void setTextWidth(int width);
+	void setTextColor(QColor color);
+	void setTextOffset(double x, double y);
 
     enum IconType
     {
@@ -25,8 +30,14 @@ public:
       ICON_BOX,
 	  ICON_CIRCLE
     };
-private:
 
+private:
+    bool mFilled = false;
+    QString text = "";
+    int mTextWidth = 1;
+    QColor mTextColor = Qt::red;
+    double mTextOffsetX = 0.0;
+    double mTextOffsetY = 0.0;
 };
 
 #endif /* QGSMAPMARKER_H_ */

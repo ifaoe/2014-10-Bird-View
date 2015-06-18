@@ -25,7 +25,8 @@ SOURCES += main.cpp\
         QCategoryCheckButton.cpp \
         GroupSelection.cpp \
         MeasurementDialog.cpp \
-        QgsMapMarker.cpp
+        QgsMapMarker.cpp \
+        QgsMapLabel.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -39,7 +40,8 @@ HEADERS  += mainwindow.h\
 		QCategoryCheckButton.h \
 		GroupSelection.h \
         MeasurementDialog.h \
-        QgsMapMarker.h
+        QgsMapMarker.h \
+        QgsMapLabel.h
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \

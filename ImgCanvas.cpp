@@ -32,9 +32,6 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
     setCachingEnabled(true);
     setCacheMode(QgsMapCanvas::CacheBackground);
 
-    imgLayer    = 0;
-    imgProvider = 0;
-
     setMapUnits(QGis::Meters);
 	layerStack = new QgsLayerStack(this);
 
@@ -44,35 +41,8 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
 
 	setMapTool(qgsMapPanTool);
 
-
-    // TODO: Variable UTM sector
-    QString props = QString("Point?")+
-                       QString("crs=epsg:32632");
-
-    msmLayer = new QgsVectorLayer(props, "msm", "memory");
-    layerStack->addMapLayer("msm",msmLayer, 10);
-
-    objLayer = new QgsVectorLayer(props, "obj", "memory");
-    QList<QgsField> attFields;
-    attFields.append(QgsField("ID",QVariant::Int,"rcns_id"));
-    objLabels = objLayer->label();
-    objLayer->dataProvider()->addAttributes(attFields);
-    objLabels->setLabelField(QgsLabel::Text,0);
-	QgsLabelAttributes * labelAtt = objLabels->labelAttributes();
-	labelAtt->setAlignment(Qt::AlignCenter);
-	labelAtt->setColor(Qt::green);
-	labelAtt->setOffset(20,20,QgsLabelAttributes::PointUnits);
-	labelAtt->setSize(12,QgsLabelAttributes::PointUnits);
-
-    objLayer->enableLabels(false);
-
-    layerStack->addMapLayer("obj",objLayer, 20);
-
-    layerStack->refreshLayerSet();
-
 //    connect(ui->btnObjectMarkers, SIGNAL(clicked()), this, SLOT(handleHideObjectMarkers()));
     connect(ui->actionMarkierungen, SIGNAL(triggered()), this, SLOT(handleHideObjectMarkers()));
-
 }
 
 ImgCanvas::~ImgCanvas() {
@@ -83,6 +53,7 @@ ImgCanvas::~ImgCanvas() {
 
 bool ImgCanvas::loadObject(census * obj) {
 	msmValue = -1.0;
+	objMarkers.clear();
 
 	// check if still same image
 	if (curSession == obj->session && curCam == obj->camera && curImg == obj->image) {
@@ -137,25 +108,50 @@ bool ImgCanvas::loadObject(census * obj) {
 		return false;
     }
 
-	QgsFeatureIds ids;
-	QgsFeatureIterator fit = objLayer->dataProvider()->getFeatures();
-	QgsFeature fet;
-	while(fit.nextFeature(fet)) {
-		ids.insert(fet.id());
-	}
-
     objModel = db->getImageObjects(obj);
 
+    for (uint i=0; i<objMarkers.size(); i++)
+    	delete objMarkers[i];
+
     for (int i=0; i<objModel->rowCount(); i++) {
+    	int id = objModel->record(i).value(0).toInt();
     	double ux = objModel->record(i).value(2).toDouble();
     	double uy = objModel->record(i).value(3).toDouble();
+    	int mcen = objModel->record(i).value(4).toInt();
+    	int ccen = objModel->record(i).value(5).toInt();
 
     	QgsMapMarker * marker = new QgsMapMarker(this);
     	marker->setCenter(QgsPoint(ux,uy));
     	marker->setIconType(QgsMapMarker::ICON_CIRCLE);
-    	marker->setColor(Qt::green);
-    	marker->setPenWidth(5);
+    	marker->setIconSize(7);
+    	marker->setFill(true);
+    	marker->setText(QString::number(id));
+    	marker->setTextColor(Qt::red);
+    	marker->setTextWidth(2);
+    	marker->setTextOffset(15,15);
+
+    	qDebug() << id;
+    	if (mcen == 2) {
+    		marker->setColor(Qt::green);
+    	} else if (mcen == 1) {
+    		if (ccen > 1)
+    			marker->setColor(Qt::red);
+    		else
+    			marker->setColor(Qt::gray);
+    	} else {
+    		marker->setColor(Qt::white);
+    	}
+
     	objMarkers.push_back(marker);
+
+    	marker = new QgsMapMarker(this);
+		marker->setCenter(QgsPoint(ux,uy));
+		marker->setIconType(QgsMapMarker::ICON_CIRCLE);
+		marker->setPenWidth(1);
+		marker->setIconSize(8);
+		marker->setColor(Qt::black);
+
+		objMarkers.push_back(marker);
     }
 
     handleHideObjectMarkers();
@@ -264,11 +260,9 @@ void ImgCanvas::handleHideObjectMarkers() {
 	if (ui->actionMarkierungen->isChecked()){
 		for (uint i=0; i<objMarkers.size(); i++)
 			objMarkers[i]->show();
-		objLayer->enableLabels(true);
 	} else {
 		for (uint i=0; i<objMarkers.size(); i++)
 			objMarkers[i]->hide();
-		objLayer->enableLabels(false);
 	}
 	refresh();
 }

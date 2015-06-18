@@ -526,15 +526,17 @@ QSqlQueryModel * DatabaseHandler::getCloseObjects(census * obj) {
 
 QSqlQueryModel * DatabaseHandler::getImageObjects(census * obj) {
 	QSqlQueryModel * model = new QSqlQueryModel;
-	QString qstr = "SELECT rcns_id, tp, ux, uy FROM raw_census WHERE cam='" +
+	QString qstr = "SELECT rcns_id, tp, ux, uy, max(censor), count(*) FROM view_census WHERE cam='" +
 			obj->camera + "' AND img='" + obj->image + "' AND session='"
-			+ obj->session + "' ORDER BY rcns_id";
+			+ obj->session + "' AND (censor>0 OR censor IS NULL) GROUP BY rcns_id, tp, ux, uy ORDER BY rcns_id";
 	qDebug() << qstr;
 	model->setQuery(qstr);
-	model->setHeaderData(0, Qt::Horizontal, "Object Id");
+	model->setHeaderData(0, Qt::Horizontal, "Objekt Id");
 	model->setHeaderData(1, Qt::Horizontal, "Typ");
 	model->setHeaderData(2, Qt::Horizontal, "UTM X");
 	model->setHeaderData(3, Qt::Horizontal, "UTM Y");
+	model->setHeaderData(4, Qt::Horizontal, "Highest censor");
+	model->setHeaderData(5, Qt::Horizontal, "Censor count");
 	return model;
 }
 

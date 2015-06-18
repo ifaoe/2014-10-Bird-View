@@ -9,11 +9,14 @@
 
 QgsMapMarker::QgsMapMarker(QgsMapCanvas * canvas) : QgsVertexMarker(canvas) {
 	// TODO Auto-generated constructor stub
-
 }
 
 QgsMapMarker::~QgsMapMarker() {
 	// TODO Auto-generated destructor stub
+}
+
+void QgsMapMarker::setFill(bool filled) {
+	mFilled = filled;
 }
 
 void QgsMapMarker::paint(QPainter * p) {
@@ -22,7 +25,10 @@ void QgsMapMarker::paint(QPainter * p) {
 	QPen pen( mColor );
 	pen.setWidth( mPenWidth );
 	p->setPen( pen );
-
+	if (mFilled)
+		p->setBrush( QBrush(mColor) );
+	else
+		p->setBrush(Qt::NoBrush);
 	switch ( mIconType )
 	{
 		case ICON_NONE:
@@ -45,6 +51,30 @@ void QgsMapMarker::paint(QPainter * p) {
 			p->drawLine( QLineF( -s, s, -s, -s ) );
 			break;
 		case ICON_CIRCLE:
-			p->drawEllipse(-s, -s, s, s);
+			p->drawEllipse(-s, -s, 2*s, 2*s);
 	}
+	if (text != "") {
+		QPen textPen(mTextColor);
+		textPen.setWidth(mTextWidth);
+		textPen.setColor(mTextColor);
+		p->setPen(textPen);
+		p->drawText(QPointF(mTextOffsetX,mTextOffsetY), text);
+	}
+}
+
+void QgsMapMarker::setText(QString label) {
+	text = label;
+}
+
+void QgsMapMarker::setTextWidth(int width) {
+	mTextWidth = width;
+}
+
+void QgsMapMarker::setTextColor(QColor color) {
+	mTextColor = color;
+}
+
+void QgsMapMarker::setTextOffset(double x, double y) {
+	mTextOffsetX = x;
+	mTextOffsetY = y;
 }
