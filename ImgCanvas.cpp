@@ -53,7 +53,6 @@ ImgCanvas::~ImgCanvas() {
 
 bool ImgCanvas::loadObject(census * obj) {
 	msmValue = -1.0;
-	objMarkers.clear();
 
 	// check if still same image
 	if (curSession == obj->session && curCam == obj->camera && curImg == obj->image) {
@@ -111,7 +110,11 @@ bool ImgCanvas::loadObject(census * obj) {
     objModel = db->getImageObjects(obj);
 
     for (uint i=0; i<objMarkers.size(); i++)
+    {
     	delete objMarkers[i];
+    }
+    objMarkers.clear();
+
 
     for (int i=0; i<objModel->rowCount(); i++) {
     	int id = objModel->record(i).value(0).toInt();
