@@ -21,7 +21,6 @@
 #include <qgsvectordataprovider.h>
 #include <QSqlRecord>
 
-
 ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, DatabaseHandler *db)
 	: QgsMapCanvas(parent),ui(mUi), cfg(cfg), db(db) {
 	// TODO Auto-generated constructor stub
@@ -30,6 +29,8 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
     setParallelRenderingEnabled( true );
     setCanvasColor(QColor(0, 0, 0));
     freeze(false);
+    setCachingEnabled(true);
+    setCacheMode(QgsMapCanvas::CacheBackground);
 
     imgLayer    = 0;
     imgProvider = 0;
@@ -64,10 +65,8 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
 	labelAtt->setSize(12,QgsLabelAttributes::PointUnits);
 
     objLayer->enableLabels(false);
-    objLayer->setLayerTransparency(100);
 
     layerStack->addMapLayer("obj",objLayer, 20);
-//    handleHideObjectMarkers();
 
     layerStack->refreshLayerSet();
 
@@ -84,19 +83,21 @@ ImgCanvas::~ImgCanvas() {
 
 bool ImgCanvas::loadObject(census * obj) {
 	msmValue = -1.0;
-	if(imgLayer) {
-		layerStack->removeMapLayer("image");
-//		delete imgLayer;
-//		imgLayer = new QgsRasterLayer();
-//		imgProvider = imgLayer->dataProvider();
-	}
-	this->refresh();
 
 	// check if still same image
 	if (curSession == obj->session && curCam == obj->camera && curImg == obj->image) {
 		centerOnWorldPosition(obj->ux, obj->uy, 1.0);
 		return true;
 	}
+
+	if(imgLayer) {
+		layerStack->removeMapLayer("image");
+	}
+	this->refresh();
+
+	curSession = obj->session;
+	curCam = obj->camera;
+	curImg = obj->image;
 
 	QString file = cfg->image_path + "/cam" + obj->camera + "/geo/" + obj->image + ".tif";
 	qDebug() << "Loading file " << file;
@@ -144,17 +145,20 @@ bool ImgCanvas::loadObject(census * obj) {
 	}
 
     objModel = db->getImageObjects(obj);
-    objLayer->startEditing();
-    objLayer->dataProvider()->deleteFeatures(ids);
+
     for (int i=0; i<objModel->rowCount(); i++) {
     	double ux = objModel->record(i).value(2).toDouble();
     	double uy = objModel->record(i).value(3).toDouble();
-    	QgsFeature fet(objLayer->dataProvider()->fields());
-    	fet.setAttribute("ID",objModel->record(i).value(0).toInt());
-    	fet.setGeometry(QgsGeometry::fromPoint(QgsPoint(ux,uy)));
-    	objLayer->addFeature(fet);
+
+    	QgsMapMarker * marker = new QgsMapMarker(this);
+    	marker->setCenter(QgsPoint(ux,uy));
+    	marker->setIconType(QgsMapMarker::ICON_CIRCLE);
+    	marker->setColor(Qt::green);
+    	marker->setPenWidth(5);
+    	objMarkers.push_back(marker);
     }
-    objLayer->commitChanges();
+
+    handleHideObjectMarkers();
 
     return true;
 }
@@ -200,11 +204,14 @@ void ImgCanvas::calcPixelPosition(QgsPoint pos) {
  */
 void ImgCanvas::handleCanvasClicked(const QgsPoint & point) {
 	msmList.push_back(point);
-	QgsFeature fet;
-	fet.setGeometry(QgsGeometry::fromPoint(point));
-	msmLayer->startEditing();
-	msmLayer->addFeature(fet);
-	msmLayer->commitChanges();
+
+
+	QgsMapMarker * vmarker = new QgsMapMarker(this);
+	vmarker->setIconType(QgsMapMarker::ICON_CROSS);
+	vmarker->setCenter(point);
+	vmarker->setIconSize(9);
+	vmarker->setPenWidth(2);
+	msmMarkers.push_back( vmarker );
 
 	if (msmList.size() > 1) {
 		msmValue = QgsGeometry::fromPolyline(msmList)->length();
@@ -230,15 +237,9 @@ double ImgCanvas::endMeasurement() {
 	disconnect(qgsEmitPointTool, SIGNAL( canvasClicked(const QgsPoint &, Qt::MouseButton) ),
     		this, SLOT( handleCanvasClicked(const QgsPoint &)));
 	msmList.clear();
-	QgsFeatureIds ids;
-	QgsFeatureIterator fit = msmLayer->dataProvider()->getFeatures();
-	QgsFeature fet;
-	while(fit.nextFeature(fet)) {
-		ids.insert(fet.id());
-	}
-	msmLayer->startEditing();
-	msmLayer->dataProvider()->deleteFeatures(ids);
-	msmLayer->commitChanges();
+	for (uint i=0; i<msmMarkers.size(); i++)
+		delete msmMarkers[i];
+	msmMarkers.clear();
 	return msmValue;
 }
 
@@ -261,10 +262,12 @@ double ImgCanvas::getCurrentMeasurement() {
 void ImgCanvas::handleHideObjectMarkers() {
 //	if (ui->btnObjectMarkers->isChecked()){
 	if (ui->actionMarkierungen->isChecked()){
-		objLayer->setLayerTransparency(0);
+		for (uint i=0; i<objMarkers.size(); i++)
+			objMarkers[i]->show();
 		objLayer->enableLabels(true);
 	} else {
-		objLayer->setLayerTransparency(100);
+		for (uint i=0; i<objMarkers.size(); i++)
+			objMarkers[i]->hide();
 		objLayer->enableLabels(false);
 	}
 	refresh();

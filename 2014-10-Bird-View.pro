@@ -6,7 +6,7 @@
 
 QT       += core gui sql xml webkit network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 TARGET = 2014-10-Bird-View
 TEMPLATE = app
@@ -24,7 +24,8 @@ SOURCES += main.cpp\
         QCategoryButton.cpp \
         QCategoryCheckButton.cpp \
         GroupSelection.cpp \
-        MeasurementDialog.cpp
+        MeasurementDialog.cpp \
+        QgsMapMarker.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h\
 		QCategoryButton.h \
 		QCategoryCheckButton.h \
 		GroupSelection.h \
-        MeasurementDialog.h 
+        MeasurementDialog.h \
+        QgsMapMarker.h
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
