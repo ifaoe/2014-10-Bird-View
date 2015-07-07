@@ -13,14 +13,14 @@
 
 class QgsMapMarker: public QgsVertexMarker {
 public:
-	QgsMapMarker(QgsMapCanvas * canvas);
-	virtual ~QgsMapMarker();
-	void paint( QPainter * p);
-	void setFill(bool filled = false);
-	void setText(QString label = "");
-	void setTextWidth(int width);
-	void setTextColor(QColor color);
-	void setTextOffset(double x, double y);
+    QgsMapMarker(QgsMapCanvas * canvas);
+    virtual ~QgsMapMarker();
+    void paint( QPainter * p);
+    void setFill(bool filled = false);
+    void setText(QString label = "");
+    void setTextWidth(int width);
+    void setTextColor(QColor color);
+    void setTextOffset(double x, double y);
 
     enum IconType
     {
@@ -28,7 +28,7 @@ public:
       ICON_CROSS,
       ICON_X,
       ICON_BOX,
-	  ICON_CIRCLE
+      ICON_CIRCLE
     };
 
 private:

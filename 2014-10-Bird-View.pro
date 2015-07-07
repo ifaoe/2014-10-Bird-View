@@ -13,6 +13,7 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11
 
+VPATH += ./src
 SOURCES += main.cpp\
         mainwindow.cpp\
         ImgCanvas.cpp \

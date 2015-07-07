@@ -21,22 +21,22 @@
 
 class QgsLayerStack: public QObject {
 public:
-	QgsLayerStack(QgsMapCanvas * mapCanvas);
-	virtual ~QgsLayerStack();
+    QgsLayerStack(QgsMapCanvas * mapCanvas);
+    virtual ~QgsLayerStack();
 
-	bool addMapLayer(QString layerName, QgsMapLayer *mapLayer, int priority);
-	bool removeMapLayer(QString layerName);
-	bool setLayerPriority(QString layerName, int priority);
-	QgsMapLayer * getMapLayer(QString layerName);
-	QList<QString> getLayerNames();
-	void refreshLayerSet();
+    bool addMapLayer(QString layerName, QgsMapLayer *mapLayer, int priority);
+    bool removeMapLayer(QString layerName);
+    bool setLayerPriority(QString layerName, int priority);
+    QgsMapLayer * getMapLayer(QString layerName);
+    QList<QString> getLayerNames();
+    void refreshLayerSet();
 private:
-	void registerMapLayers();
+    void registerMapLayers();
 
-	QgsMapLayerRegistry* qgsLyrRegistry = 0;
-	QgsMapCanvas *mapCanvas;
-	QMap<int,QgsMapLayer*> lyrMap;	// Sorted in ascending order by key: c++ standard
-	QMap<QString,int> priMap;
+    QgsMapLayerRegistry* qgsLyrRegistry = 0;
+    QgsMapCanvas *mapCanvas;
+    QMap<int,QgsMapLayer*> lyrMap;    // Sorted in ascending order by key: c++ standard
+    QMap<QString,int> priMap;
 };
 
 #endif /* QGSLAYERSTACK_H_ */

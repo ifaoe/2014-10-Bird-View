@@ -12,7 +12,7 @@
 #include <QTreeWidget>
 
 class QCategoryButton: public QFrame {
-	Q_OBJECT
+    Q_OBJECT
 public:
     QCategoryButton(const QString& a_Text, QTreeWidget* a_pParent,
         QTreeWidgetItem* a_pItem);

@@ -13,7 +13,7 @@
 #include <QTreeWidget>
 
 class QCategoryCheckButton: public QFrame {
-	Q_OBJECT
+    Q_OBJECT
 public:
     QCategoryCheckButton(const QString& a_Text, QTreeWidget* a_pParent,
         QTreeWidgetItem* a_pItem);

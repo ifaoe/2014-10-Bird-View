@@ -19,16 +19,16 @@
 #include "ui_sessiondialog.h"
 
 class SessionDialog : public QDialog{
-	Q_OBJECT;
+    Q_OBJECT;
 public:
-	SessionDialog(ConfigHandler * cfg);
-	virtual ~SessionDialog();
+    SessionDialog(ConfigHandler * cfg);
+    virtual ~SessionDialog();
 private slots:
-	void handleYesButton();
-	void handleNoButton();
+    void handleYesButton();
+    void handleNoButton();
 private:
-	ConfigHandler * cfg = 0;
-	Ui::dlgModeSelect *dlg = 0;
+    ConfigHandler * cfg = 0;
+    Ui::dlgModeSelect *dlg = 0;
 };
 
 #endif /* SESSIONDIALOG_H_ */

@@ -1,3 +1,5 @@
+//    Copyright (C) 2014, 2015 Axel Wegener
+//
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -32,7 +34,8 @@
 #include "ui_widget_multicensus.h"
 #include "QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
-#include "GroupSelection.h"
+
+class GroupSelection;
 
 namespace Ui {
 class MainWindow;
@@ -45,40 +48,40 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(ConfigHandler *cfgArg = 0, DatabaseHandler *dbArg = 0, QWidget *parent = 0);
     ~MainWindow();
+    void handleGroupSelection();
 
 private slots:
-	void populateObjectTable();
+    void populateObjectTable();
 
-	void objectUpdateSelection();
-	void handleMapToolButton();
-	void handleOneToOneZoom();
-	void handleDirDial();
-	void handleUsrSelect();
-	void handleBrightnessSlider();
-	void handleContrastSlider();
-	void handleBrightnessReset();
-	void handleContrastReset();
-	void handleLineEditFilter();
-	void handleTypeFilter(int index);
-	void handleCensusFilter(int index);
-	void handleCamFilter(int index);
-	void handleCensorFilter();
-	void handleDeleteButton();
-	void handleSaveButton();
-	void handleSortingHeader(int section);
-	void handleStuk4Selection();
-	void handleBirdSpanMeasurement();
-	void handleBirdLengthMeasurement();
-	void handleMammalLengthMeasurement();
-	void handleGroupSelection();
-	void handleMiscMeasurement();
-	void handleFlightInfoAction();
+    void objectUpdateSelection();
+    void handleMapToolButton();
+    void handleOneToOneZoom();
+    void handleDirDial();
+    void handleUsrSelect();
+    void handleBrightnessSlider();
+    void handleContrastSlider();
+    void handleBrightnessReset();
+    void handleContrastReset();
+    void handleLineEditFilter();
+    void handleTypeFilter(int index);
+    void handleCensusFilter(int index);
+    void handleCamFilter(int index);
+    void handleCensorFilter();
+    void handleDeleteButton();
+    void handleSaveButton();
+    void handleSortingHeader(int section);
+    void handleStuk4Selection();
+    void handleBirdSpanMeasurement();
+    void handleBirdLengthMeasurement();
+    void handleMammalLengthMeasurement();
+    void handleMiscMeasurement();
+    void handleFlightInfoAction();
 private:
-	QgsProviderRegistry *prvRegistry = 0;
-	QgsMapLayerRegistry *lyrRegistry = 0;
-	ImgCanvas *imgcvs = 0;
+    QgsProviderRegistry *prvRegistry = 0;
+    QgsMapLayerRegistry *lyrRegistry = 0;
+    ImgCanvas *imgcvs = 0;
     Ui::MainWindow *ui;
-	ConfigHandler *cfg;
+    ConfigHandler *cfg;
     DatabaseHandler *db;
     QItemSelectionModel *objSelector;
     QString session = "";
@@ -114,16 +117,16 @@ private:
     Ui::wdgMultiCensus * wdgMultiCensus;
 
     QTreeWidgetItem* twgSession = 0;
-	QTreeWidgetItem* twgObjects = 0;
-	QTreeWidgetItem* twgCensus = 0;
-	QTreeWidgetItem* twgGraphics = 0;
-	QTreeWidgetItem* twgMultiCensus = 0;
+    QTreeWidgetItem* twgObjects = 0;
+    QTreeWidgetItem* twgCensus = 0;
+    QTreeWidgetItem* twgGraphics = 0;
+    QTreeWidgetItem* twgMultiCensus = 0;
 
-	QCategoryCheckButton* cbtSession = 0;
-	QCategoryCheckButton* cbtObjects = 0;
-	QCategoryCheckButton* cbtCensus = 0;
-	QCategoryCheckButton* cbtGraphics = 0;
-	QCategoryCheckButton* cbtMultiCensus = 0;
+    QCategoryCheckButton* cbtSession = 0;
+    QCategoryCheckButton* cbtObjects = 0;
+    QCategoryCheckButton* cbtCensus = 0;
+    QCategoryCheckButton* cbtGraphics = 0;
+    QCategoryCheckButton* cbtMultiCensus = 0;
 
     QSet<int> sortSet;
 

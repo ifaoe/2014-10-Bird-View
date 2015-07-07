@@ -22,27 +22,27 @@
 
 class ConfigHandler {
 public:
-	ConfigHandler(int argc, char *argv[]);
-	virtual ~ConfigHandler();
+    ConfigHandler(int argc, char *argv[]);
+    virtual ~ConfigHandler();
 
-	QString dbHost = "localhost";
-	QString dbFile = "localhost";
-	QString dbName = "daisi";
-	QString dbUser = "daisi";
-	QString dbPass = "18ifaoe184";
-	QString dbPort = "5432";
-	QString user();
-	QString image_path = "/net";
-	void parseCfgFile(QString database, QString filedb);
-	QStringList getDbList();
-	QString getSessionType();
-	void setSessionType(QString type);
+    QString dbHost = "localhost";
+    QString dbFile = "localhost";
+    QString dbName = "daisi";
+    QString dbUser = "daisi";
+    QString dbPass = "18ifaoe184";
+    QString dbPort = "5432";
+    QString user();
+    QString image_path = "/net";
+    void parseCfgFile(QString database, QString filedb);
+    QStringList getDbList();
+    QString getSessionType();
+    void setSessionType(QString type);
 private:
-	QString session_type = "local";
-	QString usr;
-	QFile *cfgFile;
-	QStringList databaseList;
-	boost::property_tree::ptree cfg;
+    QString session_type = "local";
+    QString usr;
+    QFile *cfgFile;
+    QStringList databaseList;
+    boost::property_tree::ptree cfg;
 };
 
 #endif /* CONFIGHANDLER_H_ */
