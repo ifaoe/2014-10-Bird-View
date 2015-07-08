@@ -18,8 +18,8 @@ GroupSelection::GroupSelection(DatabaseHandler * aDb, QWidget * parent, MainWind
     setWindowModality(Qt::NonModal);
     setModal(false);
 
-    connect(dlg->btbGroupSelection, SIGNAL(accepted()), this, SLOT(handleSaveButton()));
-    connect(dlg->btbGroupSelection, SIGNAL(rejected()), this, SLOT(handleDiscardButton()));
+    connect(dlg->btbGroupSelection, SIGNAL(accepted()), this, SLOT(handleSaveButton()), Qt::UniqueConnection);
+    connect(dlg->btbGroupSelection, SIGNAL(rejected()), this, SLOT(handleDiscardButton()), Qt::UniqueConnection);
 }
 
 GroupSelection::~GroupSelection() {
@@ -58,7 +58,7 @@ void GroupSelection::handleSaveButton() {
 
 void GroupSelection::handleDiscardButton() {
     qDebug() << "Reject!";
-    this->close();
+    setHidden(true);
 }
 
 QModelIndex GroupSelection::getObjectIndex(QTableView *tbl, QString obj) {
@@ -96,4 +96,17 @@ void GroupSelection::loadObject(census * obj) {
             dlg->tbvFamilySelection->selectionModel()->select(tmpind,
                     QItemSelectionModel::Select|QItemSelectionModel::Rows);
     }
+}
+
+bool GroupSelection::isHidden() {
+	return hidden;
+}
+
+void GroupSelection::setHidden(bool hide) {
+	hidden = hide;
+	if (hide) {
+		this->close();
+	} else {
+		this->show();
+	}
 }

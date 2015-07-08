@@ -955,20 +955,23 @@ void MainWindow::handleStuk4Selection() {
 };
 
 void MainWindow::handleGroupSelection() {
+	qDebug() << "handle";
+	qDebug() << grpSelectDialog->isHidden();
     if (curObj == 0) return;
     if (grpSelectDialog->isHidden()) {
-        grpSelectDialog->show();
-        if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
-            wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + curObj->group.join(", "));
-            wdgCensus->lblFamilyBird->setText("Familienv.: " + curObj->family.join(", "));
-        } else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
-            wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + curObj->group.join(", "));
-            wdgCensus->lblFamilyMammal->setText("Familienv.: " + curObj->family.join(", "));
-        } else {
-            return;
-        }
+        grpSelectDialog->setHidden(false);
+        return;
     } else {
-        grpSelectDialog->close();
+        grpSelectDialog->setHidden(true);
+    }
+    if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
+        wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + curObj->group.join(", "));
+        wdgCensus->lblFamilyBird->setText("Familienv.: " + curObj->family.join(", "));
+    } else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
+        wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + curObj->group.join(", "));
+        wdgCensus->lblFamilyMammal->setText("Familienv.: " + curObj->family.join(", "));
+    } else {
+        return;
     }
     return;
 }

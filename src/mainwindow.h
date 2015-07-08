@@ -48,34 +48,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(ConfigHandler *cfgArg = 0, DatabaseHandler *dbArg = 0, QWidget *parent = 0);
     ~MainWindow();
-    void handleGroupSelection();
-
-private slots:
-    void populateObjectTable();
-
-    void objectUpdateSelection();
-    void handleMapToolButton();
-    void handleOneToOneZoom();
-    void handleDirDial();
-    void handleUsrSelect();
-    void handleBrightnessSlider();
-    void handleContrastSlider();
-    void handleBrightnessReset();
-    void handleContrastReset();
-    void handleLineEditFilter();
-    void handleTypeFilter(int index);
-    void handleCensusFilter(int index);
-    void handleCamFilter(int index);
-    void handleCensorFilter();
-    void handleDeleteButton();
-    void handleSaveButton();
-    void handleSortingHeader(int section);
-    void handleStuk4Selection();
-    void handleBirdSpanMeasurement();
-    void handleBirdLengthMeasurement();
-    void handleMammalLengthMeasurement();
-    void handleMiscMeasurement();
-    void handleFlightInfoAction();
 private:
     QgsProviderRegistry *prvRegistry = 0;
     QgsMapLayerRegistry *lyrRegistry = 0;
@@ -142,6 +114,35 @@ private:
     void initCollapsibleMenu();
     bool compareResults(census * cobj, census * pobj);
     void conductMeasurement(double * length, QLabel * label);
+public slots:
+	void handleGroupSelection();
+
+private slots:
+	void populateObjectTable();
+
+	void objectUpdateSelection();
+	void handleMapToolButton();
+	void handleOneToOneZoom();
+	void handleDirDial();
+	void handleUsrSelect();
+	void handleBrightnessSlider();
+	void handleContrastSlider();
+	void handleBrightnessReset();
+	void handleContrastReset();
+	void handleLineEditFilter();
+	void handleTypeFilter(int index);
+	void handleCensusFilter(int index);
+	void handleCamFilter(int index);
+	void handleCensorFilter();
+	void handleDeleteButton();
+	void handleSaveButton();
+	void handleSortingHeader(int section);
+	void handleStuk4Selection();
+	void handleBirdSpanMeasurement();
+	void handleBirdLengthMeasurement();
+	void handleMammalLengthMeasurement();
+	void handleMiscMeasurement();
+	void handleFlightInfoAction();
 };
 
 #endif // MAINWINDOW_H

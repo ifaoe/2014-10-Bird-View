@@ -20,6 +20,8 @@ public:
     GroupSelection(DatabaseHandler * db, QWidget * parent, MainWindow * window);
     virtual ~GroupSelection();
     void loadObject(census * cobj);
+    bool isHidden();
+    void setHidden(bool hide);
 private slots:
     void handleSaveButton();
     void handleDiscardButton();
@@ -30,6 +32,7 @@ private:
     QModelIndex getObjectIndex(QTableView * tbl, QString id);
     QWidget * parent;
     MainWindow * mainwindow;
+    bool hidden = true;
 protected:
     void resizeEvent(QResizeEvent * e);
 };
