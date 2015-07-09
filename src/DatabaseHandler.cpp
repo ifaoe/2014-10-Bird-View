@@ -110,8 +110,8 @@ QStringList DatabaseHandler::getMammalTypeList() {
 
 bool DatabaseHandler::getAnthroObjectList(QComboBox * cmb) {
     qDebug() << "Gettings list of anthropogenic objects from database.";
-    QString qstr = "SELECT object_id, name, notes FROM abiotic_objects WHERE type='ANTHRO' "
-            "ORDER BY object_id";
+    QString qstr = "SELECT code, description, remarks FROM stuk4_codes"
+    		"WHERE type='ANTHRO' AND code!='0' ORDER BY code";
     qDebug() << qstr;
     QSqlQuery query(qstr);
     if (query.size() == 0)
@@ -122,7 +122,7 @@ bool DatabaseHandler::getAnthroObjectList(QComboBox * cmb) {
             tmpList << query.value(1).toString();
         else
             tmpList << query.value(1).toString() << query.value(2).toString();
-        cmb->addItem(tmpList.join(": "), query.value(1).toString());
+        cmb->addItem(tmpList.join(": "), query.value(0).toString());
     }
     return true;
 }

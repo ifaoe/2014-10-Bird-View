@@ -22,9 +22,6 @@
 #include <QMessageBox>
 #include <qgsmultibandcolorrenderer.h>
 #include <QLineEdit>
-#include "Stuk4Dialog.h"
-#include "GroupSelection.h"
-
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
     QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
@@ -71,8 +68,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
 
     initMapView();
 
+    InitCensusWidget();
+
     measurementWindow = new MeasurementDialog(imgcvs);
-    grpSelectDialog = new GroupSelection(db, this, this);
 
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(objectUpdateSelection()));
@@ -100,16 +98,16 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgObjects->tblFilters->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
             SLOT(handleSortingHeader(int)));
 
-    connect(wdgCensus->tbtStuk4CodesBird, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
-    connect(wdgCensus->tbtStuk4CodesMammal, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
+//    connect(wdgCensus->tbtStuk4CodesBird, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
+//    connect(wdgCensus->tbtStuk4CodesMammal, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
 
     connect(wdgCensus->btnBirdSizeSpan, SIGNAL(clicked()), this, SLOT(handleBirdSpanMeasurement()));
     connect(wdgCensus->btnBirdSizeLength, SIGNAL(clicked()), this, SLOT(handleBirdLengthMeasurement()));
     connect(wdgCensus->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
 
 
-    connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
-    connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
+//    connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
+//    connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
 
 //    connect(ui->btnMiscMeasurement, SIGNAL(clicked()), this, SLOT(handleMiscMeasurement()));
     connect(ui->actionMessung, SIGNAL(triggered()), this, SLOT(handleMiscMeasurement()));
@@ -215,7 +213,6 @@ void MainWindow::objectUpdateSelection() {
     wdgGraphics->sldBrightness->setValue(0);
     wdgGraphics->sldContrast->setValue(0);
 
-    dialChecked = false;
     if (objSelector->selectedRows().isEmpty()) return;
     currentRow = objSelector->selectedRows().at(0).row();
     QString objId = wdgObjects->tblObjects->item(currentRow, 0)->text();
@@ -229,6 +226,9 @@ void MainWindow::objectUpdateSelection() {
     censorList = db->getUserList(objId);
     wdgCensus->cmbUsers->addItems(censorList);
     uiPreSelection(curObj);
+
+    group_selection_dialog_->set_data_model(db->getCloseObjects(curObj));
+    family_selection_dialog_->set_data_model(db->getCloseObjects(curObj));
 
     // handle user selection
     if ((curObj->censor > 0) && (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
@@ -276,19 +276,6 @@ void MainWindow::objectUpdateSelection() {
 
     ui->wdgFrameTree->scrollToItem(twgCensus);
 
-    grpSelectDialog->loadObject(curObj);
-
-//    wdgMultiCensus->tbvMultiCensus->setModel(db->getImageObjects(curObj));
-//    wdgMultiCensus->tbvMultiCensus->selectionModel()->clearSelection();
-//
-//    for(int i=0; i<wdgMultiCensus->tbvMultiCensus->model()->rowCount(); i++) {
-//        QModelIndex ind = wdgMultiCensus->tbvMultiCensus->model()->index(i,0);
-//        if (wdgMultiCensus->tbvMultiCensus->model()->data(ind).toInt() == curObj->id) {
-//            wdgMultiCensus->tbvMultiCensus->selectRow(i);
-//            break;
-//        }
-//    }
-
     ui->statusBar->showMessage(
             QString("Project: %1, Kamera: %2, Bild: %3, Objekt ID: %4")
             .arg(curObj->session).arg(curObj->camera).arg(curObj->image).arg(curObj->id)
@@ -307,9 +294,16 @@ void MainWindow::handleSaveButton() {
 
     curObj->type = wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 
+    // Check wether all inputs are done
     if(curObj->type == "BIRD") {
-        if ((wdgCensus->btngBirdBeh->checkedButton()->property("dbvalue").toString() == "FLY")
-                && (dialChecked == false)) {
+    	curObj->quality = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
+    	curObj->behavior = GetButtonGroupValue(wdgCensus->btngBirdBeh, "dbvalue").toString();
+    	curObj->name = wdgCensus->cmbBird->currentText();
+    	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();
+    	curObj->age = GetGroupBoxValue(wdgCensus->gbxBirdAge, wdgCensus->btngBirdAge, "dbvalue").toString();
+
+
+        if ((curObj->behavior == "FLY") && (curObj->direction < 0)) {
                 QMessageBox * msgBox = new QMessageBox();
                 msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
                 QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
@@ -322,11 +316,10 @@ void MainWindow::handleSaveButton() {
                     curObj->direction = -1;
                 }
                 delete msgBox;
-            } else if (wdgCensus->btngBirdBeh->checkedButton()->property("dbvalue").toString() != "FLY") {
-                curObj->direction = -1;
             } else {
-
+                curObj->direction = -1;
             }
+
             if (wdgCensus->cmbBird->currentText() == "") {
                 QMessageBox * msgBox = new QMessageBox();
                 msgBox->setText(trUtf8("Bitte Art auswählen!"));
@@ -338,21 +331,6 @@ void MainWindow::handleSaveButton() {
                 }
                 delete msgBox;
             }
-            curObj->quality = wdgCensus->btngBirdQual->checkedButton()->property("dbvalue").toInt();
-            curObj->behavior = wdgCensus->btngBirdBeh->checkedButton()->property("dbvalue").toString();
-            if (wdgCensus->gbxBirdGender->isChecked()) {
-                curObj->gender = wdgCensus->btngBirdSex->checkedButton()->property("dbvalue").toString();
-            } else {
-                curObj->gender = "";
-            }
-            if (wdgCensus->gbxBirdAge->isChecked()) {
-                curObj->age = wdgCensus->btngBirdAge->checkedButton()->property("dbvalue").toString();
-            } else {
-                curObj->age = "";
-            }
-
-            curObj->remarks = wdgCensus->txtBirdRemarks->toPlainText();
-            curObj->name = wdgCensus->cmbBird->currentText();
     }else if (curObj->type == "MAMMAL") {
         if (wdgCensus->cmbMammal->currentText() == "") {
             QMessageBox * msgBox = new QMessageBox();
@@ -363,7 +341,7 @@ void MainWindow::handleSaveButton() {
                 return;
             }
         }
-        if (dialChecked == false) {
+        if (curObj->direction < 0) {
             QMessageBox * msgBox = new QMessageBox();
             msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
             QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
@@ -386,22 +364,12 @@ void MainWindow::handleSaveButton() {
             curObj->age = "";
         }
         curObj->gender = "";
-        curObj->remarks = wdgCensus->txtMammalRemarks->toPlainText();
     } else if (curObj->type == "NOSIGHT") {
         curObj->name = "";
         curObj->quality = wdgCensus->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
         curObj->behavior = "";
         curObj->age = "";
         curObj->gender = "";
-        curObj->remarks = wdgCensus->txtNoSightRemarks->toPlainText();
-        curObj->direction = -1;
-    } else if (curObj->type == "TRASH") {
-        curObj->name = "";
-        curObj->quality = wdgCensus->btngTrashQual->checkedButton()->property("dbvalue").toInt();
-        curObj->behavior = "";
-        curObj->age = "";
-        curObj->gender = "";
-        curObj->remarks = wdgCensus->pteTrashRemarks->toPlainText();
         curObj->direction = -1;
     } else if (curObj->type == "ANTHRO") {
         curObj->name = wdgCensus->cmbAnthroName->itemData(
@@ -410,13 +378,13 @@ void MainWindow::handleSaveButton() {
         curObj->behavior = "";
         curObj->age = "";
         curObj->gender = "";
-        curObj->remarks = wdgCensus->pteAnthroRemarks->toPlainText();
         curObj->direction = -1;
     } else {
         qDebug() << "Invalid save type. Aborting.";
         return;
     }
 
+    curObj->remarks = wdgCensus->textedit_remarks->toPlainText();
 
     int tmpcensor = 0;
     if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2)
@@ -611,7 +579,6 @@ void MainWindow::initMapView() {
 void MainWindow::handleDirDial() {
     qDebug() << "Handle direction dial with value: " << dirDial->value();
     curObj->direction = (dirDial->value() + 180)%360;
-    dialChecked=true;
     qDebug() << curObj->direction;
 }
 
@@ -625,12 +592,16 @@ void MainWindow::uiPreSelection(census * cobj) {
     // save all info but size and direction
     if (wdgCensus->chbSaveCensus->isChecked()) {
         dirDial->setValue(180);
-        dialChecked = false;
+        cobj->direction = -1;
 
         // clear size box
         wdgCensus->lblMammalSizeLength->clear();
         wdgCensus->lblBirdSizeLength->clear();
         wdgCensus->lblBirdSizeSpan->clear();
+        cobj->span = -1;
+        cobj->length = -1;
+
+        cobj->imageQuality = 0;
         return;
     }
 
@@ -638,30 +609,12 @@ void MainWindow::uiPreSelection(census * cobj) {
     curObj->stuk4_ass = cobj->stuk4_ass;
     curObj->stuk4_beh = cobj->stuk4_beh;
 
-    // clear remark boxes
-    wdgCensus->txtBirdRemarks->clear();
-    wdgCensus->txtMammalRemarks->clear();
-    wdgCensus->txtNoSightRemarks->clear();
-    wdgCensus->pteTrashRemarks->clear();
-    wdgCensus->pteAnthroRemarks->clear();
+    wdgCensus->textedit_remarks->clear();
 
     // clear size box
     wdgCensus->lblMammalSizeLength->clear();
     wdgCensus->lblBirdSizeLength->clear();
     wdgCensus->lblBirdSizeSpan->clear();
-
-    //clear Stuk4 Code Labels
-    wdgCensus->lblStuk4BehBird->setText("Verhalten:");
-    wdgCensus->lblStuk4AssBird->setText("Assoziationen:");
-    wdgCensus->lblStuk4BehMammal->setText("Verhalten:");
-    wdgCensus->lblStuk4AssMammal->setText("Assoziationen:");
-
-    //clear group list labels
-    wdgCensus->lblGroupBirdObjects->setText("Gruppe:");
-    wdgCensus->lblGroupMammalObjects->setText("Gruppe:");
-
-    wdgCensus->lblFamilyBird->setText("Familienv.:");
-    wdgCensus->lblFamilyMammal->setText("Familienv.:");
 
     // Recalculate values of the QDial to 0=North
     qDebug() << "Dir: " << cobj->direction;
@@ -670,7 +623,6 @@ void MainWindow::uiPreSelection(census * cobj) {
         handleDirDial();
     } else {
         dirDial->setValue(180);
-        dialChecked = false;
     }
 
     // Checkbox for very good objects in image quality
@@ -692,6 +644,9 @@ void MainWindow::uiPreSelection(census * cobj) {
     wdgCensus->gbxBirdAge->setChecked(false);
     wdgCensus->gbxBirdGender->setChecked(false);
 
+    wdgCensus->textedit_remarks->setPlainText(cobj->remarks);
+
+
     if(shTp == "B" || shTp == "V" ) { // Bird Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(0);
             int index = wdgCensus->cmbBird->findText(cobj->name);
@@ -706,14 +661,8 @@ void MainWindow::uiPreSelection(census * cobj) {
                 wdgCensus->gbxBirdAge->setChecked(true);
                 selectButtonByString(wdgCensus->btngBirdAge, cobj->age);
             }
-            wdgCensus->txtBirdRemarks->setPlainText(cobj->remarks);
             if (cobj->length > 0 ) wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length));
             if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
-
-            wdgCensus->lblStuk4BehBird->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
-            wdgCensus->lblStuk4AssBird->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
-            wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + cobj->group.join(", "));
-            wdgCensus->lblFamilyBird->setText("Familienv.: " + cobj->family.join(", "));
 
             wdgCensus->cmbBird->setFocus();
         } else if (shTp == "M" ) { // Mammal Tab
@@ -726,30 +675,18 @@ void MainWindow::uiPreSelection(census * cobj) {
                 wdgCensus->gbxMammalAge->setChecked(true);
                 selectButtonByString(wdgCensus->btngMammalAge, cobj->age);
             }
-            wdgCensus->txtMammalRemarks->setPlainText(cobj->remarks);
             if (cobj->length > 0 )
                 wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
-            wdgCensus->lblStuk4BehMammal->setText("Verhalten: " + cobj->stuk4_beh.join(", "));
-            wdgCensus->lblStuk4AssMammal->setText("Assoziationen: " + cobj->stuk4_ass.join(", "));
-            wdgCensus->lblGroupMammalObjects->setText("Gruppe: " +cobj->group.join(", "));
-            wdgCensus->lblFamilyMammal->setText("Familienv.: " + cobj->family.join(", "));
-
             wdgCensus->cmbMammal->setFocus();
-        } else if (shTp == "T" ) { // Trash Tab
-            wdgCensus->wdgTabTypes->setCurrentIndex(3);
-            selectButtonByString(wdgCensus->btngTrashQual, QString::number(cobj->quality));
-            wdgCensus->pteTrashRemarks->setPlainText(cobj->remarks);
         } else if (shTp == "A" ) { // Anthro Tab
             int index = wdgCensus->cmbAnthroName->findText(cobj->name);
             wdgCensus->cmbAnthroName->setCurrentIndex(index);
             wdgCensus->wdgTabTypes->setCurrentIndex(4);
             selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->quality));
             wdgCensus->cmbAnthroName->findText(cobj->name, Qt::MatchStartsWith);
-            wdgCensus->pteAnthroRemarks->setPlainText(cobj->remarks);
         } else { //NoSighting tab
             wdgCensus->wdgTabTypes->setCurrentIndex(2);
             selectButtonByString(wdgCensus->btngNoSightQual, QString::number(cobj->quality));
-            wdgCensus->txtNoSightRemarks->setPlainText(cobj->remarks);
         }
 }
 
@@ -937,45 +874,6 @@ void MainWindow::handleMammalLengthMeasurement() {
     conductMeasurement(&curObj->length, wdgCensus->lblMammalSizeLength);
 };
 
-void MainWindow::handleStuk4Selection() {
-    if(curObj == 0) return;
-    Stuk4Dialog * dlg = new Stuk4Dialog(db, &curObj->stuk4_beh, &curObj->stuk4_ass);
-    dlg->exec();
-    delete dlg;
-    if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
-        wdgCensus->lblStuk4BehBird->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
-        wdgCensus->lblStuk4AssBird->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
-    } else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
-        wdgCensus->lblStuk4BehMammal->setText("Verhalten: " + curObj->stuk4_beh.join(", "));
-        wdgCensus->lblStuk4AssMammal->setText("Assoziationen: " + curObj->stuk4_ass.join(", "));
-    } else {
-        return;
-    }
-
-};
-
-void MainWindow::handleGroupSelection() {
-	qDebug() << "handle";
-	qDebug() << grpSelectDialog->isHidden();
-    if (curObj == 0) return;
-    if (grpSelectDialog->isHidden()) {
-        grpSelectDialog->setHidden(false);
-        return;
-    } else {
-        grpSelectDialog->setHidden(true);
-    }
-    if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "BIRD") {
-        wdgCensus->lblGroupBirdObjects->setText("Gruppe: " + curObj->group.join(", "));
-        wdgCensus->lblFamilyBird->setText("Familienv.: " + curObj->family.join(", "));
-    } else if (wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString() == "MAMMAL") {
-        wdgCensus->lblGroupMammalObjects->setText("Gruppe: " + curObj->group.join(", "));
-        wdgCensus->lblFamilyMammal->setText("Familienv.: " + curObj->family.join(", "));
-    } else {
-        return;
-    }
-    return;
-}
-
 void MainWindow::conductMeasurement(double * length, QLabel * label) {
     measurementWindow->move(size().width()*0.75,size().height()*0.25);
     measurementWindow->startMeasurement(length, label);
@@ -1043,47 +941,21 @@ void MainWindow::initCollapsibleMenu(){
             QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
             wdgContainer->setDisabled(true);
             twgCensus->addChild(wdgContainer);
-            QFrame *widget = new QFrame;
+            frame_census = new QFrame;
             wdgCensus = new Ui::wdgCensus;
-            wdgCensus->setupUi(widget);
-            widget->setBackgroundRole(QPalette::Window);
-            widget->setAutoFillBackground(true);
-            widget->resize(0,0);
+            wdgCensus->setupUi(frame_census);
+            frame_census->setBackgroundRole(QPalette::Window);
+            frame_census->setAutoFillBackground(true);
+            frame_census->resize(0,0);
             wdgCensus->wdgTabTypes->setContentsMargins(0,0,0,0);
             wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
             wdgCensus->wdgTabTypes->setAutoFillBackground(true);
 
-            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+            ui->wdgFrameTree->setItemWidget(wdgContainer,0,frame_census);
             if (!cbtCensus->isChecked())
                 twgCensus->setExpanded(false);
 
         }
-
-//        //create widget
-//        {
-//            twgMultiCensus = new QTreeWidgetItem();
-//            ui->wdgFrameTree->addTopLevelItem(twgMultiCensus);
-//            cbtMultiCensus = new QCategoryCheckButton("Mehrfachbestimmung", ui->wdgFrameTree, twgMultiCensus);
-//            ui->wdgFrameTree->setItemWidget(twgMultiCensus, 0, cbtMultiCensus);
-//            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-//            wdgContainer->setDisabled(true);
-//            twgMultiCensus->addChild(wdgContainer);
-//            QFrame *widget = new QFrame;
-//            wdgMultiCensus = new Ui::wdgMultiCensus;
-//            wdgMultiCensus->setupUi(widget);
-//            widget->setBackgroundRole(QPalette::Window);
-//            widget->setAutoFillBackground(true);
-//            widget->resize(0,0);
-//
-//            wdgMultiCensus->tbvMultiCensus->horizontalHeader()->setStretchLastSection(true);
-//            wdgMultiCensus->tbvMultiCensus
-//                ->verticalHeader()->resizeMode(QHeaderView::ResizeToContents);
-//
-//            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-//            if (!cbtMultiCensus->isChecked())
-//                twgMultiCensus->setExpanded(false);
-//
-//        }
 
         //create widget
         {
@@ -1113,4 +985,62 @@ void MainWindow::initCollapsibleMenu(){
         wdgObjects->tblObjects->setColumnWidth(2, 40);
         wdgObjects->tblObjects->setColumnWidth(3, 50);
         wdgObjects->tblObjects->setColumnWidth(4, 50);
+}
+
+void MainWindow::InitCensusWidget() {
+    group_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_group, this);
+	family_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_family, this);
+    association_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_associations, this);
+    behaviour_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_behaviour, this);
+
+    association_selection_dialog_->set_data_model(db->getStuk4Associations());
+    behaviour_selection_dialog_->set_data_model(db->getStuk4Behaviour());
+
+    connect(wdgCensus->toolbutton_associations, SIGNAL(clicked()), this, SLOT(HandleAssociationSelection()));
+    connect(wdgCensus->toolbutton_behaviour, SIGNAL(clicked()), this, SLOT(HandleBehaviourSelection()));
+    connect(wdgCensus->toolbutton_group, SIGNAL(clicked()), this, SLOT(HandleGroupSelection()));
+    connect(wdgCensus->toolbutton_family, SIGNAL(clicked()), this, SLOT(HandleFamilySelection()));
+
+    connect(wdgCensus->wdgTabTypes, SIGNAL(currentChanged(int)), this, SLOT(HandleActiveCensusElements()));
+}
+
+void MainWindow::HandleAssociationSelection() {
+	association_selection_dialog_->ToggleHidden();
+}
+
+void MainWindow::HandleBehaviourSelection() {
+	behaviour_selection_dialog_->ToggleHidden();
+}
+
+void MainWindow::HandleGroupSelection() {
+	group_selection_dialog_->ToggleHidden();
+}
+
+void MainWindow::HandleFamilySelection() {
+	family_selection_dialog_->ToggleHidden();
+}
+
+void MainWindow::HandleActiveCensusElements() {
+	curObj->type = wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString();
+	if (curObj->type == "BIRD" || curObj->type == "MAMMAL") {
+		wdgCensus->frame_id_selections->setEnabled(true);
+	} else {
+		wdgCensus->frame_id_selections->setEnabled(false);
+	}
+}
+
+QVariant MainWindow::GetButtonGroupValue(QButtonGroup * btng, QString value) {
+	return btng->checkedButton()->property(value.toStdString().c_str());
+}
+
+QVariant MainWindow::GetGroupBoxValue(QGroupBox * gbx, QButtonGroup * btng, QString value) {
+	if (gbx->isCheckable()) {
+		if (gbx->isChecked()) {
+			return GetButtonGroupValue(btng,value);
+		} else {
+			return QVariant::fromValue(QString::fromStdString(""));
+		}
+	} else {
+		return GetButtonGroupValue(btng,value);
+	}
 }

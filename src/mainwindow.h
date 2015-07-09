@@ -34,8 +34,7 @@
 #include "ui_widget_multicensus.h"
 #include "QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
-
-class GroupSelection;
+#include "IdSelectionDialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -71,7 +70,6 @@ private:
 //    QPushButton * btnMapModeGeo;
 
     QDial * dirDial;
-    bool dialChecked = false;
 
     // Filter Widgets
     QComboBox * cmbFilterCensus;
@@ -87,6 +85,8 @@ private:
     Ui::wdgCensus * wdgCensus;
     Ui::wdgGraphics * wdgGraphics;
     Ui::wdgMultiCensus * wdgMultiCensus;
+
+    QFrame * frame_census;
 
     QTreeWidgetItem* twgSession = 0;
     QTreeWidgetItem* twgObjects = 0;
@@ -104,18 +104,23 @@ private:
 
     MeasurementDialog * measurementWindow = 0;
 
-    GroupSelection * grpSelectDialog = 0;
+    IdSelectionDialog * group_selection_dialog_ = 0;
+    IdSelectionDialog * family_selection_dialog_ = 0;
+    IdSelectionDialog * association_selection_dialog_ = 0;
+    IdSelectionDialog * behaviour_selection_dialog_ = 0;
 
+    QVariant GetGroupBoxValue(QGroupBox * gbx, QButtonGroup * btng, QString value);
+    QVariant GetButtonGroupValue(QButtonGroup * btng, QString value);
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableRow(QColor color, int row);
     void initMapView();
     void uiPreSelection(census * cobj);
     void initFilters();
     void initCollapsibleMenu();
+    void InitCensusWidget();
     bool compareResults(census * cobj, census * pobj);
     void conductMeasurement(double * length, QLabel * label);
 public slots:
-	void handleGroupSelection();
 
 private slots:
 	void populateObjectTable();
@@ -137,12 +142,16 @@ private slots:
 	void handleDeleteButton();
 	void handleSaveButton();
 	void handleSortingHeader(int section);
-	void handleStuk4Selection();
 	void handleBirdSpanMeasurement();
 	void handleBirdLengthMeasurement();
 	void handleMammalLengthMeasurement();
 	void handleMiscMeasurement();
 	void handleFlightInfoAction();
+	void HandleAssociationSelection();
+	void HandleBehaviourSelection();
+	void HandleGroupSelection();
+	void HandleFamilySelection();
+	void HandleActiveCensusElements();
 };
 
 #endif // MAINWINDOW_H

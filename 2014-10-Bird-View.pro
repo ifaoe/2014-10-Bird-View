@@ -21,10 +21,9 @@ SOURCES += main.cpp\
         ConfigHandler.cpp \
         DatabaseHandler.cpp \
         SessionDialog.cpp \
-        Stuk4Dialog.cpp \
         QCategoryButton.cpp \
         QCategoryCheckButton.cpp \
-        GroupSelection.cpp \
+        IdSelectionDialog.cpp \
         MeasurementDialog.cpp \
         QgsMapMarker.cpp 
 		
@@ -35,23 +34,21 @@ HEADERS  += mainwindow.h\
 		DatabaseHandler.h \
 		SessionDialog.h \
 		census.hpp \
-		Stuk4Dialog.h \
 		QCategoryButton.h \
 		QCategoryCheckButton.h \
-		GroupSelection.h \
+		IdSelectionDialog.h \
         MeasurementDialog.h \
-        QgsMapMarker.h 
+        QgsMapMarker.h
 
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
-			stuk4codes.ui \
 			widget_sessions.ui\
 			widget_census.ui\
 			widget_objects.ui \
 			widget_graphics.ui \
-			dialog_groupid.ui \
+			dialog_idselection.ui \
 			dialog_measurement.ui \
-			widget_multicensus.ui
+			widget_census_shared.ui
 			
 INCLUDEPATH += /usr/include
 INCLUDEPATH += /usr/include/qgis

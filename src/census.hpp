@@ -22,7 +22,7 @@ struct census {
     int id = -1;
     QString session = "";
     QString image = "";
-    QString camera = "0";
+    QString camera = "";
     QString usr = "";
     QString epsg = "";
     int px = -1;
