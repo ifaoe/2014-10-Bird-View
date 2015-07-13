@@ -120,6 +120,8 @@ private:
     void InitCensusWidget();
     bool compareResults(census * cobj, census * pobj);
     void conductMeasurement(double * length, QLabel * label);
+    bool CheckInputValidity();
+    QVariant GetComboBoxItem(QComboBox * combo_box);
 public slots:
 
 private slots:

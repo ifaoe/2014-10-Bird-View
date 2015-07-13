@@ -58,16 +58,12 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     }
 
     wdgSession->cmbSession->addItems(db->getSessionList());
-    wdgCensus->cmbBird->addItems(db->getBirdTypeList());
-    wdgCensus->cmbMammal->addItems(db->getMammalTypeList());
-    db->getAnthroObjectList(wdgCensus->cmbAnthroName);
 
     objSelector = wdgObjects->tblObjects->selectionModel();
     wdgObjects->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
     wdgObjects->tblObjects->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     initMapView();
-
     InitCensusWidget();
 
     measurementWindow = new MeasurementDialog(imgcvs);
@@ -295,88 +291,43 @@ void MainWindow::handleSaveButton() {
     curObj->type = wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 
     // Check wether all inputs are done
+    bool check_required = false;
     if(curObj->type == "BIRD") {
+    	check_required = true;
+    	curObj->name = GetComboBoxItem(wdgCensus->cmbBird).toString();
     	curObj->quality = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
     	curObj->behavior = GetButtonGroupValue(wdgCensus->btngBirdBeh, "dbvalue").toString();
-    	curObj->name = wdgCensus->cmbBird->currentText();
     	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();
-    	curObj->age = GetGroupBoxValue(wdgCensus->gbxBirdAge, wdgCensus->btngBirdAge, "dbvalue").toString();
-
-
-        if ((curObj->behavior == "FLY") && (curObj->direction < 0)) {
-                QMessageBox * msgBox = new QMessageBox();
-                msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
-                QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-                QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-                msgBox->exec();
-                if (msgBox->clickedButton() == nextButton) {
-                    delete msgBox;
-                    return;
-                } else if (msgBox->clickedButton() == noDirButton) {;
-                    curObj->direction = -1;
-                }
-                delete msgBox;
-            } else {
-                curObj->direction = -1;
-            }
-
-            if (wdgCensus->cmbBird->currentText() == "") {
-                QMessageBox * msgBox = new QMessageBox();
-                msgBox->setText(trUtf8("Bitte Art auswählen!"));
-                QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-                msgBox->exec();
-                if(msgBox->clickedButton() == nextButton) {
-                    delete msgBox;
-                    return;
-                }
-                delete msgBox;
-            }
     }else if (curObj->type == "MAMMAL") {
-        if (wdgCensus->cmbMammal->currentText() == "") {
-            QMessageBox * msgBox = new QMessageBox();
-            msgBox->setText(trUtf8("Bitte Art auswählen!"));
-            QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-            msgBox->exec();
-            if(msgBox->clickedButton() == nextButton) {
-                return;
-            }
-        }
-        if (curObj->direction < 0) {
-            QMessageBox * msgBox = new QMessageBox();
-            msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
-            QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-            QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-            msgBox->exec();
-            if (msgBox->clickedButton() == nextButton) {
-                delete msgBox;
-                return;
-            } else if (msgBox->clickedButton() == noDirButton) {;
-                curObj->direction = -1;
-            }
-            delete msgBox;
-        }
-        curObj->name = wdgCensus->cmbMammal->currentText();
-        curObj->quality = wdgCensus->btngMammalQual->checkedButton()->property("dbvalue").toInt();
-        curObj->behavior = wdgCensus->btngMammalBeh->checkedButton()->property("dbvalue").toString();
-        if (wdgCensus->gbxMammalAge->isChecked()) {
-            curObj->age = wdgCensus->btngMammalAge->checkedButton()->property("dbvalue").toString();
-        } else {
-            curObj->age = "";
-        }
+    	check_required = true;
+        curObj->name = GetComboBoxItem(wdgCensus->cmbMammal).toString();
+        curObj->quality = GetButtonGroupValue(wdgCensus->btngMammalQual,"dbvalue").toInt();
+        curObj->behavior = GetButtonGroupValue(wdgCensus->btngMammalBeh, "dbvalue").toString();
+		curObj->age = GetGroupBoxValue(wdgCensus->gbxMammalAge, wdgCensus->btngMammalAge, "dbvalue").toString();
+        curObj->age_years = -1;
         curObj->gender = "";
     } else if (curObj->type == "NOSIGHT") {
         curObj->name = "";
-        curObj->quality = wdgCensus->btngNoSightQual->checkedButton()->property("dbvalue").toInt();
+        curObj->quality = GetButtonGroupValue(wdgCensus->btngNoSightQual, "dbvalue").toInt();
         curObj->behavior = "";
         curObj->age = "";
+        curObj->age_years = -1;
         curObj->gender = "";
         curObj->direction = -1;
     } else if (curObj->type == "ANTHRO") {
-        curObj->name = wdgCensus->cmbAnthroName->itemData(
-                wdgCensus->cmbAnthroName->currentIndex()).toString();
-        curObj->quality = wdgCensus->btngAnthroQual->checkedButton()->property("dbvalue").toInt();
+        curObj->name = GetComboBoxItem(wdgCensus->cmbAnthroName).toString();
+        curObj->quality = GetButtonGroupValue(wdgCensus->btngAnthroQual, "dbvalue").toInt();
         curObj->behavior = "";
         curObj->age = "";
+        curObj->age_years = -1;
+        curObj->gender = "";
+        curObj->direction = -1;
+    } else if (curObj->type == "MISC") {
+        curObj->name = GetComboBoxItem(wdgCensus->cmb_misc_name).toString();
+        curObj->quality = GetButtonGroupValue(wdgCensus->btng_misc_qual, "dbvalue").toInt();
+        curObj->behavior = "";
+        curObj->age = "";
+        curObj->age_years = -1;
         curObj->gender = "";
         curObj->direction = -1;
     } else {
@@ -384,76 +335,83 @@ void MainWindow::handleSaveButton() {
         return;
     }
 
+    if (!CheckInputValidity()) return;
+
     curObj->remarks = wdgCensus->textedit_remarks->toPlainText();
 
-    int tmpcensor = 0;
-    if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2)
-        tmpcensor = 0;
-    else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) == 1) {
-        if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) > 1) {
-            tmpcensor = 3;
-        } else {
-            tmpcensor = 2;
-        }
-    } else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
-        tmpcensor = 1;
+    if (check_required || curObj->quality != 1) {
+    	int tmpcensor = 0;
+		if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
+			tmpcensor = 0;
+		} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) == 1) {
+			if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) > 1) {
+				tmpcensor = 3;
+			} else {
+				tmpcensor = 2;
+			}
+		} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) < 1) {
+			tmpcensor = 1;
+		} else {
+			tmpcensor = -1;
+		}
+
+		switch (tmpcensor) {
+			case -1: {
+				qDebug() << "Kann Nuzter nicht bestimmen!";
+				curObj->censor = -1;
+				break;
+			} case 0: {
+				qDebug() << "Zusätzlicher Bestimmer.";
+				curObj->censor = 0;
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				msgBox->exec();
+				delete msgBox;
+				break;
+			} case 1: {
+				qDebug() << "Erster Bestimmer.";
+				curObj->censor = 1;
+				break;
+			} case 2: {
+				qDebug() << "Zweiter Bestimmer.";
+				curObj->censor = 2;
+				census * cenObj = db->getCensusData(QString::number(curObj->id));
+				bool agree = compareResults(curObj, cenObj);
+				if (!agree) {
+					QMessageBox * msgBox = new QMessageBox();
+					msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
+							" Noch keine Endbestimmung möglich.\n"
+							"Bestimmung als Vorbestimmer."));
+					msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+					msgBox->exec();
+					delete msgBox;
+					curObj->censor = 1;
+				}
+				break;
+			} case 3: {
+				qDebug() << "Ditter Bestimmer.";
+				curObj->censor = 2;
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
+						+ "Bitte mit " + censorList.join(", ") + " abstimmen.");
+				msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+				QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+				msgBox->exec();
+				if (msgBox->clickedButton() == noButton) {
+					delete msgBox;
+					return;
+				}
+				break;
+			} default: {
+				qDebug() << "Exit route on switch!";
+				exit(1);
+			}
+		}
     } else {
-        tmpcensor = -1;
+    	curObj->censor = 2;
     }
 
-    switch (tmpcensor) {
-        case -1: {
-            qDebug() << "Kann Nuzter nicht bestimmen!";
-            curObj->censor = -1;
-            break;
-        } case 0: {
-            qDebug() << "Zusätzlicher Bestimmer.";
-            curObj->censor = 0;
-            QMessageBox * msgBox = new QMessageBox();
-            msgBox->setText(trUtf8("Objekt bereits Endbestimmt. Abspeichern als zusätzliche Bestimmung."));
-            msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-            msgBox->exec();
-            delete msgBox;
-            break;
-        } case 1: {
-            qDebug() << "Erster Bestimmer.";
-            curObj->censor = 1;
-            break;
-        } case 2: {
-            qDebug() << "Zweiter Bestimmer.";
-            curObj->censor = 2;
-            census * cenObj = db->getCensusData(QString::number(curObj->id));
-            bool agree = compareResults(curObj, cenObj);
-            if (!agree) {
-                QMessageBox * msgBox = new QMessageBox();
-                msgBox->setText(QString::fromUtf8("Keine Übereinstimmung zum Erstbestimmer.\n"
-                        " Noch keine Endbestimmung möglich.\n"
-                        "Bestimmung als Vorbestimmer."));
-                msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-                msgBox->exec();
-                delete msgBox;
-                curObj->censor = 1;
-            }
-            break;
-        } case 3: {
-            qDebug() << "Ditter Bestimmer.";
-            curObj->censor = 2;
-            QMessageBox * msgBox = new QMessageBox();
-            msgBox->setText("Endbestimmung als " + QString::number(censorList.size()) + ". Bestimmer. \n"
-                    + "Bitte mit " + censorList.join(", ") + " abstimmen.");
-            msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-            QAbstractButton *noButton = msgBox->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-            msgBox->exec();
-            if (msgBox->clickedButton() == noButton) {
-                delete msgBox;
-                return;
-            }
-            break;
-        } default: {
-            qDebug() << "Exit route on switch!";
-            exit(1);
-        }
-    }
 
     if (wdgGraphics->chbImgQuality->isChecked()) {
         curObj->imageQuality = 1;
@@ -996,6 +954,13 @@ void MainWindow::InitCensusWidget() {
     association_selection_dialog_->set_data_model(db->getStuk4Associations());
     behaviour_selection_dialog_->set_data_model(db->getStuk4Behaviour());
 
+    db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
+    db->GetMiscObjects(wdgCensus->cmb_misc_name);
+    db->GetAnthroObjectList(wdgCensus->cmbAnthroName);
+    db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
+    db->GetMammalTypeList(wdgCensus->cmbMammal);
+    db->GetBirdTypeList(wdgCensus->cmbBird);
+
     connect(wdgCensus->toolbutton_associations, SIGNAL(clicked()), this, SLOT(HandleAssociationSelection()));
     connect(wdgCensus->toolbutton_behaviour, SIGNAL(clicked()), this, SLOT(HandleBehaviourSelection()));
     connect(wdgCensus->toolbutton_group, SIGNAL(clicked()), this, SLOT(HandleGroupSelection()));
@@ -1021,6 +986,7 @@ void MainWindow::HandleFamilySelection() {
 }
 
 void MainWindow::HandleActiveCensusElements() {
+	if (curObj == 0) return;
 	curObj->type = wdgCensus->wdgTabTypes->currentWidget()->property("dbvalue").toString();
 	if (curObj->type == "BIRD" || curObj->type == "MAMMAL") {
 		wdgCensus->frame_id_selections->setEnabled(true);
@@ -1043,4 +1009,58 @@ QVariant MainWindow::GetGroupBoxValue(QGroupBox * gbx, QButtonGroup * btng, QStr
 	} else {
 		return GetButtonGroupValue(btng,value);
 	}
+}
+
+bool MainWindow::CheckInputValidity() {
+	if (curObj->name == "" && curObj->type != "NOSIGHT") {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Bitte Art/Bezeichnung auswählen!"));
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		if(msgBox->clickedButton() == nextButton) {
+			delete msgBox;
+			return false;
+		}
+		delete msgBox;
+	}
+	if (curObj->type == "BIRD") {
+		if ((curObj->behavior == "FLY") && (curObj->direction < 0)) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
+				QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+				QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+				msgBox->exec();
+				if (msgBox->clickedButton() == nextButton) {
+					delete msgBox;
+					return false;
+				} else if (msgBox->clickedButton() == noDirButton) {;
+					curObj->direction = -1;
+				}
+				delete msgBox;
+		} else {
+			curObj->direction = -1;
+		}
+
+
+	} else if (curObj->type == "MAMMAL") {
+		if (curObj->direction < 0) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
+			QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+			QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == nextButton) {
+				delete msgBox;
+				return false;
+			} else if (msgBox->clickedButton() == noDirButton) {;
+				curObj->direction = -1;
+			}
+			delete msgBox;
+		}
+	}
+	return true;
+}
+
+QVariant MainWindow::GetComboBoxItem(QComboBox * combo_box) {
+	return combo_box->itemData(combo_box->currentIndex());
 }

@@ -29,8 +29,8 @@ public:
     QStringList getSessionList();
     QSqlQuery * getObjectResult(QString session, QString user, QString filter="", QString order="");
     census * getRawObjectData(QString objId, QString usr);
-    QStringList getBirdTypeList();
-    QStringList getMammalTypeList();
+    bool GetBirdTypeList(QComboBox * combo_box);
+    bool GetMammalTypeList(QComboBox * combo_box);
     QStringList getUserList(QString objId);
     census * getCensusData(QString objId);
     bool writeCensus(census * obj);
@@ -48,12 +48,14 @@ public:
     QStringList getCensusList();
     void deleteCensusData(QString objId, QString usr);
     bool getSessionActive(QString session);
-    bool getAnthroObjectList(QComboBox * cmb);
+    bool GetAnthroObjectList(QComboBox * cmb);
     QSqlQueryModel * getStuk4Behaviour();
     QSqlQueryModel * getStuk4Associations();
     QSqlQueryModel * getCloseObjects(census * obj);
     QSqlQueryModel * getImageObjects(census * obj);
     QStringList getFlightInfoList(QString cam, QString flight, QString img);
+    void GetBirdAgeClasses(QComboBox * cmb_box);
+    void GetMiscObjects(QComboBox * cmb_box);
 private:
     QSqlDatabase *db;
     QSqlDatabase *fileDb;

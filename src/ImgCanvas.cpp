@@ -115,6 +115,7 @@ bool ImgCanvas::loadObject(census * obj) {
     }
     objMarkers.clear();
 
+    // TODO: Add markers if object change not only image change
 
     for (int i=0; i<objModel->rowCount(); i++) {
         int id = objModel->record(i).value(0).toInt();
@@ -244,14 +245,16 @@ double ImgCanvas::endMeasurement() {
 
 void ImgCanvas::setRasterBrightness(int value) {
     QgsRasterLayer * rlyr = static_cast<QgsRasterLayer*>(layerStack->getMapLayer("image"));
+    if (rlyr == NULL) return;
     rlyr->brightnessFilter()->setBrightness(value);
-    refresh();
+    rlyr->triggerRepaint();
 }
 
 void ImgCanvas::setRasterContrast(int value) {
     QgsRasterLayer * rlyr = static_cast<QgsRasterLayer*>(layerStack->getMapLayer("image"));
+    if (rlyr == NULL) return;
     rlyr->brightnessFilter()->setContrast(value);
-    refresh();
+    rlyr->triggerRepaint();
 }
 
 double ImgCanvas::getCurrentMeasurement() {

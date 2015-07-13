@@ -80,51 +80,43 @@ QStringList DatabaseHandler::getSessionList() {
     return sessionList;
 }
 
-QStringList DatabaseHandler::getBirdTypeList() {
+bool DatabaseHandler::GetBirdTypeList(QComboBox * cmb_box) {
     qDebug() << "Getting bird type list from database.";
+    cmb_box->addItem("","");
     QStringList birdList;
     QString qstr = "SELECT tx_name_de FROM taxa_bird ORDER BY seabird DESC, tx_name_de";
-    qDebug() << qstr;
-    QSqlQuery query(qstr);
-    while(query.next()) {
-        birdList.append(query.value(0).toString());
-    }
-    if (birdList.empty()) {
-        qFatal("Bird type list is empty.");
-    }
-    return birdList;
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while (query.next()) {
+		cmb_box->addItem(query.value(0).toString(), query.value(0));
+	}
+	return true;
 }
 
-QStringList DatabaseHandler::getMammalTypeList() {
+bool DatabaseHandler::GetMammalTypeList(QComboBox * cmb_box) {
     qDebug() << "Getting mammal type list from database.";
+    cmb_box->addItem("","");
     QStringList birdList;
     QString qstr = "SELECT tx_name_de FROM taxa_mammal";
-    qDebug() << qstr;
-    QSqlQuery query(qstr);
-    while(query.next())
-        birdList.append(query.value(0).toString());
-    if (birdList.empty())
-        qFatal("Bird type list is empty.");
-    return birdList;
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while (query.next()) {
+		cmb_box->addItem(query.value(0).toString(), query.value(0));
+	}
+	return true;
 }
 
-bool DatabaseHandler::getAnthroObjectList(QComboBox * cmb) {
+bool DatabaseHandler::GetAnthroObjectList(QComboBox * combo_box) {
     qDebug() << "Gettings list of anthropogenic objects from database.";
-    QString qstr = "SELECT code, description, remarks FROM stuk4_codes"
+    combo_box->addItem("",-1);
+    QString qstr = "SELECT code, description, remarks FROM stuk4_codes "
     		"WHERE type='ANTHRO' AND code!='0' ORDER BY code";
     qDebug() << qstr;
-    QSqlQuery query(qstr);
-    if (query.size() == 0)
-        return false;
-    while(query.next()) {
-        QStringList tmpList;
-        if (query.value(2).toString().isEmpty())
-            tmpList << query.value(1).toString();
-        else
-            tmpList << query.value(1).toString() << query.value(2).toString();
-        cmb->addItem(tmpList.join(": "), query.value(0).toString());
-    }
-    return true;
+	QSqlQuery query(qstr);
+	while (query.next()) {
+		combo_box->addItem(query.value(1).toString(), query.value(0));
+	}
+	return true;
 }
 
 QStringList DatabaseHandler::getUserList(QString objId) {
@@ -437,6 +429,32 @@ QStringList DatabaseHandler::getCensusList() {
     return list;
 }
 
+void DatabaseHandler::GetBirdAgeClasses(QComboBox * cmb_box) {
+	cmb_box->clear();
+	cmb_box->addItem("",-1);
+	qDebug() << "Getting bird age classes from database";
+	QStringList list;
+	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='AGE_YEARS' ORDER BY code";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while (query.next()) {
+		cmb_box->addItem(query.value(1).toString(), query.value(0));
+	}
+}
+
+void DatabaseHandler::GetMiscObjects(QComboBox * cmb_box) {
+	cmb_box->clear();
+	cmb_box->addItem("","0");
+	qDebug() << "Getting miscellanous objects from database";
+	QStringList list;
+	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='MISC' AND code!='0' ORDER BY code";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while (query.next()) {
+		cmb_box->addItem(query.value(1).toString(), query.value(0));
+	}
+}
+
 void DatabaseHandler::deleteCensusData(QString objId, QString usr) {
     qDebug() << "Delete data from user: " + usr + " ID: " + objId + "." << endl;
     QString qstr = "DELETE FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
@@ -460,7 +478,8 @@ bool DatabaseHandler::getSessionActive(QString session) {
 
 QSqlQueryModel * DatabaseHandler::getStuk4Behaviour() {
     QSqlQueryModel * model = new QSqlQueryModel;
-    model->setQuery("SELECT code, category, description FROM stuk4_codes where type='BEH' ORDER BY code");
+    model->setQuery("SELECT code, category, description FROM stuk4_codes "
+    		"where type='BEH' AND code!='0' ORDER BY cast(code as integer)");
     model->setHeaderData(0, Qt::Horizontal, "Code");
     model->setHeaderData(1, Qt::Horizontal, "Kategorie");
     model->setHeaderData(2, Qt::Horizontal, "Beschreibung");
@@ -469,7 +488,8 @@ QSqlQueryModel * DatabaseHandler::getStuk4Behaviour() {
 
 QSqlQueryModel * DatabaseHandler::getStuk4Associations() {
     QSqlQueryModel * model = new QSqlQueryModel;
-    model->setQuery("SELECT code, category, description FROM stuk4_codes where type='ASS' ORDER BY code");
+    model->setQuery("SELECT code, category, description FROM stuk4_codes "
+    		"where type='ASS' AND code!='0' ORDER BY cast(code as integer)");
     model->setHeaderData(0, Qt::Horizontal, "Code");
     model->setHeaderData(1, Qt::Horizontal, "Kategorie");
     model->setHeaderData(2, Qt::Horizontal, "Beschreibung");
