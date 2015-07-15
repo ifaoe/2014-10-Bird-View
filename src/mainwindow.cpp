@@ -221,10 +221,16 @@ void MainWindow::objectUpdateSelection() {
     if (curObj->type.isEmpty()) curObj->type = type;
     censorList = db->getUserList(objId);
     wdgCensus->cmbUsers->addItems(censorList);
-    uiPreSelection(curObj);
 
     group_selection_dialog_->set_data_model(db->getCloseObjects(curObj));
     family_selection_dialog_->set_data_model(db->getCloseObjects(curObj));
+
+    association_selection_dialog_->set_id_list(&curObj->stuk4_ass);
+    behaviour_selection_dialog_->set_id_list(&curObj->stuk4_beh);
+    family_selection_dialog_->set_id_list(&curObj->family);
+    group_selection_dialog_->set_id_list(&curObj->group);
+
+    uiPreSelection(curObj);
 
     // handle user selection
     if ((curObj->censor > 0) && (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
@@ -294,37 +300,42 @@ void MainWindow::handleSaveButton() {
     bool check_required = false;
     if(curObj->type == "BIRD") {
     	check_required = true;
-    	curObj->name = GetComboBoxItem(wdgCensus->cmbBird).toString();
-    	curObj->quality = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
+    	curObj->name = wdgCensus->cmbBird->currentText();
+    	curObj->code = GetComboBoxItem(wdgCensus->cmbBird).toString();
+    	curObj->confidence = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
     	curObj->behavior = GetButtonGroupValue(wdgCensus->btngBirdBeh, "dbvalue").toString();
     	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();
+    	curObj->age_years = GetComboBoxItem(wdgCensus->cmb_bird_age).toInt();
     }else if (curObj->type == "MAMMAL") {
     	check_required = true;
-        curObj->name = GetComboBoxItem(wdgCensus->cmbMammal).toString();
-        curObj->quality = GetButtonGroupValue(wdgCensus->btngMammalQual,"dbvalue").toInt();
+        curObj->name = wdgCensus->cmbMammal->currentText();
+        curObj->code =  GetComboBoxItem(wdgCensus->cmbMammal).toString();
+        curObj->confidence = GetButtonGroupValue(wdgCensus->btngMammalQual,"dbvalue").toInt();
         curObj->behavior = GetButtonGroupValue(wdgCensus->btngMammalBeh, "dbvalue").toString();
 		curObj->age = GetGroupBoxValue(wdgCensus->gbxMammalAge, wdgCensus->btngMammalAge, "dbvalue").toString();
         curObj->age_years = -1;
         curObj->gender = "";
-    } else if (curObj->type == "NOSIGHT") {
+    } else if (curObj->type == "NOSIGHT" || curObj->type=="UNKNOWN" ) {
         curObj->name = "";
-        curObj->quality = GetButtonGroupValue(wdgCensus->btngNoSightQual, "dbvalue").toInt();
+        curObj->confidence = GetButtonGroupValue(wdgCensus->buttongroup_nosight, "dbvalue").toInt();
         curObj->behavior = "";
         curObj->age = "";
         curObj->age_years = -1;
         curObj->gender = "";
         curObj->direction = -1;
     } else if (curObj->type == "ANTHRO") {
-        curObj->name = GetComboBoxItem(wdgCensus->cmbAnthroName).toString();
-        curObj->quality = GetButtonGroupValue(wdgCensus->btngAnthroQual, "dbvalue").toInt();
+        curObj->name = wdgCensus->cmbAnthroName->currentText();
+        curObj->code = GetComboBoxItem(wdgCensus->cmbAnthroName).toString();
+        curObj->confidence = GetButtonGroupValue(wdgCensus->btngAnthroQual, "dbvalue").toInt();
         curObj->behavior = "";
         curObj->age = "";
         curObj->age_years = -1;
         curObj->gender = "";
         curObj->direction = -1;
     } else if (curObj->type == "MISC") {
-        curObj->name = GetComboBoxItem(wdgCensus->cmb_misc_name).toString();
-        curObj->quality = GetButtonGroupValue(wdgCensus->btng_misc_qual, "dbvalue").toInt();
+        curObj->name = wdgCensus->cmb_misc_name->currentText();
+        curObj->code = GetComboBoxItem(wdgCensus->cmb_misc_name).toString();
+        curObj->confidence = GetButtonGroupValue(wdgCensus->btng_misc_qual, "dbvalue").toInt();
         curObj->behavior = "";
         curObj->age = "";
         curObj->age_years = -1;
@@ -339,7 +350,7 @@ void MainWindow::handleSaveButton() {
 
     curObj->remarks = wdgCensus->textedit_remarks->toPlainText();
 
-    if (check_required || curObj->quality != 1) {
+    if (check_required || curObj->confidence != 1) {
     	int tmpcensor = 0;
 		if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
 			tmpcensor = 0;
@@ -549,8 +560,8 @@ void MainWindow::uiPreSelection(census * cobj) {
     // Save Census checkbox ticked?
     // save all info but size and direction
     if (wdgCensus->chbSaveCensus->isChecked()) {
-        dirDial->setValue(180);
-        cobj->direction = -1;
+//        dirDial->setValue(180);
+//        cobj->direction = -1;
 
         // clear size box
         wdgCensus->lblMammalSizeLength->clear();
@@ -563,9 +574,16 @@ void MainWindow::uiPreSelection(census * cobj) {
         return;
     }
 
-    // handle those differently -- courtesy of the stuk4 table widget
+    association_selection_dialog_->set_id_list(&cobj->stuk4_ass);
+    behaviour_selection_dialog_->set_id_list(&cobj->stuk4_beh);
+    family_selection_dialog_->set_id_list(&cobj->family);
+    group_selection_dialog_->set_id_list(&cobj->group);
+
+//    // handle those differently -- courtesy of the stuk4 table widget
     curObj->stuk4_ass = cobj->stuk4_ass;
     curObj->stuk4_beh = cobj->stuk4_beh;
+    curObj->length = cobj->length;
+    curObj->span = cobj->span;
 
     wdgCensus->textedit_remarks->clear();
 
@@ -573,6 +591,9 @@ void MainWindow::uiPreSelection(census * cobj) {
     wdgCensus->lblMammalSizeLength->clear();
     wdgCensus->lblBirdSizeLength->clear();
     wdgCensus->lblBirdSizeSpan->clear();
+//    wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length)+"m");
+//    wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span)+"m");
+//    wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length)+"m");
 
     // Recalculate values of the QDial to 0=North
     qDebug() << "Dir: " << cobj->direction;
@@ -591,12 +612,6 @@ void MainWindow::uiPreSelection(census * cobj) {
         wdgGraphics->chbImgQuality->setChecked(false);
     }
 
-    // Find out which type is listed and switch to the corresponding tab
-//    QString shTp = wdgObjects->tblObject->item(wdgObjects->tblObject->currentRow(),3)->text().left(1);
-    QString shTp = cobj->type.left(1);
-    if (shTp == "" ) {
-        shTp = wdgObjects->tblObjects->item(wdgObjects->tblObjects->currentRow(),3)->text().left(1);
-    }
     // by default, all options are off
     wdgCensus->gbxMammalAge->setChecked(false);
     wdgCensus->gbxBirdAge->setChecked(false);
@@ -604,12 +619,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 
     wdgCensus->textedit_remarks->setPlainText(cobj->remarks);
 
-
-    if(shTp == "B" || shTp == "V" ) { // Bird Tab
+    if(curObj->type == "BIRD" ||curObj->type.left(1) == "V" ) { // Bird Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(0);
             int index = wdgCensus->cmbBird->findText(cobj->name);
             wdgCensus->cmbBird->setCurrentIndex(index);
-            selectButtonByString(wdgCensus->btngBirdQual, QString::number(cobj->quality));
+            selectButtonByString(wdgCensus->btngBirdQual, QString::number(cobj->confidence));
             selectButtonByString(wdgCensus->btngBirdBeh, cobj->behavior);
             if(cobj->gender != "") {
                 wdgCensus->gbxBirdGender->setChecked(true);
@@ -623,11 +637,11 @@ void MainWindow::uiPreSelection(census * cobj) {
             if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
 
             wdgCensus->cmbBird->setFocus();
-        } else if (shTp == "M" ) { // Mammal Tab
+        } else if (curObj->type == "MAMMAL" || curObj->type == "MM" ) { // Mammal Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(1);
             int index = wdgCensus->cmbMammal->findText(cobj->name);
             wdgCensus->cmbMammal->setCurrentIndex(index);
-            selectButtonByString(wdgCensus->btngMammalQual, QString::number(cobj->quality));
+            selectButtonByString(wdgCensus->btngMammalQual, QString::number(cobj->confidence));
             selectButtonByString(wdgCensus->btngMammalBeh, cobj->behavior);
             if (cobj->age != "") {
                 wdgCensus->gbxMammalAge->setChecked(true);
@@ -636,15 +650,19 @@ void MainWindow::uiPreSelection(census * cobj) {
             if (cobj->length > 0 )
                 wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
             wdgCensus->cmbMammal->setFocus();
-        } else if (shTp == "A" ) { // Anthro Tab
+        } else if (curObj->type == "ANTHRO" || curObj->type == "AN" ) { // Anthro Tab
             int index = wdgCensus->cmbAnthroName->findText(cobj->name);
             wdgCensus->cmbAnthroName->setCurrentIndex(index);
-            wdgCensus->wdgTabTypes->setCurrentIndex(4);
-            selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->quality));
-            wdgCensus->cmbAnthroName->findText(cobj->name, Qt::MatchStartsWith);
-        } else { //NoSighting tab
             wdgCensus->wdgTabTypes->setCurrentIndex(2);
-            selectButtonByString(wdgCensus->btngNoSightQual, QString::number(cobj->quality));
+            selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->confidence));
+        } else if (curObj->type == "MISC"  || curObj->type == "TR" ) {
+        	int index = wdgCensus->cmb_misc_name->findText(curObj->name);
+        	wdgCensus->cmb_misc_name->setCurrentIndex(index);
+        	wdgCensus->wdgTabTypes->setCurrentIndex(3);
+        	selectButtonByString(wdgCensus->btng_misc_qual, QString::number(cobj->confidence));
+        } else { //NoSighting tab
+            wdgCensus->wdgTabTypes->setCurrentIndex(4);
+            selectButtonByString(wdgCensus->buttongroup_nosight, QString::number(cobj->confidence));
         }
 }
 
@@ -802,8 +820,8 @@ bool MainWindow::compareResults(census * curObj, census * cenObj) {
     bool agree = true;
     agree = agree && (curObj->name == cenObj->name);
     agree = agree && (curObj->type == cenObj->type);
-    if (curObj->quality == 4 || cenObj->quality == 4)
-        agree = agree && (curObj->quality == cenObj->quality);
+    if (curObj->confidence == 4 || cenObj->confidence == 4)
+        agree = agree && (curObj->confidence == cenObj->confidence);
     agree = agree && (curObj->group == cenObj->group);
     agree = agree && (curObj->stuk4_ass == cenObj->stuk4_ass);
     agree = agree && (curObj->stuk4_beh == cenObj->stuk4_beh);

@@ -33,7 +33,8 @@ struct census {
     double ly = -0.0;
     QString type = "";
     QString name = "";
-    int quality = -1;
+    QString code = "";
+    int confidence = -1;
     QString behavior = "";
     QString gender = "";
     QString age = "";

@@ -186,7 +186,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
     obj->usr = usr;
     delete query;
     qDebug() << "Getting object specific data for ID: " << objId;
-    qstr =    "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual, length, width"
+    qstr =    "SELECT tp, name, confidence, beh, age, gen, dir, rem, censor, imgqual, length, width"
             ", stuk4_beh, stuk4_ass, group_objects, family_group "
             "FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
     qDebug() << qstr;
@@ -196,7 +196,7 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
     if (query->next()) {
         obj->type = query->value(0).toString();
         obj->name = query->value(1).toString();
-        obj->quality = query->value(2).toInt();
+        obj->confidence = query->value(2).toInt();
         obj->behavior = query->value(3).toString();
         obj->age = query->value(4).toString();
         obj->gender = query->value(5).toString();
@@ -254,11 +254,14 @@ bool DatabaseHandler::writeCensus(census * obj) {
 void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
     record->setValue("rcns_id",obj->id);
     record->setValue("age",obj->age);
+    if (obj->age_years>0) record->setValue("age_years",obj->age_years);
+    else record->setNull("age_years");
     record->setValue("beh",obj->behavior);
     record->setValue("gen",obj->gender);
     record->setValue("name",obj->name);
+    record->setValue("id_code", obj->code);
     record->setValue("tp",obj->type);
-    record->setValue("qual",obj->quality);
+    record->setValue("confidence",obj->confidence);
     record->setValue("rem",obj->remarks.replace('"', " "));
     record->setValue("usr",obj->usr);
     if (obj->direction >= 0) record->setValue("dir", obj->direction);
@@ -267,6 +270,7 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
     record->setValue("imgqual", obj->imageQuality);
     if (obj->length >0) record->setValue("length", obj->length);
     else record->setNull("length");
+
     if (obj->span > 0) record->setValue("width", obj->span);
     else record->setNull("width");
     record->setValue("stuk4_beh", "{"+obj->stuk4_beh.join(",")+"}");
@@ -309,7 +313,7 @@ QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
 
 census * DatabaseHandler::getCensusData(QString objId) {
     qDebug() << "Getting object specific query for ID: " << objId;
-    QString qstr = "SELECT tp, name, qual, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId +
+    QString qstr = "SELECT tp, name, confidence, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId +
             " AND usr!='" + cfg->user() + "' AND censor=1";
     qDebug() << qstr;
     // if there is already an entry in census db-table,
@@ -323,7 +327,7 @@ census * DatabaseHandler::getCensusData(QString objId) {
     if (query->next()) {
         obj->type = query->value(0).toString();
         obj->name = query->value(1).toString();
-        obj->quality = query->value(2).toInt();
+        obj->confidence = query->value(2).toInt();
         obj->behavior = query->value(3).toString();
         obj->age = query->value(4).toString();
         obj->gender = query->value(5).toString();

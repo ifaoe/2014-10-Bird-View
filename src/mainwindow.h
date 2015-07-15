@@ -31,7 +31,6 @@
 #include "ui_widget_objects.h"
 #include "ui_widget_census.h"
 #include "ui_widget_graphics.h"
-#include "ui_widget_multicensus.h"
 #include "QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
 #include "IdSelectionDialog.h"
@@ -84,7 +83,6 @@ private:
     Ui::wdgObjects * wdgObjects;
     Ui::wdgCensus * wdgCensus;
     Ui::wdgGraphics * wdgGraphics;
-    Ui::wdgMultiCensus * wdgMultiCensus;
 
     QFrame * frame_census;
 

@@ -50,6 +50,7 @@ void IdSelectionDialog::HandleSaveButton() {
                         dlg_->tbv_idselection->model()->index(row,0)).toString());
     }
     qSort(*id_list_);
+    UpdateInfoLabel();
 	this->close();
 	hidden_ = true;
 }
@@ -82,4 +83,8 @@ void IdSelectionDialog::UpdateSelection() {
             dlg_->tbv_idselection->selectionModel()->select(tmpind,
                     QItemSelectionModel::Select|QItemSelectionModel::Rows);
     }
+}
+
+void IdSelectionDialog::UpdateInfoLabel() {
+	info_label_->setText(id_list_->join(", "));
 }

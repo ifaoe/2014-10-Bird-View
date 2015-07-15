@@ -654,111 +654,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabNoSight">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="dbvalue" stdset="0">
-       <string>NOSIGHT</string>
-      </property>
-      <attribute name="title">
-       <string>Keine Sichtung</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="layout_nosight_census">
-       <property name="spacing">
-        <number>3</number>
-       </property>
-       <item>
-        <widget class="QGroupBox" name="gbxNoSightQuality">
-         <property name="title">
-          <string>Bestimmungsqualität</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="rbNoSightQual1">
-            <property name="text">
-             <string comment="1">sicher</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>1</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngNoSightQual</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rbNoSightQual2">
-            <property name="text">
-             <string comment="2">sehr wahrscheinlich</string>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>2</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngNoSightQual</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QRadioButton" name="rbNoSightQual3">
-            <property name="text">
-             <string comment="3">möglich</string>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>3</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngNoSightQual</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QRadioButton" name="rbNoSightQual4">
-            <property name="text">
-             <string comment="4">potenziell</string>
-            </property>
-            <property name="dbvalue" stdset="0">
-             <string>4</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">btngNoSightQual</string>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="tabAnthro">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -962,6 +857,99 @@
        </item>
        <item>
         <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_nosight">
+      <property name="accessibleName">
+       <string/>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="dbvalue" stdset="0">
+       <string>NOSIGHT</string>
+      </property>
+      <attribute name="title">
+       <string>Keine Sichtung</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="gbxNoSightQuality">
+         <property name="title">
+          <string>Bestimmungsqualität</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="rbNoSightQual1">
+            <property name="text">
+             <string comment="1">sicher</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>1</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttongroup_nosight</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="rbNoSightQual2">
+            <property name="text">
+             <string comment="2">sehr wahrscheinlich</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>2</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttongroup_nosight</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="rbNoSightQual3">
+            <property name="text">
+             <string comment="3">möglich</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>3</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttongroup_nosight</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QRadioButton" name="rbNoSightQual4">
+            <property name="text">
+             <string comment="4">potenziell</string>
+            </property>
+            <property name="dbvalue" stdset="0">
+             <string>4</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttongroup_nosight</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -1272,15 +1260,15 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btngAnthroQual"/>
-  <buttongroup name="btngMammalAge"/>
-  <buttongroup name="btngBirdSex"/>
-  <buttongroup name="btngBirdQual"/>
-  <buttongroup name="btngBirdAge"/>
-  <buttongroup name="btngMammalQual"/>
   <buttongroup name="btng_misc_qual"/>
+  <buttongroup name="btngMammalQual"/>
+  <buttongroup name="btngBirdSex"/>
+  <buttongroup name="btngBirdAge"/>
   <buttongroup name="btngBirdBeh"/>
   <buttongroup name="btngMammalBeh"/>
-  <buttongroup name="btngNoSightQual"/>
+  <buttongroup name="btngMammalAge"/>
+  <buttongroup name="btngBirdQual"/>
+  <buttongroup name="btngAnthroQual"/>
+  <buttongroup name="buttongroup_nosight"/>
  </buttongroups>
 </ui>
