@@ -84,11 +84,17 @@ bool DatabaseHandler::GetBirdTypeList(QComboBox * cmb_box) {
     qDebug() << "Getting bird type list from database.";
     cmb_box->addItem("","");
     QStringList birdList;
-    QString qstr = "SELECT tx_name_de FROM taxa_bird ORDER BY seabird DESC, tx_name_de";
+    QString qstr = "SELECT name_de, name_lat, euring_id FROM taxa WHERE type='BIRD' ORDER BY seaflag DESC, name_de";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
+	QString name;
 	while (query.next()) {
-		cmb_box->addItem(query.value(0).toString(), query.value(0));
+		if (query.value(1).toString() == "") {
+			name = query.value(0).toString();
+		} else {
+			name = QString("%1 (%2)").arg(query.value(0).toString()).arg(query.value(1).toString());
+		}
+		cmb_box->addItem(name, query.value(2));
 	}
 	return true;
 }
@@ -97,11 +103,17 @@ bool DatabaseHandler::GetMammalTypeList(QComboBox * cmb_box) {
     qDebug() << "Getting mammal type list from database.";
     cmb_box->addItem("","");
     QStringList birdList;
-    QString qstr = "SELECT tx_name_de FROM taxa_mammal";
+    QString qstr = "SELECT name_de, name_lat, euring_id FROM taxa WHERE type='MAMMAL' ORDER BY name_de";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
+	QString name;
 	while (query.next()) {
-		cmb_box->addItem(query.value(0).toString(), query.value(0));
+		if (query.value(1).toString() == "") {
+			name = query.value(0).toString();
+		} else {
+			name = QString("%1 (%2)").arg(query.value(0).toString()).arg(query.value(1).toString());
+		}
+		cmb_box->addItem(name, query.value(2));
 	}
 	return true;
 }
@@ -187,8 +199,8 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
     delete query;
     qDebug() << "Getting object specific data for ID: " << objId;
     qstr =    "SELECT tp, name, confidence, beh, age, gen, dir, rem, censor, imgqual, length, width"
-            ", stuk4_beh, stuk4_ass, group_objects, family_group "
-            "FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
+            ", stuk4_beh, stuk4_ass, group_objects, family_group,id_code,age_year"
+            " FROM census WHERE rcns_id=" + objId + " AND usr='" + usr + "'";
     qDebug() << qstr;
     // if there is already an entry in census db-table,
     // initialize census structure with these values
@@ -200,7 +212,8 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
         obj->behavior = query->value(3).toString();
         obj->age = query->value(4).toString();
         obj->gender = query->value(5).toString();
-        obj->direction = query->value(6).toInt();
+        if (!query->value(6).isNull())
+        	obj->direction = query->value(6).toInt();
         obj->remarks = query->value(7).toString();
         obj->censor = query->value(8).toInt();
         obj->imageQuality = query->value(9).toInt();
@@ -210,6 +223,9 @@ census * DatabaseHandler::getRawObjectData(QString objId, QString usr) {
         obj->stuk4_ass = query->value(13).toString().remove(QRegExp("[{}]")).split(",");
         obj->group = query->value(14).toString().remove(QRegExp("[{}]")).split(",");
         obj->family = query->value(15).toString().remove(QRegExp("[{}]")).split(",");
+        obj->code = query->value(16).toString();
+        if (!query->value(17).isNull())
+        	obj->age_year = query->value(17).toInt();
     }
     delete query;
     return obj;
@@ -254,7 +270,7 @@ bool DatabaseHandler::writeCensus(census * obj) {
 void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
     record->setValue("rcns_id",obj->id);
     record->setValue("age",obj->age);
-    if (obj->age_years>0) record->setValue("age_years",obj->age_years);
+    if (obj->age_year>0) record->setValue("age_year",obj->age_year);
     else record->setNull("age_years");
     record->setValue("beh",obj->behavior);
     record->setValue("gen",obj->gender);
@@ -264,6 +280,7 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
     record->setValue("confidence",obj->confidence);
     record->setValue("rem",obj->remarks.replace('"', " "));
     record->setValue("usr",obj->usr);
+    qDebug() << obj->direction;
     if (obj->direction >= 0) record->setValue("dir", obj->direction);
     else record->setNull("dir");
     record->setValue("censor", obj->censor);

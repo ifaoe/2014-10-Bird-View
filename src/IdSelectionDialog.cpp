@@ -77,6 +77,7 @@ void IdSelectionDialog::set_data_model(QSqlQueryModel * model) {
 }
 
 void IdSelectionDialog::UpdateSelection() {
+	dlg_->tbv_idselection->clearSelection();
     for (int i=0; i<id_list_->size(); i++) {
         QModelIndex tmpind = GetDataRow(id_list_->at(i));
         if (tmpind.isValid())
