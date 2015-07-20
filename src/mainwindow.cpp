@@ -598,12 +598,8 @@ void MainWindow::uiPreSelection(census * cobj) {
     wdgCensus->lblMammalSizeLength->clear();
     wdgCensus->lblBirdSizeLength->clear();
     wdgCensus->lblBirdSizeSpan->clear();
-//    wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length)+"m");
-//    wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span)+"m");
-//    wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length)+"m");
 
     // Recalculate values of the QDial to 0=North
-    qDebug() << "Dir: " << cobj->direction;
     if (cobj->direction >= 0 ) {
         dirDial->setValue((cobj->direction+180)%360);
         handleDirDial();
@@ -626,8 +622,7 @@ void MainWindow::uiPreSelection(census * cobj) {
 
     wdgCensus->textedit_remarks->setPlainText(cobj->remarks);
 
-    if(curObj->type == "BIRD" ||curObj->type.left(1) == "V" ) { // Bird Tab
-    	qDebug() << "Code: " + cobj->code;
+    if(cobj->type == "BIRD" ||curObj->type.left(1) == "V" ) { // Bird Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(0);
             int index = wdgCensus->cmbBird->findData(cobj->code);
             wdgCensus->cmbBird->setCurrentIndex(index);
@@ -639,17 +634,15 @@ void MainWindow::uiPreSelection(census * cobj) {
             }
             if(cobj->age != "" || cobj->age_year>0) {
                 wdgCensus->gbxBirdAge->setChecked(true);
-                qDebug() << "Age: " << cobj->age_year;
                 selectButtonByString(wdgCensus->btngBirdAge, cobj->age);
                 index = wdgCensus->cmb_bird_age->findData(curObj->age_year);
-                qDebug() << index;
                 wdgCensus->cmb_bird_age->setCurrentIndex(index);
             }
             if (cobj->length > 0 ) wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length));
             if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
 
             wdgCensus->cmbBird->setFocus();
-        } else if (curObj->type == "MAMMAL" || curObj->type == "MM" ) { // Mammal Tab
+        } else if (cobj->type == "MAMMAL" || curObj->type == "MM" ) { // Mammal Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(1);
             int index = wdgCensus->cmbMammal->findData(cobj->code);
             wdgCensus->cmbMammal->setCurrentIndex(index);
@@ -662,12 +655,12 @@ void MainWindow::uiPreSelection(census * cobj) {
             if (cobj->length > 0 )
                 wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
             wdgCensus->cmbMammal->setFocus();
-        } else if (curObj->type == "ANTHRO" || curObj->type == "AN" ) { // Anthro Tab
+        } else if (cobj->type == "ANTHRO" || curObj->type == "AN" ) { // Anthro Tab
             int index = wdgCensus->cmbAnthroName->findData(cobj->code);
             wdgCensus->cmbAnthroName->setCurrentIndex(index);
             wdgCensus->wdgTabTypes->setCurrentIndex(2);
             selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->confidence));
-        } else if (curObj->type == "MISC"  || curObj->type == "TR" ) {
+        } else if (cobj ->type== "MISC"  || curObj->type == "TR" ) {
         	int index = wdgCensus->cmb_misc_name->findData(cobj->code);
         	wdgCensus->cmb_misc_name->setCurrentIndex(index);
         	wdgCensus->wdgTabTypes->setCurrentIndex(3);
@@ -834,9 +827,6 @@ bool MainWindow::compareResults(census * curObj, census * cenObj) {
     agree = agree && (curObj->type == cenObj->type);
     if (curObj->confidence == 4 || cenObj->confidence == 4)
         agree = agree && (curObj->confidence == cenObj->confidence);
-    agree = agree && (curObj->group == cenObj->group);
-    agree = agree && (curObj->stuk4_ass == cenObj->stuk4_ass);
-    agree = agree && (curObj->stuk4_beh == cenObj->stuk4_beh);
     return agree;
 }
 
