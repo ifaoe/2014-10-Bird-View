@@ -357,7 +357,7 @@ void MainWindow::handleSaveButton() {
 
     curObj->remarks = wdgCensus->textedit_remarks->toPlainText();
 
-    if (check_required || curObj->confidence != 1) {
+    if (check_required || curObj->confidence != 1 || db->getMaxCensor(QString::number(curObj->id), curObj->usr) > 0) {
     	int tmpcensor = 0;
 		if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
 			tmpcensor = 0;

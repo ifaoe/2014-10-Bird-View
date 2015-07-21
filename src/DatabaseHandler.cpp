@@ -122,7 +122,7 @@ bool DatabaseHandler::GetAnthroObjectList(QComboBox * combo_box) {
     qDebug() << "Gettings list of anthropogenic objects from database.";
     combo_box->addItem("",-1);
     QString qstr = "SELECT code, description, remarks FROM stuk4_codes "
-    		"WHERE type='ANTHRO' AND code!='0' ORDER BY name";
+    		"WHERE type='ANTHRO' AND code!='0' ORDER BY description";
     qDebug() << qstr;
 	QSqlQuery query(qstr);
 	while (query.next()) {
@@ -485,7 +485,7 @@ void DatabaseHandler::GetMiscObjects(QComboBox * cmb_box) {
 	cmb_box->addItem("","0");
 	qDebug() << "Getting miscellanous objects from database";
 	QStringList list;
-	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='MISC' AND code!='0' ORDER BY name";
+	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='MISC' AND code!='0' ORDER BY description";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
 	while (query.next()) {
