@@ -122,7 +122,7 @@ bool DatabaseHandler::GetAnthroObjectList(QComboBox * combo_box) {
     qDebug() << "Gettings list of anthropogenic objects from database.";
     combo_box->addItem("",-1);
     QString qstr = "SELECT code, description, remarks FROM stuk4_codes "
-    		"WHERE type='ANTHRO' AND code!='0' ORDER BY code";
+    		"WHERE type='ANTHRO' AND code!='0' ORDER BY name";
     qDebug() << qstr;
 	QSqlQuery query(qstr);
 	while (query.next()) {
@@ -269,27 +269,44 @@ bool DatabaseHandler::writeCensus(census * obj) {
  */
 void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
     record->setValue("rcns_id",obj->id);
-    record->setValue("age",obj->age);
+
+    if (obj->age.isNull()) record->setNull("age");
+    else record->setValue("age",obj->age);
+
     if (obj->age_year>0) record->setValue("age_year",obj->age_year);
     else record->setNull("age_years");
-    record->setValue("beh",obj->behavior);
-    record->setValue("gen",obj->gender);
-    record->setValue("name",obj->name);
+
+    if (obj->behavior.isEmpty()) record->setNull("beh");
+    else record->setValue("beh",obj->behavior);
+
+    if (obj->gender.isEmpty()) record->setNull("gen");
+    else record->setValue("gen",obj->gender);
+
+    if (obj->name.isEmpty()) record->setNull("name");
+    else record->setValue("name",obj->name);
+
     record->setValue("id_code", obj->code);
     record->setValue("tp",obj->type);
     record->setValue("confidence",obj->confidence);
-    record->setValue("rem",obj->remarks.replace('"', " "));
+
+    if (obj->remarks.isEmpty()) record->setNull("rem");
+    else record->setValue("rem",obj->remarks.replace('"', " "));
+
     record->setValue("usr",obj->usr);
-    qDebug() << obj->direction;
+
     if (obj->direction >= 0) record->setValue("dir", obj->direction);
     else record->setNull("dir");
+
     record->setValue("censor", obj->censor);
+
     record->setValue("imgqual", obj->imageQuality);
+
     if (obj->length >0) record->setValue("length", obj->length);
     else record->setNull("length");
 
     if (obj->span > 0) record->setValue("width", obj->span);
     else record->setNull("width");
+
     record->setValue("stuk4_beh", "{"+obj->stuk4_beh.join(",")+"}");
     record->setValue("stuk4_ass", "{"+obj->stuk4_ass.join(",")+"}");
     record->setValue("group_objects", "{"+obj->group.join(",")+"}");
@@ -468,7 +485,7 @@ void DatabaseHandler::GetMiscObjects(QComboBox * cmb_box) {
 	cmb_box->addItem("","0");
 	qDebug() << "Getting miscellanous objects from database";
 	QStringList list;
-	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='MISC' AND code!='0' ORDER BY code";
+	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='MISC' AND code!='0' ORDER BY name";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
 	while (query.next()) {
