@@ -56,6 +56,7 @@ public:
     QStringList getFlightInfoList(QString cam, QString flight, QString img);
     void GetBirdAgeClasses(QComboBox * cmb_box);
     void GetMiscObjects(QComboBox * cmb_box);
+    void GetBirdPlumageClasses(QComboBox * cmb_box);
 private:
     QSqlDatabase *db;
     QSqlDatabase *fileDb;

@@ -304,7 +304,7 @@ void MainWindow::handleSaveButton() {
     	curObj->code = GetComboBoxItem(wdgCensus->cmbBird).toString();
     	curObj->confidence = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
     	curObj->behavior = GetButtonGroupValue(wdgCensus->btngBirdBeh, "dbvalue").toString();
-    	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();
+    	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();\
     	if (wdgCensus->gbxBirdAge->isChecked()) {
     		curObj->age = GetButtonGroupValue(wdgCensus->btngBirdAge, "dbvalue").toString();
     		curObj->age_year = GetComboBoxItem(wdgCensus->cmb_bird_age).toInt();
@@ -312,7 +312,11 @@ void MainWindow::handleSaveButton() {
     		curObj->age = "";
     		curObj->age_year = -1;
     	}
-
+    	if (wdgCensus->group_box_plumage->isChecked())
+    		curObj->plumage = wdgCensus->combo_box_plumage->itemData(
+    				wdgCensus->combo_box_plumage->currentIndex()).toString();
+    	else
+    		curObj->plumage = "";
     }else if (curObj->type == "MAMMAL") {
     	check_required = true;
         curObj->name = GetTrivialName(wdgCensus->cmbMammal->currentText());
@@ -567,8 +571,8 @@ void MainWindow::uiPreSelection(census * cobj) {
     // Save Census checkbox ticked?
     // save all info but size and direction
     if (wdgCensus->chbSaveCensus->isChecked()) {
-//        dirDial->setValue(180);
-//        cobj->direction = -1;
+        dirDial->setValue(180);
+        cobj->direction = -1;
 
         // clear size box
         wdgCensus->lblMammalSizeLength->clear();
@@ -576,6 +580,8 @@ void MainWindow::uiPreSelection(census * cobj) {
         wdgCensus->lblBirdSizeSpan->clear();
         cobj->span = -1;
         cobj->length = -1;
+
+        cobj->remarks.clear();
 
         cobj->imageQuality = 0;
         return;
@@ -638,6 +644,11 @@ void MainWindow::uiPreSelection(census * cobj) {
                 index = wdgCensus->cmb_bird_age->findData(curObj->age_year);
                 wdgCensus->cmb_bird_age->setCurrentIndex(index);
             }
+            if (!cobj->plumage.isEmpty()) {
+            	wdgCensus->group_box_plumage->setChecked(true);
+            	wdgCensus->combo_box_plumage->setCurrentIndex(
+            			wdgCensus->combo_box_plumage->findData(cobj->plumage));
+            }
             if (cobj->length > 0 ) wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length));
             if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
 
@@ -661,6 +672,7 @@ void MainWindow::uiPreSelection(census * cobj) {
             wdgCensus->wdgTabTypes->setCurrentIndex(2);
             selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->confidence));
         } else if (cobj ->type== "MISC"  || curObj->type == "TR" ) {
+        	if (curObj->type == "TR") curObj->code = "7101";
         	int index = wdgCensus->cmb_misc_name->findData(cobj->code);
         	wdgCensus->cmb_misc_name->setCurrentIndex(index);
         	wdgCensus->wdgTabTypes->setCurrentIndex(3);
@@ -980,6 +992,7 @@ void MainWindow::InitCensusWidget() {
     db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
     db->GetMammalTypeList(wdgCensus->cmbMammal);
     db->GetBirdTypeList(wdgCensus->cmbBird);
+    db->GetBirdPlumageClasses(wdgCensus->combo_box_plumage);
 
     connect(wdgCensus->toolbutton_associations, SIGNAL(clicked()), this, SLOT(HandleAssociationSelection()));
     connect(wdgCensus->toolbutton_behaviour, SIGNAL(clicked()), this, SLOT(HandleBehaviourSelection()));

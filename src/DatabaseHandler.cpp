@@ -307,6 +307,9 @@ void DatabaseHandler::setRecordTable(QSqlRecord * record, census * obj) {
     if (obj->span > 0) record->setValue("width", obj->span);
     else record->setNull("width");
 
+    if (obj->plumage.isEmpty()) record->setNull("plumage");
+    else record->setValue("plumage",obj->plumage);
+
     record->setValue("stuk4_beh", "{"+obj->stuk4_beh.join(",")+"}");
     record->setValue("stuk4_ass", "{"+obj->stuk4_ass.join(",")+"}");
     record->setValue("group_objects", "{"+obj->group.join(",")+"}");
@@ -486,6 +489,19 @@ void DatabaseHandler::GetMiscObjects(QComboBox * cmb_box) {
 	qDebug() << "Getting miscellanous objects from database";
 	QStringList list;
 	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='MISC' AND code!='0' ORDER BY description";
+	qDebug() << qstr;
+	QSqlQuery query(qstr);
+	while (query.next()) {
+		cmb_box->addItem(query.value(1).toString(), query.value(0));
+	}
+}
+
+void DatabaseHandler::GetBirdPlumageClasses(QComboBox * cmb_box) {
+	cmb_box->clear();
+	cmb_box->addItem("",-1);
+	qDebug() << "Getting bird age classes from database";
+	QStringList list;
+	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='PLUMAGE' ORDER BY code";
 	qDebug() << qstr;
 	QSqlQuery query(qstr);
 	while (query.next()) {

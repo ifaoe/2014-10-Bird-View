@@ -38,6 +38,7 @@ struct census {
     QString behavior = "";
     QString gender = "";
     QString age = "";
+    QString plumage = "";
     int age_year = -1;
     int direction = -1;
     QString remarks = "";

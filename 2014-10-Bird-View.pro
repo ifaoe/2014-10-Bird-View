@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql xml webkit network
+QT += core gui sql xml webkit network
 
-greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
+QT_QMAKE_EXECUTABLE = /usr/bin/qmake-qt4
 
 TARGET = 2014-10-Bird-View
 TEMPLATE = app

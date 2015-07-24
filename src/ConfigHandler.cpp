@@ -42,7 +42,7 @@ ConfigHandler::ConfigHandler(int argc, char *argv[]) {
         string tmp = vm["config"].as<string>();
         cfgFile = new QFile(tmp.data());
     } else {
-        cfgFile = new QFile("/usr/local/ifaoe/Settings/Daisi/birdview/main.cfg");
+        cfgFile = new QFile("/usr/local/ifaoe/settings/daisi/birdview/main.cfg");
     }
     if (cfgFile->exists()) {
         qDebug() << "Using config-file: " << cfgFile->fileName();
