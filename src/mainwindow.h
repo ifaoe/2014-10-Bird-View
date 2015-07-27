@@ -112,7 +112,7 @@ private:
     void selectButtonByString(QButtonGroup * btnGrp, QString str);
     void colorTableRow(QColor color, int row);
     void initMapView();
-    void uiPreSelection(census * cobj);
+    void UiPreSelection(census * cobj);
     void initFilters();
     void initCollapsibleMenu();
     void InitCensusWidget();

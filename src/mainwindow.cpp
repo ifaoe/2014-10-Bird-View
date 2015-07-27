@@ -230,7 +230,7 @@ void MainWindow::objectUpdateSelection() {
     family_selection_dialog_->set_id_list(&curObj->family);
     group_selection_dialog_->set_id_list(&curObj->group);
 
-    uiPreSelection(curObj);
+    UiPreSelection(curObj);
 
     // handle user selection
     if ((curObj->censor > 0) && (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
@@ -566,7 +566,7 @@ void MainWindow::handleDirDial() {
  * Function which selects Ui elements depending on the data in
  * the census struct.
  */
-void MainWindow::uiPreSelection(census * cobj) {
+void MainWindow::UiPreSelection(census * cobj) {
 
     // Save Census checkbox ticked?
     // save all info but size and direction
@@ -623,8 +623,11 @@ void MainWindow::uiPreSelection(census * cobj) {
 
     // by default, all options are off
     wdgCensus->gbxMammalAge->setChecked(false);
-    wdgCensus->gbxBirdAge->setChecked(false);
+	wdgCensus->gbxBirdAge->setChecked(false);
+	wdgCensus->cmb_bird_age->setCurrentIndex(0);
     wdgCensus->gbxBirdGender->setChecked(false);
+	wdgCensus->group_box_plumage->setChecked(false);
+	wdgCensus->combo_box_plumage->setCurrentIndex(0);
 
     wdgCensus->textedit_remarks->setPlainText(cobj->remarks);
 
@@ -690,7 +693,7 @@ void MainWindow::handleUsrSelect() {
     census * obj;
     if (wdgCensus->cmbUsers->currentIndex() == -1) return;
     obj = db->getRawObjectData(QString::number(curObj->id), wdgCensus->cmbUsers->currentText());
-    uiPreSelection(obj);
+    UiPreSelection(obj);
     delete obj;
 }
 
