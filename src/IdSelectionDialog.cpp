@@ -8,7 +8,7 @@
 #include "IdSelectionDialog.h"
 
 IdSelectionDialog::IdSelectionDialog(QLabel * label, QWidget * parent)
-	: parent_(parent), info_label_(label), dlg_(new Ui::dlg_idselection) {
+	: info_label_(label), parent_(parent), dlg_(new Ui::dlg_idselection) {
 	// TODO Auto-generated constructor stub
 	dlg_->setupUi(this);
 

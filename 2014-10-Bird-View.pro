@@ -25,7 +25,7 @@ SOURCES += main.cpp\
         QCategoryCheckButton.cpp \
         IdSelectionDialog.cpp \
         MeasurementDialog.cpp \
-        QgsMapMarker.cpp 
+        QgsMapMarker.cpp
 		
 HEADERS  += mainwindow.h\
 		ImgCanvas.h \
@@ -39,7 +39,8 @@ HEADERS  += mainwindow.h\
 		IdSelectionDialog.h \
         MeasurementDialog.h \
         QgsMapMarker.h
-
+        
+VPATH += ./ui
 FORMS    += mainwindow.ui \
 			sessiondialog.ui \
 			widget_sessions.ui\

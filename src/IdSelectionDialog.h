@@ -27,8 +27,8 @@ public:
 	void ToggleHidden();
 	void UpdateInfoLabel();
 private:
+    QLabel * info_label_;
 	QStringList * id_list_;
-	QLabel * info_label_;
 	QWidget * parent_;
 	Ui::dlg_idselection * dlg_;
 	QSqlQueryModel * data_model_;

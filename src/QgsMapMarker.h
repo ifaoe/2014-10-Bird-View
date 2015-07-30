@@ -17,6 +17,8 @@ public:
     virtual ~QgsMapMarker();
     void paint( QPainter * p);
     void setFill(bool filled = false);
+    void setFillColor(QColor color) {mFillColor = color;}
+    void setDrawWidth(int width) {mPenWidth = width;}
     void setText(QString label = "");
     void setTextWidth(int width);
     void setTextColor(QColor color);
@@ -28,11 +30,22 @@ public:
       ICON_CROSS,
       ICON_X,
       ICON_BOX,
-      ICON_CIRCLE
+      ICON_CIRCLE,
+	  ICON_TRIANGLE,
+	  ICON_DIAMOND,
+      ICON_CROSS_BOX,
+      ICON_CROSS_CIRCLE,
+	  ICON_CROSS_TRIANGLE,
+	  ICON_CROSS_DIAMOND,
+	  ICON_X_BOX,
+	  ICON_X_CIRCLE,
+	  ICON_X_DIAMOND,
     };
 
 private:
     bool mFilled = false;
+    QColor mFillColor =Qt::yellow;
+    int mPenWidth = 1;
     QString text = "";
     int mTextWidth = 1;
     QColor mTextColor = Qt::red;
