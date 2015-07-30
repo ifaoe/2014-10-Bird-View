@@ -29,8 +29,7 @@ public:
     QStringList getSessionList();
     QSqlQuery * getObjectResult(QString session, QString user, QString filter="", QString order="");
     census * getRawObjectData(QString objId, QString usr);
-    bool GetBirdTypeList(QComboBox * combo_box);
-    bool GetMammalTypeList(QComboBox * combo_box);
+    bool GetTypeList(QString type, QComboBox * combo_box);
     QStringList getUserList(QString objId);
     census * getCensusData(QString objId);
     bool writeCensus(census * obj);

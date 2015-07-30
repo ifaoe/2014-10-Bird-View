@@ -95,6 +95,8 @@ void QgsMapMarker::paint(QPainter * p) {
         	};
         	p->drawPolygon(points,4);
             //cross
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
             p->drawLine( QLineF( -s, 0, s, 0 ) );
             p->drawLine( QLineF( 0, -s, 0, s ) );
             break;
@@ -110,6 +112,8 @@ void QgsMapMarker::paint(QPainter * p) {
         	};
         	p->drawPolygon(points,4);
             //X
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
             p->drawLine( QLineF( -s, -s, s, s ) );
             p->drawLine( QLineF( -s, s, s, -s ) );
             break;
@@ -124,6 +128,8 @@ void QgsMapMarker::paint(QPainter * p) {
             };
             p->drawPolygon(points,3);
         	//cross
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
             p->drawLine( QLineF( -s/2, 0, s/2, 0 ) );
             p->drawLine( QLineF( 0, -s, 0, s ) );
         	break;
@@ -133,6 +139,8 @@ void QgsMapMarker::paint(QPainter * p) {
             //circle
             p->drawEllipse(-s, -s, 2*s, 2*s);
         	//cross
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
             p->drawLine( QLineF( -s, 0, s, 0 ) );
             p->drawLine( QLineF( 0, -s, 0, s ) );
             break;
@@ -142,6 +150,8 @@ void QgsMapMarker::paint(QPainter * p) {
             //circle
             p->drawEllipse(-s, -s, 2*s, 2*s);
         	//cross
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
             double s_x = s/sqrt(2);
             p->drawLine( QLineF( -s_x, -s_x, s_x, s_x ) );
             p->drawLine( QLineF( -s_x, s_x, s_x, -s_x ) );
@@ -158,6 +168,8 @@ void QgsMapMarker::paint(QPainter * p) {
         	};
         	p->drawPolygon(points,4);
         	//cross
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
             p->drawLine( QLineF( -s, 0, s, 0 ) );
             p->drawLine( QLineF( 0, -s, 0, s ) );
 
@@ -174,6 +186,8 @@ void QgsMapMarker::paint(QPainter * p) {
         	};
         	p->drawPolygon(points,4);
         	//cross
+            pen.setWidth( ceil(mPenWidth/2) );
+            p->setPen(pen);
         	s = s/2;
             p->drawLine( QLineF( -s, -s, s, s ) );
             p->drawLine( QLineF( -s, s, s, -s ) );

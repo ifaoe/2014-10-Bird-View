@@ -56,9 +56,6 @@ public:
     void beginMeasurement(MeasurementDialog * msmWindow);
     double getCurrentMeasurement();
     double endMeasurement();
-private slots:
-    void handleCanvasClicked(const QgsPoint & point);
-    void handleHideObjectMarkers();
 private:
     QgsLayerStack * layerStack = 0;
     Ui::MainWindow *ui = 0;
@@ -88,6 +85,12 @@ private:
     QString curImg = "";
 
     void populateObjectLayer(census * obj);
+private slots:
+    void handleCanvasClicked(const QgsPoint & point);
+    void handleHideObjectMarkers();
+    void HandleZoomIn() {zoomIn();}
+    void HandleZoomOut() {zoomOut();}
+    void HandleZoomFullExtent() {zoomToFullExtent();}
 };
 
 #endif /* IMGCANVAS_H_ */

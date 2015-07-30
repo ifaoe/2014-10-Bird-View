@@ -71,13 +71,9 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(objectUpdateSelection()));
     connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
-//    connect(btnMapModeImg , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-//    connect(btnMapModeGeo , SIGNAL(released()), this, SLOT(handleMapToolButton()));
-    connect(ui->actionKarte, SIGNAL(triggered()), this, SLOT(handleMapToolButton()));
-//    connect(ui->btnMapView, SIGNAL(clicked()), this, SLOT(handleMapToolButton()));
-//    connect(ui->btnZoomOneOne, SIGNAL(clicked()), this, SLOT(handleOneToOneZoom()));
-    connect(ui->action1_1_Zoom, SIGNAL(triggered()), this, SLOT(handleOneToOneZoom()));
+
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
+
     connect(wdgCensus->btnUserSelect, SIGNAL(released()), this, SLOT(handleUsrSelect()));
     connect(wdgGraphics->sldBrightness, SIGNAL(sliderReleased()),
             this, SLOT(handleBrightnessSlider()));
@@ -94,19 +90,13 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
     connect(wdgObjects->tblFilters->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
             SLOT(handleSortingHeader(int)));
 
-//    connect(wdgCensus->tbtStuk4CodesBird, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
-//    connect(wdgCensus->tbtStuk4CodesMammal, SIGNAL(clicked()), this, SLOT(handleStuk4Selection()));
-
     connect(wdgCensus->btnBirdSizeSpan, SIGNAL(clicked()), this, SLOT(handleBirdSpanMeasurement()));
     connect(wdgCensus->btnBirdSizeLength, SIGNAL(clicked()), this, SLOT(handleBirdLengthMeasurement()));
     connect(wdgCensus->btnMammalSizeLength, SIGNAL(clicked()), this, SLOT(handleMammalLengthMeasurement()));
 
-
-//    connect(wdgCensus->tbtGroupsMammal, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
-//    connect(wdgCensus->tbtGroupsBird, SIGNAL(clicked()), this, SLOT(handleGroupSelection()));
-
-//    connect(ui->btnMiscMeasurement, SIGNAL(clicked()), this, SLOT(handleMiscMeasurement()));
-    connect(ui->actionMessung, SIGNAL(triggered()), this, SLOT(handleMiscMeasurement()));
+    connect(ui->toolbutton_map_view, SIGNAL(clicked()), this, SLOT(handleMapToolButton()));
+    connect(ui->toolbutton_zoom_original, SIGNAL(clicked()), this, SLOT(handleOneToOneZoom()));
+    connect(ui->toolbutton_take_measurement, SIGNAL(clicked()), this, SLOT(handleMiscMeasurement()));
 
     wdgCensus->btnBirdSizeLength->setEnabled(false);
     wdgCensus->btnBirdSizeSpan->setEnabled(false);
@@ -300,8 +290,7 @@ void MainWindow::handleSaveButton() {
     bool check_required = false;
     if(curObj->type == "BIRD") {
     	check_required = true;
-    	curObj->name = GetTrivialName(wdgCensus->cmbBird->currentText());
-    	curObj->code = GetComboBoxItem(wdgCensus->cmbBird).toString();
+    	SaveComboBoxSelection(wdgCensus->cmbBird);
     	curObj->confidence = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
     	curObj->behavior = GetButtonGroupValue(wdgCensus->btngBirdBeh, "dbvalue").toString();
     	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();\
@@ -319,8 +308,7 @@ void MainWindow::handleSaveButton() {
     		curObj->plumage = "";
     }else if (curObj->type == "MAMMAL") {
     	check_required = true;
-        curObj->name = GetTrivialName(wdgCensus->cmbMammal->currentText());
-        curObj->code =  GetComboBoxItem(wdgCensus->cmbMammal).toString();
+    	SaveComboBoxSelection(wdgCensus->cmbMammal);
         curObj->confidence = GetButtonGroupValue(wdgCensus->btngMammalQual,"dbvalue").toInt();
         curObj->behavior = GetButtonGroupValue(wdgCensus->btngMammalBeh, "dbvalue").toString();
 		curObj->age = GetGroupBoxValue(wdgCensus->gbxMammalAge, wdgCensus->btngMammalAge, "dbvalue").toString();
@@ -500,8 +488,7 @@ void MainWindow::handleMapToolButton() {
             + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
     url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
 
-//    if (ui->btnMapView->isChecked()) {
-    if (ui->actionKarte->isChecked()) {
+    if (ui->toolbutton_map_view->isChecked()) {
         qDebug() << "Load URL: " << url;
         geoMap->load(QUrl(url));
         geoMap->show();
@@ -633,7 +620,7 @@ void MainWindow::UiPreSelection(census * cobj) {
 
     if(cobj->type == "BIRD" ||curObj->type.left(1) == "V" ) { // Bird Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(0);
-            int index = wdgCensus->cmbBird->findData(cobj->code);
+            int index = wdgCensus->cmbBird->findText(cobj->name);
             wdgCensus->cmbBird->setCurrentIndex(index);
             selectButtonByString(wdgCensus->btngBirdQual, QString::number(cobj->confidence));
             selectButtonByString(wdgCensus->btngBirdBeh, cobj->behavior);
@@ -658,7 +645,7 @@ void MainWindow::UiPreSelection(census * cobj) {
             wdgCensus->cmbBird->setFocus();
         } else if (cobj->type == "MAMMAL" || curObj->type == "MM" ) { // Mammal Tab
             wdgCensus->wdgTabTypes->setCurrentIndex(1);
-            int index = wdgCensus->cmbMammal->findData(cobj->code);
+            int index = wdgCensus->cmbMammal->findText(cobj->name);
             wdgCensus->cmbMammal->setCurrentIndex(index);
             selectButtonByString(wdgCensus->btngMammalQual, QString::number(cobj->confidence));
             selectButtonByString(wdgCensus->btngMammalBeh, cobj->behavior);
@@ -873,6 +860,7 @@ void MainWindow::conductMeasurement(double * length, QLabel * label) {
 }
 
 void MainWindow::handleMiscMeasurement() {
+	if (curObj == 0) return;
     conductMeasurement(0,0);
 }
 
@@ -993,8 +981,8 @@ void MainWindow::InitCensusWidget() {
     db->GetMiscObjects(wdgCensus->cmb_misc_name);
     db->GetAnthroObjectList(wdgCensus->cmbAnthroName);
     db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
-    db->GetMammalTypeList(wdgCensus->cmbMammal);
-    db->GetBirdTypeList(wdgCensus->cmbBird);
+    db->GetTypeList("MAMMAL", wdgCensus->cmbMammal);
+    db->GetTypeList("BIRD", wdgCensus->cmbBird);
     db->GetBirdPlumageClasses(wdgCensus->combo_box_plumage);
 
     connect(wdgCensus->toolbutton_associations, SIGNAL(clicked()), this, SLOT(HandleAssociationSelection()));
@@ -1099,8 +1087,8 @@ QVariant MainWindow::GetComboBoxItem(QComboBox * combo_box) {
 	return combo_box->itemData(combo_box->currentIndex());
 }
 
-QString MainWindow::GetTrivialName(QString combo_name) {
-	QRegExp rule("\\s\\(.*\\)");
-	combo_name.remove(rule);
-	return combo_name;
+void MainWindow::SaveComboBoxSelection(QComboBox * combo_box) {
+	int row = combo_box->currentIndex();
+	curObj->name = combo_box->model()->data(combo_box->model()->index(row,0)).toString();
+	curObj->code = combo_box->model()->data(combo_box->model()->index(row,3)).toString();
 }

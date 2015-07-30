@@ -23,6 +23,7 @@ public:
     void setTextWidth(int width);
     void setTextColor(QColor color);
     void setTextOffset(double x, double y);
+    void setIconColor(QColor color) {mColor = color;}
 
     enum IconType
     {
@@ -43,6 +44,7 @@ public:
     };
 
 private:
+    QColor mColor = Qt::red;
     bool mFilled = false;
     QColor mFillColor =Qt::yellow;
     int mPenWidth = 1;

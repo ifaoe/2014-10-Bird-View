@@ -120,7 +120,7 @@ private:
     void conductMeasurement(double * length, QLabel * label);
     bool CheckInputValidity();
     QVariant GetComboBoxItem(QComboBox * combo_box);
-    QString GetTrivialName(QString combo_name);
+    void SaveComboBoxSelection(QComboBox * combo_box);
 public slots:
 
 private slots:

@@ -16,7 +16,8 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QSqlTableModel>
-#include <qsql_psql.h>
+#include <QTableView>
+#include <QHeaderView>
 
 DatabaseHandler::DatabaseHandler(ConfigHandler *cfgArg) :cfg(cfgArg) {
     // TODO Auto-generated constructor stub
@@ -80,41 +81,22 @@ QStringList DatabaseHandler::getSessionList() {
     return sessionList;
 }
 
-bool DatabaseHandler::GetBirdTypeList(QComboBox * cmb_box) {
-    qDebug() << "Getting bird type list from database.";
-    cmb_box->addItem("","");
-    QStringList birdList;
-    QString qstr = "SELECT name_de, name_lat, euring_id FROM taxa WHERE type='BIRD' ORDER BY seaflag DESC, name_de";
-	qDebug() << qstr;
-	QSqlQuery query(qstr);
-	QString name;
-	while (query.next()) {
-		if (query.value(1).toString() == "") {
-			name = query.value(0).toString();
-		} else {
-			name = QString("%1 (%2)").arg(query.value(0).toString()).arg(query.value(1).toString());
-		}
-		cmb_box->addItem(name, query.value(2));
-	}
-	return true;
-}
+bool DatabaseHandler::GetTypeList(QString type, QComboBox * cmb_box) {
+    QString qstr = "SELECT name_de, name_lat, euring_id FROM taxa WHERE type='%1' ORDER BY seaflag DESC, name_de";
+	QSqlQueryModel * model = new QSqlQueryModel;
+	model->setQuery(qstr.arg(type));
+	model->setHeaderData(0, Qt::Horizontal, "Deutscher Name");
+	model->setHeaderData(1, Qt::Horizontal, "Wissenschaftlicher Name");
+	cmb_box->setModel(model);
+	QTableView * view = new QTableView;
+	cmb_box->setView(view);
+	view->verticalHeader()->hide();
+	view->hideColumn(2);
+	view->resizeColumnsToContents();
+	view->setSelectionMode(QAbstractItemView::SingleSelection);
+	view->setSelectionBehavior(QAbstractItemView::SelectRows);
+	view->setMinimumWidth(view->horizontalHeader()->length());
 
-bool DatabaseHandler::GetMammalTypeList(QComboBox * cmb_box) {
-    qDebug() << "Getting mammal type list from database.";
-    cmb_box->addItem("","");
-    QStringList birdList;
-    QString qstr = "SELECT name_de, name_lat, euring_id FROM taxa WHERE type='MAMMAL' ORDER BY name_de";
-	qDebug() << qstr;
-	QSqlQuery query(qstr);
-	QString name;
-	while (query.next()) {
-		if (query.value(1).toString() == "") {
-			name = query.value(0).toString();
-		} else {
-			name = QString("%1 (%2)").arg(query.value(0).toString()).arg(query.value(1).toString());
-		}
-		cmb_box->addItem(name, query.value(2));
-	}
 	return true;
 }
 

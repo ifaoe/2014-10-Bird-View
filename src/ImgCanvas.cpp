@@ -41,8 +41,10 @@ ImgCanvas::ImgCanvas(QWidget *parent, Ui::MainWindow *mUi, ConfigHandler *cfg, D
 
     setMapTool(qgsMapPanTool);
 
-//    connect(ui->btnObjectMarkers, SIGNAL(clicked()), this, SLOT(handleHideObjectMarkers()));
-    connect(ui->actionMarkierungen, SIGNAL(triggered()), this, SLOT(handleHideObjectMarkers()));
+    connect(ui->toolbutton_toggle_marks, SIGNAL(clicked()), this, SLOT(handleHideObjectMarkers()));
+    connect(ui->toolbutton_zoom_in,SIGNAL(clicked()),this,SLOT(HandleZoomIn()));
+    connect(ui->toolbutton_zoom_out,SIGNAL(clicked()),this,SLOT(HandleZoomOut()));
+    connect(ui->toolbutton_zoom_full,SIGNAL(clicked()),this,SLOT(HandleZoomFullExtent()));
 }
 
 ImgCanvas::~ImgCanvas() {
@@ -127,7 +129,9 @@ bool ImgCanvas::loadObject(census * obj) {
         QgsMapMarker * marker = new QgsMapMarker(this);
         marker->setCenter(QgsPoint(ux,uy));
         marker->setIconType(QgsMapMarker::ICON_CIRCLE);
-        marker->setIconSize(7);
+        marker->setIconSize(5);
+        marker->setDrawWidth(1);
+        marker->setIconColor(Qt::black);
         marker->setFill(true);
         marker->setText(QString::number(id));
         marker->setTextColor(Qt::red);
@@ -136,30 +140,29 @@ bool ImgCanvas::loadObject(census * obj) {
 
         qDebug() << id;
         if (mcen == 2) {
-            marker->setColor(Qt::green);
+            marker->setFillColor(Qt::green);
         } else if (mcen == 1) {
             if (ccen > 1)
-                marker->setColor(Qt::red);
+                marker->setFillColor(Qt::red);
             else
-                marker->setColor(Qt::gray);
+                marker->setFillColor(Qt::gray);
         } else {
-            marker->setColor(Qt::white);
+            marker->setFillColor(Qt::white);
         }
 
         objMarkers.push_back(marker);
 
-        marker = new QgsMapMarker(this);
-        marker->setCenter(QgsPoint(ux,uy));
-        marker->setIconType(QgsMapMarker::ICON_CIRCLE);
-        marker->setPenWidth(1);
-        marker->setIconSize(8);
-        marker->setColor(Qt::black);
-
-        objMarkers.push_back(marker);
+//        marker = new QgsMapMarker(this);
+//        marker->setCenter(QgsPoint(ux,uy));
+//        marker->setIconType(QgsMapMarker::ICON_CIRCLE);
+//        marker->setPenWidth(1);
+//        marker->setIconSize(3);
+//        marker->setColor(Qt::black);
+//
+//        objMarkers.push_back(marker);
     }
 
     handleHideObjectMarkers();
-
     return true;
 }
 
@@ -262,8 +265,7 @@ double ImgCanvas::getCurrentMeasurement() {
 }
 
 void ImgCanvas::handleHideObjectMarkers() {
-//    if (ui->btnObjectMarkers->isChecked()){
-    if (ui->actionMarkierungen->isChecked()){
+    if (ui->toolbutton_toggle_marks->isChecked()){
         for (uint i=0; i<objMarkers.size(); i++)
             objMarkers[i]->show();
     } else {
