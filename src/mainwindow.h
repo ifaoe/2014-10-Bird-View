@@ -31,7 +31,7 @@
 #include "ui_widget_objects.h"
 #include "ui_widget_census.h"
 #include "ui_widget_graphics.h"
-#include "QCategoryCheckButton.h"
+#include "QtExtension/QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
 #include "IdSelectionDialog.h"
 

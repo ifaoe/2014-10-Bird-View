@@ -21,8 +21,8 @@ SOURCES += main.cpp\
         ConfigHandler.cpp \
         DatabaseHandler.cpp \
         SessionDialog.cpp \
-        QCategoryButton.cpp \
-        QCategoryCheckButton.cpp \
+        QtExtension/QCategoryButton.cpp \
+        QtExtension/QCategoryCheckButton.cpp \
         IdSelectionDialog.cpp \
         MeasurementDialog.cpp \
         QgsMapMarker.cpp
@@ -34,8 +34,8 @@ HEADERS  += mainwindow.h\
 		DatabaseHandler.h \
 		SessionDialog.h \
 		census.hpp \
-		QCategoryButton.h \
-		QCategoryCheckButton.h \
+		QtExtension/QCategoryButton.h \
+		QtExtension/QCategoryCheckButton.h \
 		IdSelectionDialog.h \
         MeasurementDialog.h \
         QgsMapMarker.h
