@@ -322,6 +322,7 @@ void MainWindow::handleSaveButton() {
         curObj->age_year = -1;
         curObj->gender = "";
         curObj->direction = -1;
+        curObj->code = "";
     } else if (curObj->type == "ANTHRO") {
         curObj->name = wdgCensus->cmbAnthroName->currentText();
         curObj->code = GetComboBoxItem(wdgCensus->cmbAnthroName).toString();

@@ -482,7 +482,7 @@ void DatabaseHandler::GetMiscObjects(QComboBox * cmb_box) {
 
 void DatabaseHandler::GetBirdPlumageClasses(QComboBox * cmb_box) {
 	cmb_box->clear();
-	cmb_box->addItem("",-1);
+	cmb_box->addItem("",QVariant());
 	qDebug() << "Getting bird age classes from database";
 	QStringList list;
 	QString qstr = "SELECT code, description FROM stuk4_codes WHERE type='PLUMAGE' ORDER BY code";
