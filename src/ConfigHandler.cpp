@@ -12,67 +12,96 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ConfigHandler.h"
-#include <boost/program_options.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <iostream>
-#include <cstring>
-#include <QDir>
+#include <QFile>
+#include <QSize>
+#include <QPoint>
+#include <QStringList>
 
-namespace po = boost::program_options;
-namespace pt = boost::property_tree;
-using namespace std;
-
-ConfigHandler::ConfigHandler(int argc, char *argv[]) {
-    // TODO Auto-generated constructor stub
-    usr = QString::fromStdString(getenv("USER"));
-
-    po::options_description desc("Options");
-    desc.add_options()
-            ("help,h", "Show this help message.")
-            ("config,c", po::value<string>(), "Path to config-file.");
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
-
-    if (vm.count("help")) {
-        cout << desc << "\n";
-        exit(0);
-    }
-    if (vm.count("config")) {
-        string tmp = vm["config"].as<string>();
-        cfgFile = new QFile(tmp.data());
-    } else {
-        cfgFile = new QFile("/usr/local/ifaoe/settings/daisi/birdview/main.cfg");
-    }
-    if (cfgFile->exists()) {
-        qDebug() << "Using config-file: " << cfgFile->fileName();
-    } else {
-        qFatal( "Fatal: Config file %s does not exist or is not readable. Aborting.", cfgFile->fileName().toStdString().c_str() );
-    }
-
-    boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
-    databaseList = QString().fromStdString( cfg.get<std::string>("main.dblist")).split(",");
+void ConfigHandler::InitSettings() {
+	user_ = QString(getenv("USER"));
+	if (!QFile::exists(fileName())) {
+		AddDatabase("Rostock", "192.168.118.35", 5432, "daisi", "daisi","18ifaoe184");
+		AddDatabase("Hamburg", "192.168.200.35", 5432, "daisi", "daisi","18ifaoe184");
+	}
 }
 
-ConfigHandler::~ConfigHandler() {
-    // TODO Auto-generated destructor stub
-    delete cfgFile;
+void ConfigHandler::AddDatabase(const QString & id, const QString & host, int port, const QString & name,const QString & user,
+		const QString & password) {
+beginGroup("Database");
+{
+	beginGroup(id);
+	setValue("host",QString(host));
+	setValue("port", port);
+	setValue("name", name);
+	setValue("password", password);
+	setValue("user",user);
+	endGroup();
+}
+endGroup();
 }
 
-QString ConfigHandler::user() { return usr; }
-
-void ConfigHandler::parseCfgFile(QString database, QString filedb) {
-//    boost::property_tree::ini_parser::read_ini(cfgFile->fileName().toStdString(), cfg);
-    dbHost = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".host") );
-    dbFile = QString::fromStdString( cfg.get<std::string>(filedb.toStdString() + ".host") );
-    dbName = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".name") );
-    dbUser = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".user") );
-    dbPass = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".pass") );
-    dbPort = QString::fromStdString( cfg.get<std::string>(database.toStdString() + ".port") );
+void ConfigHandler::setPreferredDatabase(const QString & database) {
+	setValue("Database/preferred", database);
 }
 
-QStringList ConfigHandler::getDbList() { return databaseList; }
+QString ConfigHandler::getPreferredDatabase() {
+	return value("Database/preferred","").toString();
+}
 
-QString ConfigHandler::getSessionType() {return session_type; }
+void ConfigHandler::setPreferredSession(const QString & session) {
+	setValue("session", session);
+}
 
-void ConfigHandler::setSessionType(QString type) { session_type = type; }
+QString ConfigHandler::getPreferredSession() {
+	return value("session","").toString();
+}
+
+void ConfigHandler::setAppSize(QSize size) {
+	setValue("MainWindow/size",size);
+}
+
+QSize ConfigHandler::getAppSize() {
+	return value("MainWindow/size",QSize(800,600)).toSize();
+}
+
+void ConfigHandler::setAppPosition(QPoint pos) {
+	setValue("MainWindow/position",pos);
+}
+
+QPoint ConfigHandler::getAppPosition() {
+	return value("MainWindow/position",QPoint(50,50)).toPoint();
+}
+
+void ConfigHandler::setAppMaximized(bool max) {
+	setValue("MainWindow/maximized",max);
+}
+
+bool ConfigHandler::getAppMaximized() {
+	return value("MainWindow/maximized",false).toBool();
+}
+
+QStringList ConfigHandler::getDatabaseList() {
+	beginGroup("Database");
+	QStringList children = childGroups();
+	endGroup();
+	return children;
+}
+
+DatabaseInfo ConfigHandler::getDatabaseInfo(const QString & id) {
+	DatabaseInfo info;
+	beginGroup("Database");
+	if (!childGroups().contains(id)) {
+		return info;
+		endGroup();
+	}
+		beginGroup(id);
+		info.id = id;
+		info.host = value("host",QString("localhost")).toString();
+		info.port = value("port", 5432).toInt();
+		info.name = value("name", "daisi").toString();
+		info.password = value("password", "18ifaoe184").toString();
+		info.user = value("user","daisi").toString();
+		endGroup();
+	endGroup();
+	return info;
+}

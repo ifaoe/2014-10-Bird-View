@@ -51,7 +51,7 @@ private:
     QgsMapLayerRegistry *lyrRegistry = 0;
     ImgCanvas *imgcvs = 0;
     Ui::MainWindow *ui;
-    ConfigHandler *cfg;
+    ConfigHandler *config;
     DatabaseHandler *db;
     QItemSelectionModel *objSelector;
     QString session = "";
@@ -102,10 +102,10 @@ private:
 
     MeasurementDialog * measurementWindow = 0;
 
-    IdSelectionDialog * group_selection_dialog_ = 0;
-    IdSelectionDialog * family_selection_dialog_ = 0;
-    IdSelectionDialog * association_selection_dialog_ = 0;
-    IdSelectionDialog * behaviour_selection_dialog_ = 0;
+    IdSelectionDialog * group_dialog = 0;
+    IdSelectionDialog * family_dialog = 0;
+    IdSelectionDialog * association_dialog = 0;
+    IdSelectionDialog * behaviour_dialog = 0;
 
     QVariant GetGroupBoxValue(QGroupBox * gbx, QButtonGroup * btng, QString value);
     QVariant GetButtonGroupValue(QButtonGroup * btng, QString value);
@@ -115,18 +115,19 @@ private:
     void UiPreSelection(census * cobj);
     void initFilters();
     void initCollapsibleMenu();
-    void InitCensusWidget();
+    void initCensusWidget();
+    void initSessionWidget();
     bool compareResults(census * cobj, census * pobj);
     void conductMeasurement(double * length, QLabel * label);
     bool CheckInputValidity();
     QVariant GetComboBoxItem(QComboBox * combo_box);
     void SaveComboBoxSelection(QComboBox * combo_box);
+    void updateTodoObjects();
 public slots:
 
 private slots:
-	void populateObjectTable();
-
-	void objectUpdateSelection();
+	void handleSessionSelection();
+	void handleObjectSelection();
 	void handleMapToolButton();
 	void handleOneToOneZoom();
 	void handleDirDial();
@@ -153,6 +154,7 @@ private slots:
 	void HandleGroupSelection();
 	void HandleFamilySelection();
 	void HandleActiveCensusElements();
+	void HandleServerSelection();
 };
 
 #endif // MAINWINDOW_H

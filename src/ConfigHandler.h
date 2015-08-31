@@ -14,35 +14,38 @@
 #ifndef CONFIGHANDLER_H_
 #define CONFIGHANDLER_H_
 
-#include <string>
-#include <QFile>
+#include <QSettings>
 #include <QDebug>
-#include <QStringList>
-#include <boost/property_tree/ptree.hpp>
 
-class ConfigHandler {
+struct DatabaseInfo {
+	QString id = "local";
+	QString host = "localhost";
+	int port = 5432;
+	QString name = "daisi";
+	QString password = "18ifaoe184";
+	QString user = "daisi";
+};
+
+class ConfigHandler : public QSettings{
 public:
-    ConfigHandler(int argc, char *argv[]);
-    virtual ~ConfigHandler();
-
-    QString dbHost = "localhost";
-    QString dbFile = "localhost";
-    QString dbName = "daisi";
-    QString dbUser = "daisi";
-    QString dbPass = "18ifaoe184";
-    QString dbPort = "5432";
-    QString user();
-    QString image_path = "/net";
-    void parseCfgFile(QString database, QString filedb);
-    QStringList getDbList();
-    QString getSessionType();
-    void setSessionType(QString type);
+	void InitSettings();
+	void AddDatabase(const QString & id, const QString & host, int port, const QString & name,const QString & user,
+			const QString & password);
+	QString user() {return user_;}
+	void setAppPosition(QPoint pos);
+	QPoint getAppPosition();
+	void setAppSize(QSize size);
+	QSize getAppSize();
+	void setAppMaximized(bool max);
+	bool getAppMaximized();
+	void setPreferredDatabase(const QString & database);
+	QString getPreferredDatabase();
+	void setPreferredSession(const QString & session);
+	QString getPreferredSession();
+	QStringList getDatabaseList();
+	DatabaseInfo getDatabaseInfo(const QString & id);
 private:
-    QString session_type = "local";
-    QString usr;
-    QFile *cfgFile;
-    QStringList databaseList;
-    boost::property_tree::ptree cfg;
+    QString user_;
 };
 
 #endif /* CONFIGHANDLER_H_ */

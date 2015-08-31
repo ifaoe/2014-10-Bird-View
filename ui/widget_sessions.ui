@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>374</width>
-    <height>51</height>
+    <width>526</width>
+    <height>88</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,17 +20,34 @@
    <enum>QFrame::Sunken</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QComboBox" name="cmbSession"/>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="cmbSession">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="2">
     <widget class="QPushButton" name="btnSession">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="text">
+      <string>Laden</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="combo_server"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="button_server">
      <property name="text">
       <string>Laden</string>
      </property>

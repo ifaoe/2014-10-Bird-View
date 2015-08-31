@@ -71,7 +71,8 @@ bool ImgCanvas::loadObject(census * obj) {
     curCam = obj->camera;
     curImg = obj->image;
 
-    QString file = cfg->image_path + "/cam" + obj->camera + "/geo/" + obj->image + ".tif";
+    QString image_path = db->getProjectPath(obj->session);
+    QString file = image_path + "/cam" + obj->camera + "/geo/" + obj->image + ".tif";
     qDebug() << "Loading file " << file;
 
     QFileInfo info(file);
@@ -138,7 +139,6 @@ bool ImgCanvas::loadObject(census * obj) {
         marker->setTextWidth(2);
         marker->setTextOffset(15,15);
 
-        qDebug() << id;
         if (mcen == 2) {
             marker->setFillColor(Qt::green);
         } else if (mcen == 1) {

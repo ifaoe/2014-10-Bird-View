@@ -26,10 +26,11 @@ class DatabaseHandler {
 public:
     DatabaseHandler(ConfigHandler *cfg);
     virtual ~DatabaseHandler();
+    bool OpenDatabase();
     QStringList getSessionList();
     QSqlQuery * getObjectResult(QString session, QString user, QString filter="", QString order="");
     census * getRawObjectData(QString objId, QString usr);
-    bool GetTypeList(QString type, QComboBox * combo_box);
+    bool getSpeciesList(QString type, QComboBox * combo_box);
     QStringList getUserList(QString objId);
     census * getCensusData(QString objId);
     bool writeCensus(census * obj);
@@ -43,10 +44,10 @@ public:
     int getCensorCount(QString ObjId, QString censor, QString usr);
     QMap<int, QString> getUserCensus(QString usr, QString session);
     QMap<int, QString> getFinalCensus(QString session);
-    QStringList getTypeList();
+    QStringList getRawTypeList();
     QStringList getCensusList();
     void deleteCensusData(QString objId, QString usr);
-    bool getSessionActive(QString session);
+    bool getSessionActive(const QString & session);
     bool GetAnthroObjectList(QComboBox * cmb);
     QSqlQueryModel * getStuk4Behaviour();
     QSqlQueryModel * getStuk4Associations();
@@ -56,10 +57,11 @@ public:
     void GetBirdAgeClasses(QComboBox * cmb_box);
     void GetMiscObjects(QComboBox * cmb_box);
     void GetBirdPlumageClasses(QComboBox * cmb_box);
+    int getCensusCount(const QString & session, const QString & user,
+    		const QString & having_filter = "TRUE", const QString & where_filter = "TRUE");
 private:
     QSqlDatabase *db;
-    QSqlDatabase *fileDb;
-    ConfigHandler *cfg;
+    ConfigHandler *config;
 
     void setRecordTable(QSqlRecord * record, census * obj);
 };

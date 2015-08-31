@@ -18,7 +18,8 @@ class IdSelectionDialog: public QDialog {
 public:
 	IdSelectionDialog(QLabel * label, QWidget * parent = 0);
 	virtual ~IdSelectionDialog();
-	void set_data_model(QSqlQueryModel * view);
+	void setDataModel(QSqlQueryModel * model);
+	QAbstractItemModel * dataModel() { return dlg_->tbv_idselection->model();}
 	void set_id_column(int column) { id_column_ = column; }
 	int id_column() {return id_column_;}
 	void set_id_list(QStringList * id_list) {id_list_ = id_list; UpdateSelection(); UpdateInfoLabel();}

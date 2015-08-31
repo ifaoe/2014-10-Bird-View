@@ -24,7 +24,7 @@
 #include <QLineEdit>
 
 MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *parent) :
-    QMainWindow(0), ui(new Ui::MainWindow), cfg(cfgArg), db(dbArg)
+    QMainWindow(0), ui(new Ui::MainWindow), config(cfgArg), db(dbArg)
 {
     Q_UNUSED(parent);
     ui->setupUi(this);
@@ -57,20 +57,19 @@ MainWindow::MainWindow( ConfigHandler *cfgArg, DatabaseHandler *dbArg, QWidget *
         qFatal("Postgresql/PostGIS");
     }
 
-    wdgSession->cmbSession->addItems(db->getSessionList());
-
     objSelector = wdgObjects->tblObjects->selectionModel();
     wdgObjects->tblObjects->setSelectionMode(QAbstractItemView::SingleSelection);
     wdgObjects->tblObjects->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     initMapView();
-    InitCensusWidget();
+    initCensusWidget();
+    initSessionWidget();
+
 
     measurementWindow = new MeasurementDialog(imgcvs);
 
     connect( objSelector, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(objectUpdateSelection()));
-    connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(populateObjectTable()));
+            this, SLOT(handleObjectSelection()));
 
     connect(dirDial, SIGNAL(sliderReleased()), this, SLOT(handleDirDial()));
 
@@ -111,23 +110,581 @@ MainWindow::~MainWindow()
     delete ui;
     measurementWindow->close();
     delete measurementWindow;
+	config->setAppPosition(pos());
+	config->setAppSize(size());
+	config->setAppMaximized(isMaximized());
+	config->sync();
 }
 
-void MainWindow::populateObjectTable() {
+void MainWindow::updateTodoObjects() {
+	wdgObjects->cmbFilterCensor->disconnect();
+	wdgObjects->cmbFilterUserCensor->disconnect();
+
+	int all_count = db->getCensusCount(session, "%", "TRUE");
+	int no_censor_count = db->getCensusCount(session, "%", "mc=0 OR mc IS NULL");
+	int one_censor_count = db->getCensusCount(session, "%", "mc=1 AND cnt=1");
+	int conflict_censor_count = db->getCensusCount(session, "%", "mc=1 AND cnt>1");
+	int done_censor_count = db->getCensusCount(session, "%", "mc>1");
+	wdgObjects->cmbFilterCensor->clear();
+    wdgObjects->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
+    wdgObjects->cmbFilterCensor->addItem(
+    		trUtf8("Unbestimmt \t%1\t/%2").arg(no_censor_count).arg(all_count),QVariant(" AND (mc=0 OR mc IS NULL)"));
+//    wdgObjects->cmbFilterCensor->setItemData( 1, QColor( Qt::white ), Qt::BackgroundRole );
+    wdgObjects->cmbFilterCensor->addItem(
+    		trUtf8("Erstbestimmt \t%1\t/%2").arg(one_censor_count).arg(all_count),QVariant(" AND mc=1 AND cnt=1"));
+//    wdgObjects->cmbFilterCensor->setItemData( 2, QColor( Qt::gray ), Qt::BackgroundRole );
+    wdgObjects->cmbFilterCensor->addItem(
+    		trUtf8("Unstimmigkeiten \t%1\t/%2").arg(conflict_censor_count).arg(all_count),QVariant(" AND mc=1 AND cnt>1"));
+//    wdgObjects->cmbFilterCensor->setItemData( 3, QColor( Qt::red ), Qt::BackgroundRole );
+    wdgObjects->cmbFilterCensor->addItem(
+    		trUtf8("Enbestimmt \t%1\t/%2").arg(done_censor_count).arg(all_count),QVariant(" AND mc>1"));
+//    wdgObjects->cmbFilterCensor->setItemData( 4, QColor( Qt::green ), Qt::BackgroundRole );
+
+    int todo  = db->getCensusCount(session, "%", "(mc<2 OR mc IS NULL)", QString("(usr!='%1' OR usr IS NULL)").arg(config->user()));
+    int finished = db->getCensusCount(session, config->user(), "TRUE", "tp IS NOT NULL");
+    wdgObjects->cmbFilterUserCensor->clear();
+    wdgObjects->cmbFilterUserCensor->addItem(trUtf8(""), QVariant(""));
+    wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Unbearbeitet  %1\t/%2").arg(todo).arg(todo+finished),
+            QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
+    wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Bearbeitet  %1\t/%2").arg(finished).arg(todo+finished),
+    		QVariant(" AND tp IS NOT NULL"));
+
+    connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
+    connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
+}
+
+void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
+    QList<QAbstractButton*> btnList = btnGrp->buttons();
+    for(int i=0; i<btnList.size(); i++) {
+        if(btnList.at(i)->property("dbvalue") == str) {
+            btnList.at(i)->setChecked(true);
+        }
+    }
+}
+
+
+
+/*
+ * Color the current row of the table corresponding to the censor value
+ */
+void MainWindow::colorTableRow(QColor color, int row) {
+    int c = wdgObjects->tblObjects->columnCount();
+    for (int i=0; i<c; i++) {
+        wdgObjects->tblObjects->item(row, i)->setBackgroundColor(color);
+    }
+}
+
+
+
+void MainWindow::initMapView() {
+    // Setup image and map
+    imgcvs = new ImgCanvas(ui->wdgImg, ui, config, db);
+    geoMap = new QWebView(ui->wdgImg);
+    lytFrmImg = new QVBoxLayout;
+    lytFrmImg->setMargin(0);
+    lytFrmImg->addWidget(imgcvs);
+    ui->wdgImg->setLayout(lytFrmImg);
+
+    // Add QDial for direction
+    dirDial = new QDial(imgcvs);
+    dirDial->setFixedSize(80,80);
+    dirDial->move(10,50);
+    dirDial->setMaximum(359);
+    dirDial->setMinimum(0);
+    dirDial->setWrapping(true);
+    dirDial->setNotchesVisible(false);
+    dirDial->setStyle(new QMotifStyle);
+}
+/*
+ * Function which selects Ui elements depending on the data in
+ * the census struct.
+ */
+void MainWindow::UiPreSelection(census * cobj) {
+
+    // Save Census checkbox ticked?
+    // save all info but size and direction
+    if (wdgCensus->chbSaveCensus->isChecked()) {
+        dirDial->setValue(180);
+        cobj->direction = -1;
+
+        // clear size box
+        wdgCensus->lblMammalSizeLength->clear();
+        wdgCensus->lblBirdSizeLength->clear();
+        wdgCensus->lblBirdSizeSpan->clear();
+        cobj->span = -1;
+        cobj->length = -1;
+
+        cobj->remarks.clear();
+
+        cobj->imageQuality = 0;
+        return;
+    }
+
+    association_dialog->set_id_list(&cobj->stuk4_ass);
+    behaviour_dialog->set_id_list(&cobj->stuk4_beh);
+    family_dialog->set_id_list(&cobj->family);
+    group_dialog->set_id_list(&cobj->group);
+
+//    // handle those differently -- courtesy of the stuk4 table widget
+    curObj->stuk4_ass = cobj->stuk4_ass;
+    curObj->stuk4_beh = cobj->stuk4_beh;
+    curObj->length = cobj->length;
+    curObj->span = cobj->span;
+
+    wdgCensus->textedit_remarks->clear();
+
+    // clear size box
+    wdgCensus->lblMammalSizeLength->clear();
+    wdgCensus->lblBirdSizeLength->clear();
+    wdgCensus->lblBirdSizeSpan->clear();
+
+    // Recalculate values of the QDial to 0=North
+    if (cobj->direction >= 0 ) {
+        dirDial->setValue((cobj->direction+180)%360);
+        handleDirDial();
+    } else {
+        dirDial->setValue(180);
+    }
+
+    // Checkbox for very good objects in image quality
+    // which could be used as example pictures
+    if (cobj->imageQuality > 0) {
+        wdgGraphics->chbImgQuality->setChecked(true);
+    } else {
+        wdgGraphics->chbImgQuality->setChecked(false);
+    }
+
+    // by default, all options are off
+    wdgCensus->gbxMammalAge->setChecked(false);
+	wdgCensus->gbxBirdAge->setChecked(false);
+	wdgCensus->cmb_bird_age->setCurrentIndex(0);
+    wdgCensus->gbxBirdGender->setChecked(false);
+	wdgCensus->group_box_plumage->setChecked(false);
+	wdgCensus->combo_box_plumage->setCurrentIndex(0);
+
+    wdgCensus->textedit_remarks->setPlainText(cobj->remarks);
+
+    if(cobj->type == "BIRD" ||curObj->type.left(1) == "V" ) { // Bird Tab
+            wdgCensus->wdgTabTypes->setCurrentIndex(0);
+            int index = wdgCensus->cmbBird->findText(cobj->name);
+            wdgCensus->cmbBird->setCurrentIndex(index);
+            selectButtonByString(wdgCensus->btngBirdQual, QString::number(cobj->confidence));
+            selectButtonByString(wdgCensus->btngBirdBeh, cobj->behavior);
+            if(cobj->gender != "") {
+                wdgCensus->gbxBirdGender->setChecked(true);
+                selectButtonByString(wdgCensus->btngBirdSex, cobj->gender);
+            }
+            if(cobj->age != "" || cobj->age_year>0) {
+                wdgCensus->gbxBirdAge->setChecked(true);
+                selectButtonByString(wdgCensus->btngBirdAge, cobj->age);
+                index = wdgCensus->cmb_bird_age->findData(curObj->age_year);
+                wdgCensus->cmb_bird_age->setCurrentIndex(index);
+            }
+            if (!cobj->plumage.isEmpty()) {
+            	wdgCensus->group_box_plumage->setChecked(true);
+            	wdgCensus->combo_box_plumage->setCurrentIndex(
+            			wdgCensus->combo_box_plumage->findData(cobj->plumage));
+            }
+            if (cobj->length > 0 ) wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length));
+            if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
+
+            wdgCensus->cmbBird->setFocus();
+        } else if (cobj->type == "MAMMAL" || curObj->type == "MM" ) { // Mammal Tab
+            wdgCensus->wdgTabTypes->setCurrentIndex(1);
+            int index = wdgCensus->cmbMammal->findText(cobj->name);
+            wdgCensus->cmbMammal->setCurrentIndex(index);
+            selectButtonByString(wdgCensus->btngMammalQual, QString::number(cobj->confidence));
+            selectButtonByString(wdgCensus->btngMammalBeh, cobj->behavior);
+            if (cobj->age != "") {
+                wdgCensus->gbxMammalAge->setChecked(true);
+                selectButtonByString(wdgCensus->btngMammalAge, cobj->age);
+            }
+            if (cobj->length > 0 )
+                wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
+            wdgCensus->cmbMammal->setFocus();
+        } else if (cobj->type == "ANTHRO" || curObj->type == "AN" ) { // Anthro Tab
+            int index = wdgCensus->cmbAnthroName->findData(cobj->code);
+            wdgCensus->cmbAnthroName->setCurrentIndex(index);
+            wdgCensus->wdgTabTypes->setCurrentIndex(2);
+            selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->confidence));
+        } else if (cobj ->type== "MISC"  || curObj->type == "TR" ) {
+        	if (curObj->type == "TR") curObj->code = "7101";
+        	int index = wdgCensus->cmb_misc_name->findData(cobj->code);
+        	wdgCensus->cmb_misc_name->setCurrentIndex(index);
+        	wdgCensus->wdgTabTypes->setCurrentIndex(3);
+        	selectButtonByString(wdgCensus->btng_misc_qual, QString::number(cobj->confidence));
+        } else { //NoSighting tab
+            wdgCensus->wdgTabTypes->setCurrentIndex(4);
+            selectButtonByString(wdgCensus->buttongroup_nosight, QString::number(cobj->confidence));
+        }
+}
+
+void MainWindow::initFilters() {
+    wdgObjects->tblFilters->setHorizontalHeaderLabels(
+            QStringList() << "ID" << "IMG" << "CAM" << "Typ" << "Bestimmung");
+    wdgObjects->tblFilters->horizontalHeader()->setHighlightSections(false);
+    wdgObjects->tblFilters->setSelectionMode(QAbstractItemView::NoSelection);
+
+    wdgObjects->tblFilters->setColumnWidth(0, 75);
+    wdgObjects->tblFilters->setColumnWidth(1, 80);
+    wdgObjects->tblFilters->setColumnWidth(2, 40);
+    wdgObjects->tblFilters->setColumnWidth(3, 50);
+    wdgObjects->tblFilters->setColumnWidth(4, 80);
+
+    wdgObjects->tblFilters->horizontalHeader()->setStretchLastSection(true);
+
+    wdgObjects->tblFilters->setRowCount(1);
+    wdgObjects->tblFilters->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+
+    cmbFilterCam = new QComboBox();
+    cmbFilterType = new QComboBox();
+    cmbFilterCensus = new QComboBox();
+    pteFilterImg = new QLineEdit();
+    pteFilterId = new QLineEdit();
+
+
+    wdgObjects->tblFilters->setCellWidget(0,0,pteFilterId);
+    wdgObjects->tblFilters->setCellWidget(0,1,pteFilterImg);
+    wdgObjects->tblFilters->setCellWidget(0,2,cmbFilterCam);
+    wdgObjects->tblFilters->setCellWidget(0,3,cmbFilterType);
+    wdgObjects->tblFilters->setCellWidget(0,4,cmbFilterCensus);
+
+    cmbFilterCam->addItem(trUtf8(""), QVariant(""));
+    cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));
+    cmbFilterCam->addItem(trUtf8("2"), QVariant(" AND cam='2'"));
+
+    connect(pteFilterImg, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
+    connect(pteFilterId, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
+    connect(cmbFilterCam, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCamFilter(int)));
+    connect(cmbFilterType, SIGNAL(currentIndexChanged(int)), this, SLOT(handleTypeFilter(int)));
+    connect(cmbFilterCensus, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensusFilter(int)));
+
+    wdgObjects->tblFilters->setMinimumSize(
+            wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
+            wdgObjects->tblFilters->horizontalHeader()->height());
+    wdgObjects->tblFilters->setMaximumSize(
+            wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
+            wdgObjects->tblFilters->horizontalHeader()->height());
+}
+
+bool MainWindow::compareResults(census * curObj, census * cenObj) {
+    bool agree = true;
+    agree = agree && (curObj->name == cenObj->name);
+    agree = agree && (curObj->type == cenObj->type);
+    if (curObj->confidence == 4 || cenObj->confidence == 4)
+        agree = agree && (curObj->confidence == cenObj->confidence);
+    return agree;
+}
+
+void MainWindow::conductMeasurement(double * length, QLabel * label) {
+    measurementWindow->move(size().width()*0.75,size().height()*0.25);
+    measurementWindow->startMeasurement(length, label);
+}
+
+void MainWindow::initCollapsibleMenu(){
+    // create expandable widget type
+        ui->wdgFrameTree->setRootIsDecorated(false);
+        ui->wdgFrameTree->setIndentation(0);
+        ui->wdgFrameTree->viewport()->setBackgroundRole(QPalette::Background);
+        ui->wdgFrameTree->setBackgroundRole(QPalette::Window);
+        ui->wdgFrameTree->setAutoFillBackground(true);
+        ui->wdgFrameTree->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        //create widget
+            {
+            twgSession = new QTreeWidgetItem();
+            ui->wdgFrameTree->addTopLevelItem(twgSession);
+            cbtSession = new QCategoryCheckButton("Projektauswahl", ui->wdgFrameTree, twgSession);
+            ui->wdgFrameTree->setItemWidget(twgSession, 0, cbtSession);
+
+            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+            wdgContainer->setDisabled(true);
+            twgSession->addChild(wdgContainer);
+            QFrame *widget = new QFrame;
+            wdgSession = new Ui::wdgSessions;
+            wdgSession->setupUi(widget);
+            widget->setBackgroundRole(QPalette::Window);
+            widget->setAutoFillBackground(true);
+            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+            twgSession->setExpanded(true);
+        }
+
+        //create widget
+        {
+            twgObjects = new QTreeWidgetItem();
+            ui->wdgFrameTree->addTopLevelItem(twgObjects);
+            cbtObjects = new QCategoryCheckButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
+            ui->wdgFrameTree->setItemWidget(twgObjects, 0, cbtObjects);
+
+            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+            wdgContainer->setDisabled(true);
+            twgObjects->addChild(wdgContainer);
+            QFrame *widget = new QFrame;
+            wdgObjects = new Ui::wdgObjects;
+            wdgObjects->setupUi(widget);
+            widget->setBackgroundRole(QPalette::Window);
+            widget->setAutoFillBackground(true);
+            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+            twgObjects->setExpanded(false);
+        }
+
+        //create widget
+        {
+            twgCensus = new QTreeWidgetItem();
+            ui->wdgFrameTree->addTopLevelItem(twgCensus);
+            cbtCensus = new QCategoryCheckButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
+            ui->wdgFrameTree->setItemWidget(twgCensus, 0, cbtCensus);
+            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+            wdgContainer->setDisabled(true);
+            twgCensus->addChild(wdgContainer);
+            frame_census = new QFrame;
+            wdgCensus = new Ui::wdgCensus;
+            wdgCensus->setupUi(frame_census);
+            frame_census->setBackgroundRole(QPalette::Window);
+            frame_census->setAutoFillBackground(true);
+            frame_census->resize(0,0);
+            frame_census->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+            wdgCensus->wdgTabTypes->setContentsMargins(0,0,0,0);
+            wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
+            wdgCensus->wdgTabTypes->setAutoFillBackground(true);
+
+            ui->wdgFrameTree->setItemWidget(wdgContainer,0,frame_census);
+            if (!cbtCensus->isChecked())
+                twgCensus->setExpanded(false);
+
+        }
+
+        //create widget
+        {
+            twgGraphics = new QTreeWidgetItem();
+            ui->wdgFrameTree->addTopLevelItem(twgGraphics);
+            cbtGraphics = new QCategoryCheckButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
+            ui->wdgFrameTree->setItemWidget(twgGraphics, 0, cbtGraphics);
+            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
+            wdgContainer->setDisabled(true);
+            twgGraphics->addChild(wdgContainer);
+            QFrame *widget = new QFrame;
+            wdgGraphics = new Ui::wdgGraphics;
+            wdgGraphics->setupUi(widget);
+            widget->setBackgroundRole(QPalette::Window);
+            widget->setAutoFillBackground(true);
+            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
+            twgGraphics->setExpanded(false);
+        }
+
+        wdgCensus->btnSave->setEnabled(false);
+        wdgCensus->btnDelete->setEnabled(false);
+        wdgObjects->tblObjects->setColumnCount(5);
+        wdgObjects->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
+                "CEN");
+        wdgObjects->tblObjects->setColumnWidth(0, 75);
+        wdgObjects->tblObjects->setColumnWidth(1, 80);
+        wdgObjects->tblObjects->setColumnWidth(2, 40);
+        wdgObjects->tblObjects->setColumnWidth(3, 50);
+        wdgObjects->tblObjects->setColumnWidth(4, 50);
+}
+
+void MainWindow::initCensusWidget() {
+    group_dialog = new IdSelectionDialog(wdgCensus->text_group, this);
+	family_dialog = new IdSelectionDialog(wdgCensus->text_family, this);
+    association_dialog = new IdSelectionDialog(wdgCensus->text_associations, this);
+    behaviour_dialog = new IdSelectionDialog(wdgCensus->text_behaviour, this);
+
+    connect(wdgCensus->toolbutton_associations, SIGNAL(clicked()), this, SLOT(HandleAssociationSelection()));
+    connect(wdgCensus->toolbutton_behaviour, SIGNAL(clicked()), this, SLOT(HandleBehaviourSelection()));
+    connect(wdgCensus->toolbutton_group, SIGNAL(clicked()), this, SLOT(HandleGroupSelection()));
+    connect(wdgCensus->toolbutton_family, SIGNAL(clicked()), this, SLOT(HandleFamilySelection()));
+
+    connect(wdgCensus->wdgTabTypes, SIGNAL(currentChanged(int)), this, SLOT(HandleActiveCensusElements()));
+}
+
+void MainWindow::initSessionWidget() {
+    /*
+     * Populate session widget and select preselected server and session
+     */
+    wdgSession->combo_server->addItem(QString());
+    wdgSession->combo_server->addItems(config->getDatabaseList());
+    if (!config->getPreferredDatabase().isEmpty())
+    	wdgSession->combo_server->setCurrentIndex(wdgSession->combo_server->findText(config->getPreferredDatabase()));
+    connect(wdgSession->button_server, SIGNAL(clicked()), this, SLOT(HandleServerSelection()));
+    HandleServerSelection();
+
+    if (!config->getPreferredSession().isEmpty())
+    	wdgSession->cmbSession->setCurrentIndex(wdgSession->cmbSession->findText(config->getPreferredSession()));
+    connect(wdgSession->btnSession, SIGNAL(released()), this, SLOT(handleSessionSelection()));
+    handleSessionSelection();
+}
+
+QVariant MainWindow::GetComboBoxItem(QComboBox * combo_box) {
+	return combo_box->itemData(combo_box->currentIndex());
+}
+
+void MainWindow::SaveComboBoxSelection(QComboBox * combo_box) {
+	int row = combo_box->currentIndex();
+	curObj->name = combo_box->model()->data(combo_box->model()->index(row,0)).toString();
+	curObj->code = combo_box->model()->data(combo_box->model()->index(row,3)).toString();
+}
+
+QVariant MainWindow::GetButtonGroupValue(QButtonGroup * btng, QString value) {
+	return btng->checkedButton()->property(value.toStdString().c_str());
+}
+
+QVariant MainWindow::GetGroupBoxValue(QGroupBox * gbx, QButtonGroup * btng, QString value) {
+	if (gbx->isCheckable()) {
+		if (gbx->isChecked()) {
+			return GetButtonGroupValue(btng,value);
+		} else {
+			return QVariant::fromValue(QString::fromStdString(""));
+		}
+	} else {
+		return GetButtonGroupValue(btng,value);
+	}
+}
+
+bool MainWindow::CheckInputValidity() {
+	if (curObj->name == "" && curObj->type != "NOSIGHT") {
+		QMessageBox * msgBox = new QMessageBox();
+		msgBox->setText(trUtf8("Bitte Art/Bezeichnung auswählen!"));
+		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
+		msgBox->exec();
+		if(msgBox->clickedButton() == nextButton) {
+			delete msgBox;
+			return false;
+		}
+		delete msgBox;
+	}
+	if (curObj->type == "BIRD") {
+		if ((curObj->behavior == "FLY") && (curObj->direction < 0)) {
+				QMessageBox * msgBox = new QMessageBox();
+				msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
+				QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+				QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+				msgBox->exec();
+				if (msgBox->clickedButton() == nextButton) {
+					delete msgBox;
+					return false;
+				} else if (msgBox->clickedButton() == noDirButton) {
+					curObj->direction = -1;
+				}
+				delete msgBox;
+		} else if (curObj->behavior != "FLY") {
+			curObj->direction = -1;
+		}
+	} else if (curObj->type == "MAMMAL") {
+		if (curObj->direction < 0) {
+			QMessageBox * msgBox = new QMessageBox();
+			msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
+			QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
+			QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
+			msgBox->exec();
+			if (msgBox->clickedButton() == nextButton) {
+				delete msgBox;
+				return false;
+			} else if (msgBox->clickedButton() == noDirButton) {;
+				curObj->direction = -1;
+			}
+			delete msgBox;
+		}
+	}
+	return true;
+}
+
+/*
+ * SLOTS
+ */
+
+/*
+ * Recalculate direction value depending on QDial value
+ * Set the direction value only when dial is touched
+ */
+void MainWindow::handleDirDial() {
+    qDebug() << "Handle direction dial with value: " << dirDial->value();
+    curObj->direction = (dirDial->value() + 180)%360;
+    qDebug() << curObj->direction;
+}
+
+/*
+ * Read results for the selected censor and set the Ui elements respectively
+ */
+void MainWindow::handleUsrSelect() {
+    census * obj;
+    if (wdgCensus->cmbUsers->currentIndex() == -1) return;
+    obj = db->getRawObjectData(QString::number(curObj->id), wdgCensus->cmbUsers->currentText());
+    UiPreSelection(obj);
+    delete obj;
+}
+
+/*
+ * 1:1 Zoom Button handler
+ */
+void MainWindow::handleOneToOneZoom() {
+    if (curObj == 0) return;
+    imgcvs->centerOnWorldPosition(curObj->ux, curObj->uy, 1.0);
+}
+
+void MainWindow::handleBrightnessSlider() {
+    imgcvs->setRasterBrightness(wdgGraphics->sldBrightness->value());
+}
+
+void MainWindow::handleContrastSlider() {
+    imgcvs->setRasterContrast(wdgGraphics->sldContrast->value());
+}
+
+void MainWindow::handleBrightnessReset() {
+    wdgGraphics->sldBrightness->setValue(0);
+    handleBrightnessSlider();
+}
+
+void MainWindow::handleContrastReset() {
+    wdgGraphics->sldContrast->setValue(0);
+    handleContrastSlider();
+}
+
+/*
+ * Handle Inet Map Button
+ * Set Url and Load via Browser Widget
+ * TODO: Use proper map API
+ * TODO: Google or OpenStreetMaps ?
+ */
+void MainWindow::handleMapToolButton() {
+    if (curObj == 0) return;
+    QString scale="8";
+    QString url = "";
+    url += "http://www.openstreetmap.org/?mlat="
+            + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
+    url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
+
+    if (ui->toolbutton_map_view->isChecked()) {
+        qDebug() << "Load URL: " << url;
+        geoMap->load(QUrl(url));
+        geoMap->show();
+        lytFrmImg->removeWidget(imgcvs);
+        lytFrmImg->addWidget(geoMap);
+    } else {
+        lytFrmImg->removeWidget(geoMap);
+        lytFrmImg->addWidget(imgcvs);
+        geoMap->hide();
+    }
+}
+
+void MainWindow::handleSessionSelection() {
+	if (wdgSession->cmbSession->currentText().isEmpty())
+		return;
     sortSet.clear();
     wdgCensus->btnSave->setEnabled(false);
     wdgCensus->btnDelete->setEnabled(false);
     QString filter = "WHERE TRUE" + QStringList(filterMap.values()).join("");
     session = wdgSession->cmbSession->currentText();
+    config->setPreferredSession(session);
     currentRow = -1;
     objSelector->clearSelection();
     wdgObjects->tblObjects->clear();
     wdgObjects->tblObjects->model()->removeRows(0,wdgObjects->tblObjects->rowCount());
     wdgObjects->tblObjects->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 
-    QSqlQuery *query = db->getObjectResult( session, cfg->user(), filter);
+    QSqlQuery *query = db->getObjectResult( session, config->user(), filter);
     int row = 0;
-    QMap<int, QString> usrCensus = db->getUserCensus(cfg->user(), session);
+    QMap<int, QString> usrCensus = db->getUserCensus(config->user(), session);
     QMap<int, QString> finalCensus = db->getFinalCensus(session);
 
     while(query->next()) {
@@ -179,7 +736,6 @@ void MainWindow::populateObjectTable() {
         row++;
     }
     delete query;
-    cfg->image_path = db->getProjectPath(session);
     if (wdgObjects->tblObjects->rowCount() > 0) {
         wdgObjects->tblObjects->setMinimumSize(wdgObjects->tblObjects->width(), 50);
         wdgObjects->tblObjects->setMaximumSize(wdgObjects->tblObjects->width(),
@@ -193,9 +749,11 @@ void MainWindow::populateObjectTable() {
         twgSession->setExpanded(false);
     if (!cbtObjects->isChecked())
         twgObjects->setExpanded(true);
+
+    updateTodoObjects();
 }
 
-void MainWindow::objectUpdateSelection() {
+void MainWindow::handleObjectSelection() {
     wdgGraphics->sldBrightness->setValue(0);
     wdgGraphics->sldContrast->setValue(0);
 
@@ -206,24 +764,24 @@ void MainWindow::objectUpdateSelection() {
     QString img = wdgObjects->tblObjects->item(currentRow, 1)->text();
     QString type = wdgObjects->tblObjects->item(currentRow, 3)->text();
     wdgCensus->cmbUsers->clear();
-    curObj = db->getRawObjectData(objId, cfg->user());
+    curObj = db->getRawObjectData(objId, config->user());
 
     if (curObj->type.isEmpty()) curObj->type = type;
     censorList = db->getUserList(objId);
     wdgCensus->cmbUsers->addItems(censorList);
 
-    group_selection_dialog_->set_data_model(db->getCloseObjects(curObj));
-    family_selection_dialog_->set_data_model(db->getCloseObjects(curObj));
+    group_dialog->setDataModel(db->getCloseObjects(curObj));
+    family_dialog->setDataModel(db->getCloseObjects(curObj));
 
-    association_selection_dialog_->set_id_list(&curObj->stuk4_ass);
-    behaviour_selection_dialog_->set_id_list(&curObj->stuk4_beh);
-    family_selection_dialog_->set_id_list(&curObj->family);
-    group_selection_dialog_->set_id_list(&curObj->group);
+    association_dialog->set_id_list(&curObj->stuk4_ass);
+    behaviour_dialog->set_id_list(&curObj->stuk4_beh);
+    family_dialog->set_id_list(&curObj->family);
+    group_dialog->set_id_list(&curObj->group);
 
     UiPreSelection(curObj);
 
     // handle user selection
-    if ((curObj->censor > 0) && (db->getMaxCensor(QString::number(curObj->id),cfg->user()) > 1)) {
+    if ((curObj->censor > 0) && (db->getMaxCensor(QString::number(curObj->id),config->user()) > 1)) {
         wdgCensus->btnDelete->setEnabled(false);
         wdgCensus->btnSave->setEnabled(false);
     } else {
@@ -233,7 +791,7 @@ void MainWindow::objectUpdateSelection() {
     if (curObj->censor < 0)
         wdgCensus->btnDelete->setEnabled(false);
 
-    if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) >= 2
+    if (db->getCensorCount(QString::number(curObj->id), "1", config->user()) >= 2
             || db->getMaxCensor(QString::number(curObj->id)) >= 2) {
         wdgCensus->cmbUsers->setDisabled(false);
         wdgCensus->btnUserSelect->setDisabled(false);
@@ -355,7 +913,7 @@ void MainWindow::handleSaveButton() {
 		if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) >= 2) {
 			tmpcensor = 0;
 		} else if (db->getMaxCensor(QString::number(curObj->id), curObj->usr) == 1) {
-			if (db->getCensorCount(QString::number(curObj->id), "1", cfg->user()) > 1) {
+			if (db->getCensorCount(QString::number(curObj->id), "1", config->user()) > 1) {
 				tmpcensor = 3;
 			} else {
 				tmpcensor = 2;
@@ -460,321 +1018,7 @@ void MainWindow::handleSaveButton() {
         wdgObjects->tblObjects->scrollTo(newIndex);
         objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
-}
-
-
-void MainWindow::selectButtonByString(QButtonGroup * btnGrp, QString str) {
-    QList<QAbstractButton*> btnList = btnGrp->buttons();
-//    if(str != "") {
-//        btnGrp->checkedButton()->setChecked(true);
-//    }
-    for(int i=0; i<btnList.size(); i++) {
-        if(btnList.at(i)->property("dbvalue") == str) {
-            btnList.at(i)->setChecked(true);
-        }
-    }
-}
-
-/*
- * Handle Inet Map Button
- * Set Url and Load via Browser Widget
- * TODO: Use proper map API
- * TODO: Google or OpenStreetMaps ?
- */
-void MainWindow::handleMapToolButton() {
-    if (curObj == 0) return;
-    QString scale="8";
-    QString url = "";
-    url += "http://www.openstreetmap.org/?mlat="
-            + QString::number(curObj->ly) + "&mlon=" + QString::number(curObj->lx);
-    url += "#map=" + scale + "/" + QString::number(curObj->ly) + "/" + QString::number(curObj->lx);
-
-    if (ui->toolbutton_map_view->isChecked()) {
-        qDebug() << "Load URL: " << url;
-        geoMap->load(QUrl(url));
-        geoMap->show();
-        lytFrmImg->removeWidget(imgcvs);
-        lytFrmImg->addWidget(geoMap);
-    } else {
-        lytFrmImg->removeWidget(geoMap);
-        lytFrmImg->addWidget(imgcvs);
-        geoMap->hide();
-    }
-}
-
-/*
- * Color the current row of the table corresponding to the censor value
- */
-void MainWindow::colorTableRow(QColor color, int row) {
-    int c = wdgObjects->tblObjects->columnCount();
-    for (int i=0; i<c; i++) {
-        wdgObjects->tblObjects->item(row, i)->setBackgroundColor(color);
-    }
-}
-
-/*
- * 1:1 Zoom Button handler
- */
-void MainWindow::handleOneToOneZoom() {
-    if (curObj == 0) return;
-    imgcvs->centerOnWorldPosition(curObj->ux, curObj->uy, 1.0);
-}
-
-void MainWindow::initMapView() {
-    // Setup image and map
-    imgcvs = new ImgCanvas(ui->wdgImg, ui, cfg, db);
-    geoMap = new QWebView(ui->wdgImg);
-    lytFrmImg = new QVBoxLayout;
-    lytFrmImg->setMargin(0);
-    lytFrmImg->addWidget(imgcvs);
-    ui->wdgImg->setLayout(lytFrmImg);
-
-    // Add QDial for direction
-    dirDial = new QDial(imgcvs);
-    dirDial->setFixedSize(80,80);
-    dirDial->move(10,50);
-    dirDial->setMaximum(359);
-    dirDial->setMinimum(0);
-    dirDial->setWrapping(true);
-    dirDial->setNotchesVisible(false);
-    dirDial->setStyle(new QMotifStyle);
-}
-
-/*
- * Recalculate direction value depending on QDial value
- * Set the direction value only when dial is touched
- */
-void MainWindow::handleDirDial() {
-    qDebug() << "Handle direction dial with value: " << dirDial->value();
-    curObj->direction = (dirDial->value() + 180)%360;
-    qDebug() << curObj->direction;
-}
-
-/*
- * Function which selects Ui elements depending on the data in
- * the census struct.
- */
-void MainWindow::UiPreSelection(census * cobj) {
-
-    // Save Census checkbox ticked?
-    // save all info but size and direction
-    if (wdgCensus->chbSaveCensus->isChecked()) {
-        dirDial->setValue(180);
-        cobj->direction = -1;
-
-        // clear size box
-        wdgCensus->lblMammalSizeLength->clear();
-        wdgCensus->lblBirdSizeLength->clear();
-        wdgCensus->lblBirdSizeSpan->clear();
-        cobj->span = -1;
-        cobj->length = -1;
-
-        cobj->remarks.clear();
-
-        cobj->imageQuality = 0;
-        return;
-    }
-
-    association_selection_dialog_->set_id_list(&cobj->stuk4_ass);
-    behaviour_selection_dialog_->set_id_list(&cobj->stuk4_beh);
-    family_selection_dialog_->set_id_list(&cobj->family);
-    group_selection_dialog_->set_id_list(&cobj->group);
-
-//    // handle those differently -- courtesy of the stuk4 table widget
-    curObj->stuk4_ass = cobj->stuk4_ass;
-    curObj->stuk4_beh = cobj->stuk4_beh;
-    curObj->length = cobj->length;
-    curObj->span = cobj->span;
-
-    wdgCensus->textedit_remarks->clear();
-
-    // clear size box
-    wdgCensus->lblMammalSizeLength->clear();
-    wdgCensus->lblBirdSizeLength->clear();
-    wdgCensus->lblBirdSizeSpan->clear();
-
-    // Recalculate values of the QDial to 0=North
-    if (cobj->direction >= 0 ) {
-        dirDial->setValue((cobj->direction+180)%360);
-        handleDirDial();
-    } else {
-        dirDial->setValue(180);
-    }
-
-    // Checkbox for very good objects in image quality
-    // which could be used as example pictures
-    if (cobj->imageQuality > 0) {
-        wdgGraphics->chbImgQuality->setChecked(true);
-    } else {
-        wdgGraphics->chbImgQuality->setChecked(false);
-    }
-
-    // by default, all options are off
-    wdgCensus->gbxMammalAge->setChecked(false);
-	wdgCensus->gbxBirdAge->setChecked(false);
-	wdgCensus->cmb_bird_age->setCurrentIndex(0);
-    wdgCensus->gbxBirdGender->setChecked(false);
-	wdgCensus->group_box_plumage->setChecked(false);
-	wdgCensus->combo_box_plumage->setCurrentIndex(0);
-
-    wdgCensus->textedit_remarks->setPlainText(cobj->remarks);
-
-    if(cobj->type == "BIRD" ||curObj->type.left(1) == "V" ) { // Bird Tab
-            wdgCensus->wdgTabTypes->setCurrentIndex(0);
-            int index = wdgCensus->cmbBird->findText(cobj->name);
-            wdgCensus->cmbBird->setCurrentIndex(index);
-            selectButtonByString(wdgCensus->btngBirdQual, QString::number(cobj->confidence));
-            selectButtonByString(wdgCensus->btngBirdBeh, cobj->behavior);
-            if(cobj->gender != "") {
-                wdgCensus->gbxBirdGender->setChecked(true);
-                selectButtonByString(wdgCensus->btngBirdSex, cobj->gender);
-            }
-            if(cobj->age != "" || cobj->age_year>0) {
-                wdgCensus->gbxBirdAge->setChecked(true);
-                selectButtonByString(wdgCensus->btngBirdAge, cobj->age);
-                index = wdgCensus->cmb_bird_age->findData(curObj->age_year);
-                wdgCensus->cmb_bird_age->setCurrentIndex(index);
-            }
-            if (!cobj->plumage.isEmpty()) {
-            	wdgCensus->group_box_plumage->setChecked(true);
-            	wdgCensus->combo_box_plumage->setCurrentIndex(
-            			wdgCensus->combo_box_plumage->findData(cobj->plumage));
-            }
-            if (cobj->length > 0 ) wdgCensus->lblBirdSizeLength->setText(QString::number(cobj->length));
-            if (cobj->span > 0 ) wdgCensus->lblBirdSizeSpan->setText(QString::number(cobj->span));
-
-            wdgCensus->cmbBird->setFocus();
-        } else if (cobj->type == "MAMMAL" || curObj->type == "MM" ) { // Mammal Tab
-            wdgCensus->wdgTabTypes->setCurrentIndex(1);
-            int index = wdgCensus->cmbMammal->findText(cobj->name);
-            wdgCensus->cmbMammal->setCurrentIndex(index);
-            selectButtonByString(wdgCensus->btngMammalQual, QString::number(cobj->confidence));
-            selectButtonByString(wdgCensus->btngMammalBeh, cobj->behavior);
-            if (cobj->age != "") {
-                wdgCensus->gbxMammalAge->setChecked(true);
-                selectButtonByString(wdgCensus->btngMammalAge, cobj->age);
-            }
-            if (cobj->length > 0 )
-                wdgCensus->lblMammalSizeLength->setText(QString::number(cobj->length));
-            wdgCensus->cmbMammal->setFocus();
-        } else if (cobj->type == "ANTHRO" || curObj->type == "AN" ) { // Anthro Tab
-            int index = wdgCensus->cmbAnthroName->findData(cobj->code);
-            wdgCensus->cmbAnthroName->setCurrentIndex(index);
-            wdgCensus->wdgTabTypes->setCurrentIndex(2);
-            selectButtonByString(wdgCensus->btngAnthroQual, QString::number(cobj->confidence));
-        } else if (cobj ->type== "MISC"  || curObj->type == "TR" ) {
-        	if (curObj->type == "TR") curObj->code = "7101";
-        	int index = wdgCensus->cmb_misc_name->findData(cobj->code);
-        	wdgCensus->cmb_misc_name->setCurrentIndex(index);
-        	wdgCensus->wdgTabTypes->setCurrentIndex(3);
-        	selectButtonByString(wdgCensus->btng_misc_qual, QString::number(cobj->confidence));
-        } else { //NoSighting tab
-            wdgCensus->wdgTabTypes->setCurrentIndex(4);
-            selectButtonByString(wdgCensus->buttongroup_nosight, QString::number(cobj->confidence));
-        }
-}
-
-/*
- * Read results for the selected censor and set the Ui elements respectively
- */
-void MainWindow::handleUsrSelect() {
-    census * obj;
-    if (wdgCensus->cmbUsers->currentIndex() == -1) return;
-    obj = db->getRawObjectData(QString::number(curObj->id), wdgCensus->cmbUsers->currentText());
-    UiPreSelection(obj);
-    delete obj;
-}
-
-void MainWindow::handleBrightnessSlider() {
-    imgcvs->setRasterBrightness(wdgGraphics->sldBrightness->value());
-}
-
-void MainWindow::handleContrastSlider() {
-    imgcvs->setRasterContrast(wdgGraphics->sldContrast->value());
-}
-
-void MainWindow::handleBrightnessReset() {
-    wdgGraphics->sldBrightness->setValue(0);
-    handleBrightnessSlider();
-}
-
-void MainWindow::handleContrastReset() {
-    wdgGraphics->sldContrast->setValue(0);
-    handleContrastSlider();
-}
-
-void MainWindow::initFilters() {
-    wdgObjects->tblFilters->setHorizontalHeaderLabels(
-            QStringList() << "ID" << "IMG" << "CAM" << "Typ" << "Bestimmung");
-    wdgObjects->tblFilters->horizontalHeader()->setHighlightSections(false);
-    wdgObjects->tblFilters->setSelectionMode(QAbstractItemView::NoSelection);
-
-    wdgObjects->tblFilters->setColumnWidth(0, 75);
-    wdgObjects->tblFilters->setColumnWidth(1, 80);
-    wdgObjects->tblFilters->setColumnWidth(2, 40);
-    wdgObjects->tblFilters->setColumnWidth(3, 50);
-    wdgObjects->tblFilters->setColumnWidth(4, 80);
-
-    wdgObjects->tblFilters->horizontalHeader()->setStretchLastSection(true);
-
-    wdgObjects->tblFilters->setRowCount(1);
-    wdgObjects->tblFilters->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-
-    cmbFilterCam = new QComboBox();
-    cmbFilterType = new QComboBox();
-    cmbFilterCensus = new QComboBox();
-    pteFilterImg = new QLineEdit();
-    pteFilterId = new QLineEdit();
-
-
-    wdgObjects->tblFilters->setCellWidget(0,0,pteFilterId);
-    wdgObjects->tblFilters->setCellWidget(0,1,pteFilterImg);
-    wdgObjects->tblFilters->setCellWidget(0,2,cmbFilterCam);
-    wdgObjects->tblFilters->setCellWidget(0,3,cmbFilterType);
-    wdgObjects->tblFilters->setCellWidget(0,4,cmbFilterCensus);
-
-    wdgObjects->cmbFilterUserCensor->addItem(trUtf8(""), QVariant(""));
-    wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Unbearbeitet"),
-            QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
-    wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Bearbeitet"),QVariant(" AND tp IS NOT NULL"));
-
-    wdgObjects->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
-    wdgObjects->cmbFilterCensor->addItem(trUtf8("Unbestimmt"),QVariant(" AND (mc=0 OR mc IS NULL)"));
-//    wdgObjects->cmbFilterCensor->setItemData( 1, QColor( Qt::white ), Qt::BackgroundRole );
-    wdgObjects->cmbFilterCensor->addItem(trUtf8("Erstbestimmt"),QVariant(" AND mc=1 AND cnt=1"));
-//    wdgObjects->cmbFilterCensor->setItemData( 2, QColor( Qt::gray ), Qt::BackgroundRole );
-    wdgObjects->cmbFilterCensor->addItem(trUtf8("Unstimmigkeiten"),QVariant(" AND mc=1 AND cnt>1"));
-//    wdgObjects->cmbFilterCensor->setItemData( 3, QColor( Qt::red ), Qt::BackgroundRole );
-    wdgObjects->cmbFilterCensor->addItem(trUtf8("Enbestimmt"),QVariant(" AND mc>1"));
-//    wdgObjects->cmbFilterCensor->setItemData( 4, QColor( Qt::green ), Qt::BackgroundRole );
-
-    cmbFilterCam->addItem(trUtf8(""), QVariant(""));
-    cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));
-    cmbFilterCam->addItem(trUtf8("2"), QVariant(" AND cam='2'"));
-
-    cmbFilterType->addItem(trUtf8(""), QVariant(""));
-    cmbFilterType->addItems(db->getTypeList());
-
-    cmbFilterCensus->addItem(trUtf8(""), QVariant(""));
-    cmbFilterCensus->addItems(db->getCensusList());
-
-    connect(pteFilterImg, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
-    connect(pteFilterId, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
-    connect(cmbFilterCam, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCamFilter(int)));
-    connect(cmbFilterType, SIGNAL(currentIndexChanged(int)), this, SLOT(handleTypeFilter(int)));
-    connect(cmbFilterCensus, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensusFilter(int)));
-
-    connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(handleCensorFilter()));
-    connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(handleCensorFilter()));
-
-    wdgObjects->tblFilters->setMinimumSize(
-            wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
-            wdgObjects->tblFilters->horizontalHeader()->height());
-    wdgObjects->tblFilters->setMaximumSize(
-            wdgObjects->tblFilters->width(), wdgObjects->tblFilters->rowHeight(0) +
-            wdgObjects->tblFilters->horizontalHeader()->height());
+    updateTodoObjects();
 }
 
 void MainWindow::handleLineEditFilter() {
@@ -786,7 +1030,7 @@ void MainWindow::handleLineEditFilter() {
         filterMap["Id"] = " AND TRUE";
     else
         filterMap["Id"] = " AND ot.rcns_id=" + pteFilterId->text() + "";
-    populateObjectTable();
+    handleSessionSelection();
 }
 
 void MainWindow::handleCensorFilter() {
@@ -794,7 +1038,7 @@ void MainWindow::handleCensorFilter() {
             wdgObjects->cmbFilterUserCensor->currentIndex()).toString();
     filterMap["Censor"] = wdgObjects->cmbFilterCensor->itemData(
             wdgObjects->cmbFilterCensor->currentIndex()).toString();
-    populateObjectTable();
+    handleSessionSelection();
 }
 
 void MainWindow::handleTypeFilter(int index) {
@@ -802,7 +1046,7 @@ void MainWindow::handleTypeFilter(int index) {
         filterMap["Type"] = " AND pre_tp ='" + cmbFilterType->currentText() + "'";
     else
         filterMap["Type"] = "";
-    populateObjectTable();
+    handleSessionSelection();
 }
 
 void MainWindow::handleCensusFilter(int index) {
@@ -810,27 +1054,18 @@ void MainWindow::handleCensusFilter(int index) {
         filterMap["Census"] = " AND otp LIKE '%" + cmbFilterCensus->currentText() + "%'";
     else
         filterMap["Census"] = "";
-    populateObjectTable();
+    handleSessionSelection();
 }
 
 void MainWindow::handleCamFilter(int index) {
     filterMap["Cam"] = cmbFilterCam->itemData(index).toString();
-    populateObjectTable();
+    handleSessionSelection();
 }
 
 void MainWindow::handleDeleteButton() {
-    db->deleteCensusData(QString::number(curObj->id), cfg->user());
+    db->deleteCensusData(QString::number(curObj->id), config->user());
     wdgCensus->btnDelete->setEnabled(false);
-    populateObjectTable();
-}
-
-bool MainWindow::compareResults(census * curObj, census * cenObj) {
-    bool agree = true;
-    agree = agree && (curObj->name == cenObj->name);
-    agree = agree && (curObj->type == cenObj->type);
-    if (curObj->confidence == 4 || cenObj->confidence == 4)
-        agree = agree && (curObj->confidence == cenObj->confidence);
-    return agree;
+    handleSessionSelection();
 }
 
 void MainWindow::handleSortingHeader(int section) {
@@ -855,11 +1090,6 @@ void MainWindow::handleMammalLengthMeasurement() {
     conductMeasurement(&curObj->length, wdgCensus->lblMammalSizeLength);
 };
 
-void MainWindow::conductMeasurement(double * length, QLabel * label) {
-    measurementWindow->move(size().width()*0.75,size().height()*0.25);
-    measurementWindow->startMeasurement(length, label);
-}
-
 void MainWindow::handleMiscMeasurement() {
 	if (curObj == 0) return;
     conductMeasurement(0,0);
@@ -868,146 +1098,20 @@ void MainWindow::handleMiscMeasurement() {
 void MainWindow::handleFlightInfoAction() {
 }
 
-void MainWindow::initCollapsibleMenu(){
-    // create expandable widget type
-        ui->wdgFrameTree->setRootIsDecorated(false);
-        ui->wdgFrameTree->setIndentation(0);
-        ui->wdgFrameTree->viewport()->setBackgroundRole(QPalette::Background);
-        ui->wdgFrameTree->setBackgroundRole(QPalette::Window);
-        ui->wdgFrameTree->setAutoFillBackground(true);
-        ui->wdgFrameTree->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        //create widget
-            {
-            twgSession = new QTreeWidgetItem();
-            ui->wdgFrameTree->addTopLevelItem(twgSession);
-            cbtSession = new QCategoryCheckButton("Projektauswahl", ui->wdgFrameTree, twgSession);
-            ui->wdgFrameTree->setItemWidget(twgSession, 0, cbtSession);
-
-            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-            wdgContainer->setDisabled(true);
-            twgSession->addChild(wdgContainer);
-            QFrame *widget = new QFrame;
-            wdgSession = new Ui::wdgSessions;
-            wdgSession->setupUi(widget);
-            widget->setBackgroundRole(QPalette::Window);
-            widget->setAutoFillBackground(true);
-            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-            twgSession->setExpanded(true);
-        }
-
-        //create widget
-        {
-            twgObjects = new QTreeWidgetItem();
-            ui->wdgFrameTree->addTopLevelItem(twgObjects);
-            cbtObjects = new QCategoryCheckButton("Objektauswahl", ui->wdgFrameTree, twgObjects);
-            ui->wdgFrameTree->setItemWidget(twgObjects, 0, cbtObjects);
-
-            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-            wdgContainer->setDisabled(true);
-            twgObjects->addChild(wdgContainer);
-            QFrame *widget = new QFrame;
-            wdgObjects = new Ui::wdgObjects;
-            wdgObjects->setupUi(widget);
-            widget->setBackgroundRole(QPalette::Window);
-            widget->setAutoFillBackground(true);
-            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-            twgObjects->setExpanded(false);
-        }
-
-        //create widget
-        {
-            twgCensus = new QTreeWidgetItem();
-            ui->wdgFrameTree->addTopLevelItem(twgCensus);
-            cbtCensus = new QCategoryCheckButton("Bestimmungstabellen", ui->wdgFrameTree, twgCensus);
-            ui->wdgFrameTree->setItemWidget(twgCensus, 0, cbtCensus);
-            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-            wdgContainer->setDisabled(true);
-            twgCensus->addChild(wdgContainer);
-            frame_census = new QFrame;
-            wdgCensus = new Ui::wdgCensus;
-            wdgCensus->setupUi(frame_census);
-            frame_census->setBackgroundRole(QPalette::Window);
-            frame_census->setAutoFillBackground(true);
-            frame_census->resize(0,0);
-            wdgCensus->wdgTabTypes->setContentsMargins(0,0,0,0);
-            wdgCensus->wdgTabTypes->setBackgroundRole(QPalette::Window);
-            wdgCensus->wdgTabTypes->setAutoFillBackground(true);
-
-            ui->wdgFrameTree->setItemWidget(wdgContainer,0,frame_census);
-            if (!cbtCensus->isChecked())
-                twgCensus->setExpanded(false);
-
-        }
-
-        //create widget
-        {
-            twgGraphics = new QTreeWidgetItem();
-            ui->wdgFrameTree->addTopLevelItem(twgGraphics);
-            cbtGraphics = new QCategoryCheckButton("Bildverarbeitung", ui->wdgFrameTree, twgGraphics);
-            ui->wdgFrameTree->setItemWidget(twgGraphics, 0, cbtGraphics);
-            QTreeWidgetItem * wdgContainer = new QTreeWidgetItem();
-            wdgContainer->setDisabled(true);
-            twgGraphics->addChild(wdgContainer);
-            QFrame *widget = new QFrame;
-            wdgGraphics = new Ui::wdgGraphics;
-            wdgGraphics->setupUi(widget);
-            widget->setBackgroundRole(QPalette::Window);
-            widget->setAutoFillBackground(true);
-            ui->wdgFrameTree->setItemWidget(wdgContainer,0,widget);
-            twgGraphics->setExpanded(false);
-        }
-
-        wdgCensus->btnSave->setEnabled(false);
-        wdgCensus->btnDelete->setEnabled(false);
-        wdgObjects->tblObjects->setColumnCount(5);
-        wdgObjects->tblObjects->setHorizontalHeaderLabels(QStringList() << "ID" << "IMG" << "CAM" << "TP" <<
-                "CEN");
-        wdgObjects->tblObjects->setColumnWidth(0, 75);
-        wdgObjects->tblObjects->setColumnWidth(1, 80);
-        wdgObjects->tblObjects->setColumnWidth(2, 40);
-        wdgObjects->tblObjects->setColumnWidth(3, 50);
-        wdgObjects->tblObjects->setColumnWidth(4, 50);
-}
-
-void MainWindow::InitCensusWidget() {
-    group_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_group, this);
-	family_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_family, this);
-    association_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_associations, this);
-    behaviour_selection_dialog_ = new IdSelectionDialog(wdgCensus->text_behaviour, this);
-
-    association_selection_dialog_->set_data_model(db->getStuk4Associations());
-    behaviour_selection_dialog_->set_data_model(db->getStuk4Behaviour());
-
-    db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
-    db->GetMiscObjects(wdgCensus->cmb_misc_name);
-    db->GetAnthroObjectList(wdgCensus->cmbAnthroName);
-    db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
-    db->GetTypeList("MAMMAL", wdgCensus->cmbMammal);
-    db->GetTypeList("BIRD", wdgCensus->cmbBird);
-    db->GetBirdPlumageClasses(wdgCensus->combo_box_plumage);
-
-    connect(wdgCensus->toolbutton_associations, SIGNAL(clicked()), this, SLOT(HandleAssociationSelection()));
-    connect(wdgCensus->toolbutton_behaviour, SIGNAL(clicked()), this, SLOT(HandleBehaviourSelection()));
-    connect(wdgCensus->toolbutton_group, SIGNAL(clicked()), this, SLOT(HandleGroupSelection()));
-    connect(wdgCensus->toolbutton_family, SIGNAL(clicked()), this, SLOT(HandleFamilySelection()));
-
-    connect(wdgCensus->wdgTabTypes, SIGNAL(currentChanged(int)), this, SLOT(HandleActiveCensusElements()));
-}
-
 void MainWindow::HandleAssociationSelection() {
-	association_selection_dialog_->ToggleHidden();
+	association_dialog->ToggleHidden();
 }
 
 void MainWindow::HandleBehaviourSelection() {
-	behaviour_selection_dialog_->ToggleHidden();
+	behaviour_dialog->ToggleHidden();
 }
 
 void MainWindow::HandleGroupSelection() {
-	group_selection_dialog_->ToggleHidden();
+	group_dialog->ToggleHidden();
 }
 
 void MainWindow::HandleFamilySelection() {
-	family_selection_dialog_->ToggleHidden();
+	family_dialog->ToggleHidden();
 }
 
 void MainWindow::HandleActiveCensusElements() {
@@ -1020,76 +1124,50 @@ void MainWindow::HandleActiveCensusElements() {
 	}
 }
 
-QVariant MainWindow::GetButtonGroupValue(QButtonGroup * btng, QString value) {
-	return btng->checkedButton()->property(value.toStdString().c_str());
-}
-
-QVariant MainWindow::GetGroupBoxValue(QGroupBox * gbx, QButtonGroup * btng, QString value) {
-	if (gbx->isCheckable()) {
-		if (gbx->isChecked()) {
-			return GetButtonGroupValue(btng,value);
-		} else {
-			return QVariant::fromValue(QString::fromStdString(""));
-		}
-	} else {
-		return GetButtonGroupValue(btng,value);
+void MainWindow::HandleServerSelection() {
+	if (wdgSession->combo_server->currentText().isEmpty()) {
+		wdgSession->btnSession->setEnabled(false);
+		wdgSession->cmbSession->setEnabled(false);
+		return;
 	}
-}
 
-bool MainWindow::CheckInputValidity() {
-	if (curObj->name == "" && curObj->type != "NOSIGHT") {
-		QMessageBox * msgBox = new QMessageBox();
-		msgBox->setText(trUtf8("Bitte Art/Bezeichnung auswählen!"));
-		QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::YesRole);
-		msgBox->exec();
-		if(msgBox->clickedButton() == nextButton) {
-			delete msgBox;
-			return false;
-		}
-		delete msgBox;
-	}
-	if (curObj->type == "BIRD") {
-		if ((curObj->behavior == "FLY") && (curObj->direction < 0)) {
-				QMessageBox * msgBox = new QMessageBox();
-				msgBox->setText(trUtf8("Bitte Flugrichtung bestimmen, oder als unbestimmt markieren."));
-				QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-				QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-				msgBox->exec();
-				if (msgBox->clickedButton() == nextButton) {
-					delete msgBox;
-					return false;
-				} else if (msgBox->clickedButton() == noDirButton) {
-					curObj->direction = -1;
-				}
-				delete msgBox;
-		} else if (curObj->behavior != "FLY") {
-			curObj->direction = -1;
-		}
-	} else if (curObj->type == "MAMMAL") {
-		if (curObj->direction < 0) {
-			QMessageBox * msgBox = new QMessageBox();
-			msgBox->setText(trUtf8("Bitte Schwimmrichtung bestimmen, oder als unbestimmt markieren."));
-			QAbstractButton *nextButton = msgBox->addButton(trUtf8("Ok"), QMessageBox::NoRole);
-			QAbstractButton *noDirButton = msgBox->addButton(trUtf8("Unbestimmt"), QMessageBox::YesRole);
-			msgBox->exec();
-			if (msgBox->clickedButton() == nextButton) {
-				delete msgBox;
-				return false;
-			} else if (msgBox->clickedButton() == noDirButton) {;
-				curObj->direction = -1;
-			}
-			delete msgBox;
-		}
-	}
-	return true;
-}
+	wdgSession->cmbSession->clear();
+	config->setPreferredDatabase(wdgSession->combo_server->currentText());
+	db->OpenDatabase();
 
-QVariant MainWindow::GetComboBoxItem(QComboBox * combo_box) {
-	return combo_box->itemData(combo_box->currentIndex());
-}
+	if (association_dialog->dataModel() != 0)
+		delete association_dialog->dataModel();
+    association_dialog->setDataModel(db->getStuk4Associations());
+    if (behaviour_dialog->dataModel() != 0)
+    	delete behaviour_dialog->dataModel();
+    behaviour_dialog->setDataModel(db->getStuk4Behaviour());
 
-void MainWindow::SaveComboBoxSelection(QComboBox * combo_box) {
-	int row = combo_box->currentIndex();
-	curObj->name = combo_box->model()->data(combo_box->model()->index(row,0)).toString();
-	curObj->code = combo_box->model()->data(combo_box->model()->index(row,3)).toString();
+    wdgCensus->cmb_bird_age->clear();
+    db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
+    wdgCensus->cmb_misc_name->clear();
+    db->GetMiscObjects(wdgCensus->cmb_misc_name);
+    wdgCensus->cmbAnthroName->clear();
+    db->GetAnthroObjectList(wdgCensus->cmbAnthroName);
+    wdgCensus->cmb_bird_age->clear();
+    db->GetBirdAgeClasses(wdgCensus->cmb_bird_age);
+    wdgCensus->cmbMammal->clear();
+    db->getSpeciesList("MAMMAL", wdgCensus->cmbMammal);
+    wdgCensus->cmbBird->clear();
+    db->getSpeciesList("BIRD", wdgCensus->cmbBird);
+    wdgCensus->combo_box_plumage->clear();
+    db->GetBirdPlumageClasses(wdgCensus->combo_box_plumage);
+
+	wdgSession->cmbSession->addItem(QString());
+	wdgSession->cmbSession->setCurrentIndex(0);
+	wdgSession->cmbSession->addItems(db->getSessionList());
+	wdgSession->btnSession->setEnabled(true);
+	wdgSession->cmbSession->setEnabled(true);
+
+	cmbFilterType->clear();
+    cmbFilterType->addItem(trUtf8(""), QVariant(""));
+    cmbFilterType->addItems(db->getRawTypeList());
+
+    cmbFilterCensus->clear();
+    cmbFilterCensus->addItem(trUtf8(""), QVariant(""));
+    cmbFilterCensus->addItems(db->getCensusList());
 }

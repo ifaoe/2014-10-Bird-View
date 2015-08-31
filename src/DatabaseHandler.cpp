@@ -19,7 +19,7 @@
 #include <QTableView>
 #include <QHeaderView>
 
-DatabaseHandler::DatabaseHandler(ConfigHandler *cfgArg) :cfg(cfgArg) {
+DatabaseHandler::DatabaseHandler(ConfigHandler *cfgArg) :config(cfgArg) {
     // TODO Auto-generated constructor stub
     db = new QSqlDatabase();
     *db = QSqlDatabase::addDatabase("QPSQL");
@@ -27,43 +27,35 @@ DatabaseHandler::DatabaseHandler(ConfigHandler *cfgArg) :cfg(cfgArg) {
     if (!db->isValid()) {
         qFatal("Database invalid: QPSQL");
     }
-
-    db->setHostName(cfg->dbHost);
-    db->setDatabaseName(cfg->dbName);
-    db->setPort(cfg->dbPort.toInt());
-    db->setUserName(cfg->dbUser);
-    db->setPassword(cfg->dbPass);
-    qDebug() << "Opening Database " + cfg->dbName + " on Host " + db->hostName() + ".";
-    if (!db->open()) {
-        qFatal("Could not open Database");
-    } else {
-        qDebug() << "Database opened.";
-    }
-
-    fileDb = new QSqlDatabase();
-    *fileDb = QSqlDatabase::addDatabase("QPSQL","file");
-
-    if (!fileDb->isValid()) {
-            qFatal("Database invalid: QPSQL");
-        }
-
-    fileDb->setHostName(cfg->dbFile);
-    fileDb->setDatabaseName(cfg->dbName);
-    fileDb->setPort(cfg->dbPort.toInt());
-    fileDb->setUserName(cfg->dbUser);
-    fileDb->setPassword(cfg->dbPass);
-    qDebug() << "Opening Database " + cfg->dbName + " on Host " + fileDb->hostName() + ".";
-    if (!fileDb->open()) {
-        qFatal("Could not open Database");
-    } else {
-        qDebug() << "Database opened.";
-    }
 }
 
 DatabaseHandler::~DatabaseHandler() {
     // TODO Auto-generated destructor stub
     db->close();
     delete db;
+}
+
+bool DatabaseHandler::OpenDatabase() {
+	if (config->getPreferredDatabase().isEmpty())
+		return false;
+
+	if (db->isOpen()) {
+		db->close();
+	}
+
+	DatabaseInfo info = config->getDatabaseInfo(config->getPreferredDatabase());
+	if (info.id.isEmpty())
+		return false;
+    db->setHostName(info.host);
+    db->setDatabaseName(info.name);
+    db->setPort(info.port);
+    db->setUserName(info.user);
+    db->setPassword(info.password);
+    qDebug() << "Opening Database " + db->databaseName()+ " on Host " + db->hostName() + ".";
+    if (!db->open()) {
+        qFatal("Could not open Database");
+    }
+    return true;
 }
 
 QStringList DatabaseHandler::getSessionList() {
@@ -81,12 +73,17 @@ QStringList DatabaseHandler::getSessionList() {
     return sessionList;
 }
 
-bool DatabaseHandler::GetTypeList(QString type, QComboBox * cmb_box) {
-    QString qstr = "SELECT name_de, name_lat, euring_id FROM taxa WHERE type='%1' ORDER BY seaflag DESC, name_de";
+bool DatabaseHandler::getSpeciesList(QString type, QComboBox * cmb_box) {
+	qDebug() << "Populating species list for " << type;
+    QString qstr = "SELECT name_de, name_lat, euring_id, length FROM taxa LEFT JOIN "
+    		"(SELECT id_code, to_char(avg(length), 'FM99.99') as length FROM census WHERE tp='%1' GROUP BY id_code) as lt ON taxa.euring_id = lt.id_code "
+    		"WHERE type='%1' ORDER BY seaflag DESC, name_de";
 	QSqlQueryModel * model = new QSqlQueryModel;
 	model->setQuery(qstr.arg(type));
+	qDebug() << qstr.arg(type);
 	model->setHeaderData(0, Qt::Horizontal, "Deutscher Name");
 	model->setHeaderData(1, Qt::Horizontal, "Wissenschaftlicher Name");
+	model->setHeaderData(3, Qt::Horizontal, QString::fromUtf8("Länge"));
 	cmb_box->setModel(model);
 	QTableView * view = new QTableView;
 	cmb_box->setView(view);
@@ -132,8 +129,7 @@ QStringList DatabaseHandler::getUserList(QString objId) {
 
 QString DatabaseHandler::getProjectPath(QString session) {
     qDebug() << "Getting session path list from database.";
-    QSqlQuery query("SELECT path FROM projects WHERE project_id='" + session + "'",
-            *fileDb);
+    QSqlQuery query("SELECT path FROM projects WHERE project_id='" + session + "'");
     if (query.size() == -1) return "/net";
     while(query.next()) {
         return query.value(0).toString();
@@ -335,7 +331,7 @@ QMap<int, int> DatabaseHandler::getObjectFinal(QString session) {
 census * DatabaseHandler::getCensusData(QString objId) {
     qDebug() << "Getting object specific query for ID: " << objId;
     QString qstr = "SELECT tp, name, confidence, beh, age, gen, dir, rem, censor, imgqual FROM census WHERE rcns_id=" + objId +
-            " AND usr!='" + cfg->user() + "' AND censor=1";
+            " AND usr!='" + config->user() + "' AND censor=1";
     qDebug() << qstr;
     // if there is already an entry in census db-table,
     // initialize census structure with these values
@@ -430,7 +426,7 @@ QMap<int, QString> DatabaseHandler::getFinalCensus(QString session) {
     return cmap;
 }
 
-QStringList DatabaseHandler::getTypeList() {
+QStringList DatabaseHandler::getRawTypeList() {
     qDebug() << "Getting type list from DB";
     QStringList list;
     QString qstr = "SELECT DISTINCT tp FROM raw_census";
@@ -501,7 +497,7 @@ void DatabaseHandler::deleteCensusData(QString objId, QString usr) {
     query.exec();
 }
 
-bool DatabaseHandler::getSessionActive(QString session) {
+bool DatabaseHandler::getSessionActive(const QString & session) {
     QString qstr = "SELECT active FROM projects WHERE project_id='" + session + "'";
     QSqlQuery query(qstr);
     if(query.next()) {
@@ -598,3 +594,15 @@ QSqlQueryModel * DatabaseHandler::getImageObjects(census * obj) {
     return model;
 }
 
+int DatabaseHandler::getCensusCount(const QString & session, const QString & user,
+		const QString & having_filter, const QString & where_filter) {
+	QString query_string = "SELECT count(*) FROM "
+			"( SELECT max(censor) as mc, count(censor) as cnt FROM view_census "
+			"WHERE session='%1' AND (usr like '%2' OR usr IS NULL) AND %3"
+			" GROUP BY rcns_id) as tmp where %4";
+	QSqlQuery query(query_string.arg(session).arg(user).arg(where_filter).arg(having_filter));
+	qDebug() << query_string.arg(session).arg(user).arg(where_filter).arg(having_filter);
+	if (query.next())
+		return query.value(0).toInt();
+	return 0;
+}

@@ -16,27 +16,34 @@
 #include <qgsapplication.h>
 #include "ConfigHandler.h"
 #include "mainwindow.h"
-#include "SessionDialog.h"
 #include "DatabaseHandler.h"
 
 int main(int argc, char *argv[])
 {
     QApplication::setDesktopSettingsAware(false);
     QApplication::setStyle("GTK+");
+	QCoreApplication::setOrganizationName("ifaoe");
+	QCoreApplication::setOrganizationDomain("ifaoe.de");
+	QCoreApplication::setApplicationName("daisi-bird-view");
+	QIcon::setThemeName("gnome");
+	QStringList theme_paths;
+	theme_paths << "/usr/share/icons/";
+	QIcon::setThemeSearchPaths(theme_paths);
     QApplication a(argc, argv);
-    ConfigHandler *cfg = new ConfigHandler(argc, argv);
+    ConfigHandler *config = new ConfigHandler;
+    config->InitSettings();
 
     // Qgis Pfad setzen und Provider laden
     QgsApplication::setPrefixPath("/usr", true);
     QgsApplication::initQgis();
 
-    SessionDialog d(cfg);
-    d.exec();
+    DatabaseHandler *db = new DatabaseHandler(config);
 
-    DatabaseHandler *db = new DatabaseHandler(cfg);
-
-    MainWindow w(cfg, db);
-    w.showMaximized();
+    MainWindow main_window(config, db);
+    if (config->getAppMaximized())
+    	main_window.showMaximized();
+    else
+    	main_window.show();
 
     int result = a.exec();
 

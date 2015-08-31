@@ -20,7 +20,6 @@ SOURCES += main.cpp\
         QgsLayerStack.cpp \
         ConfigHandler.cpp \
         DatabaseHandler.cpp \
-        SessionDialog.cpp \
         QtExtension/QCategoryButton.cpp \
         QtExtension/QCategoryCheckButton.cpp \
         IdSelectionDialog.cpp \
@@ -32,7 +31,6 @@ HEADERS  += mainwindow.h\
 		QgsLayerStack.h \
 		ConfigHandler.h \
 		DatabaseHandler.h \
-		SessionDialog.h \
 		census.hpp \
 		QtExtension/QCategoryButton.h \
 		QtExtension/QCategoryCheckButton.h \

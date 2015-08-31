@@ -68,7 +68,7 @@ void IdSelectionDialog::ToggleHidden() {
 		this->show();
 }
 
-void IdSelectionDialog::set_data_model(QSqlQueryModel * model) {
+void IdSelectionDialog::setDataModel(QSqlQueryModel * model) {
 	data_model_ = model;
 	dlg_->tbv_idselection->setModel(model);
 	dlg_->tbv_idselection->resizeColumnsToContents();

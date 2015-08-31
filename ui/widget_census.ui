@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>481</width>
-    <height>766</height>
+    <height>781</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -243,7 +243,7 @@
    <item row="3" column="0" colspan="2">
     <widget class="QFrame" name="frame_remarks">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -251,7 +251,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>65</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>65</height>
       </size>
      </property>
      <property name="frameShape">
@@ -1320,15 +1326,15 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttongroup_nosight"/>
-  <buttongroup name="btngBirdQual"/>
-  <buttongroup name="btngBirdSex"/>
-  <buttongroup name="btngMammalQual"/>
-  <buttongroup name="btngMammalBeh"/>
-  <buttongroup name="btngAnthroQual"/>
-  <buttongroup name="btng_misc_qual"/>
-  <buttongroup name="btngMammalAge"/>
   <buttongroup name="btngBirdAge"/>
+  <buttongroup name="btngMammalBeh"/>
+  <buttongroup name="btngMammalAge"/>
+  <buttongroup name="btng_misc_qual"/>
+  <buttongroup name="btngBirdSex"/>
+  <buttongroup name="buttongroup_nosight"/>
+  <buttongroup name="btngAnthroQual"/>
+  <buttongroup name="btngBirdQual"/>
   <buttongroup name="btngBirdBeh"/>
+  <buttongroup name="btngMammalQual"/>
  </buttongroups>
 </ui>
