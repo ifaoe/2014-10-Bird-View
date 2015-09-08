@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>481</width>
-    <height>781</height>
+    <height>759</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -35,18 +35,14 @@
    <property name="verticalSpacing">
     <number>0</number>
    </property>
-   <item row="0" column="1">
-    <widget class="QPushButton" name="btnUserSelect">
-     <property name="text">
-      <string>Bestimmer wählen</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QComboBox" name="cmbUsers"/>
-   </item>
-   <item row="2" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QFrame" name="frame_id_selections">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -83,6 +79,11 @@
            <property name="text">
             <string>...</string>
            </property>
+           <property name="icon">
+            <iconset theme="preferences-system-privacy">
+             <normaloff/>
+            </iconset>
+           </property>
           </widget>
          </item>
          <item>
@@ -115,6 +116,11 @@
           <widget class="QToolButton" name="toolbutton_associations">
            <property name="text">
             <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset theme="preferences-system-privacy">
+             <normaloff/>
+            </iconset>
            </property>
           </widget>
          </item>
@@ -173,6 +179,11 @@
            <property name="text">
             <string>...</string>
            </property>
+           <property name="icon">
+            <iconset theme="accessories-text-editor">
+             <normaloff/>
+            </iconset>
+           </property>
           </widget>
          </item>
          <item>
@@ -205,6 +216,11 @@
           <widget class="QToolButton" name="toolbutton_family">
            <property name="text">
             <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset theme="accessories-text-editor">
+             <normaloff/>
+            </iconset>
            </property>
           </widget>
          </item>
@@ -240,10 +256,10 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QFrame" name="frame_remarks">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -304,8 +320,14 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QFrame" name="frame_save">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -318,6 +340,11 @@
         <property name="text">
          <string>Speichern</string>
         </property>
+        <property name="icon">
+         <iconset theme="document-save">
+          <normaloff/>
+         </iconset>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -328,6 +355,11 @@
         <property name="text">
          <string>Löschen</string>
         </property>
+        <property name="icon">
+         <iconset theme="edit-delete">
+          <normaloff/>
+         </iconset>
+        </property>
         <property name="checkable">
          <bool>false</bool>
         </property>
@@ -336,17 +368,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="chbSaveCensus">
-        <property name="text">
-         <string>Bestimmung merken</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="QTabWidget" name="wdgTabTypes">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
@@ -404,7 +429,7 @@
           <bool>false</bool>
          </property>
          <property name="title">
-          <string>Geschlecht</string>
+          <string>&amp;Geschlecht</string>
          </property>
          <property name="flat">
           <bool>false</bool>
@@ -435,7 +460,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdMale">
             <property name="text">
-             <string comment="M">männlich</string>
+             <string comment="M">m&amp;ännlich</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>M</string>
@@ -514,7 +539,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string comment="F">fliegend</string>
+             <string comment="F">f&amp;liegend</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -555,7 +580,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>tauchend</string>
+             <string>&amp;tauchend</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>DIVE</string>
@@ -592,7 +617,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdAgeAdult">
             <property name="text">
-             <string comment="AD">adult</string>
+             <string comment="AD">ad&amp;ult</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -624,7 +649,7 @@
           <item row="0" column="2">
            <widget class="QRadioButton" name="rbBirdAgeJuv">
             <property name="text">
-             <string comment="JU">juvenil</string>
+             <string comment="JU">&amp;juvenil</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>JUV</string>
@@ -656,7 +681,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdQual1">
             <property name="text">
-             <string comment="1">1 - sicher</string>
+             <string comment="1">&amp;1 - sicher</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -672,7 +697,7 @@
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbBirdQual2">
             <property name="text">
-             <string comment="2">2 - sehr wahrscheinlich</string>
+             <string comment="2">&amp;2 - sehr wahrscheinlich</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>2</string>
@@ -685,7 +710,7 @@
           <item row="1" column="0">
            <widget class="QRadioButton" name="rbBirdQual3">
             <property name="text">
-             <string comment="3">3 - möglich</string>
+             <string comment="3">&amp;3 - möglich</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>3</string>
@@ -698,7 +723,7 @@
           <item row="1" column="1">
            <widget class="QRadioButton" name="rbBirdQual4">
             <property name="text">
-             <string comment="4">4 - potenziell</string>
+             <string comment="4">&amp;4 - potenziell</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>4</string>
@@ -717,10 +742,16 @@
           <string>Größenmessung</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_17">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="2" column="3">
+          <item row="2" column="5">
            <widget class="QLabel" name="lblBirdSizeLength">
             <property name="text">
              <string/>
@@ -728,29 +759,59 @@
            </widget>
           </item>
           <item row="2" column="1">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Spannweite:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
            <widget class="QLabel" name="lblBirdSizeSpan">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
+          <item row="2" column="3">
            <widget class="QToolButton" name="btnBirdSizeLength">
             <property name="text">
              <string>Körperlänge</string>
+            </property>
+            <property name="icon">
+             <iconset theme="applications-engineering">
+              <normaloff/>
+             </iconset>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QToolButton" name="btnBirdSizeSpan">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
              <string>Spannweite</string>
+            </property>
+            <property name="icon">
+             <iconset theme="applications-engineering">
+              <normaloff/>
+             </iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Körperlänge:</string>
             </property>
            </widget>
           </item>
@@ -798,7 +859,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbMammalQual1">
             <property name="text">
-             <string comment="1">1 - sicher</string>
+             <string comment="1">&amp;1 - sicher</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -814,7 +875,7 @@
           <item row="1" column="0">
            <widget class="QRadioButton" name="rbMammalQual3">
             <property name="text">
-             <string comment="3">3 - möglich</string>
+             <string comment="3">&amp;3 - möglich</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>3</string>
@@ -827,7 +888,7 @@
           <item row="1" column="1">
            <widget class="QRadioButton" name="rbMammalQual4">
             <property name="text">
-             <string comment="4">4 - potenziell</string>
+             <string comment="4">&amp;4 - potenziell</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>4</string>
@@ -840,7 +901,7 @@
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbMammalQual2">
             <property name="text">
-             <string comment="2">2 - sehr wahrscheinlich</string>
+             <string comment="2">&amp;2 - sehr wahrscheinlich</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>2</string>
@@ -887,7 +948,7 @@
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbMammalBehaveUnder">
             <property name="text">
-             <string comment="UW">unter Wassoberfläche</string>
+             <string comment="UW">&amp;unter Wassoberfläche</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>UW</string>
@@ -900,7 +961,7 @@
           <item row="1" column="0">
            <widget class="QRadioButton" name="radio_button_not_visible">
             <property name="text">
-             <string>nicht bestimmbar</string>
+             <string>nich&amp;t bestimmbar</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>NV</string>
@@ -931,7 +992,7 @@
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbMammalAgeAdult">
             <property name="text">
-             <string comment="AD">adult</string>
+             <string comment="AD">adu&amp;lt</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -947,7 +1008,7 @@
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbMammalAgeJuv">
             <property name="text">
-             <string comment="JU">juvenil</string>
+             <string comment="JU">&amp;juvenil</string>
             </property>
             <property name="dbvalue" stdset="0">
              <string>JUV</string>
@@ -966,29 +1027,65 @@
           <string>Größenmessung</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_18">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
           <property name="bottomMargin">
            <number>0</number>
           </property>
           <item row="0" column="0">
            <widget class="QPushButton" name="btnMammalSizeLength">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
-             <string>Körperlänge</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme="applications-engineering">
+              <normaloff/>
+             </iconset>
             </property>
             <property name="msmId" stdset="0">
              <string>mammal_length</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="2">
            <widget class="QLabel" name="lblMammalSizeLength">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>2</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_3">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Körperlänge:</string>
             </property>
            </widget>
           </item>
@@ -1321,20 +1418,67 @@
      </widget>
     </widget>
    </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QComboBox" name="cmbUsers">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chbSaveCensus">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Bestimmung merken</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btngBirdAge"/>
-  <buttongroup name="btngMammalBeh"/>
-  <buttongroup name="btngMammalAge"/>
   <buttongroup name="btng_misc_qual"/>
   <buttongroup name="btngBirdSex"/>
+  <buttongroup name="btngMammalAge"/>
+  <buttongroup name="btngMammalQual"/>
   <buttongroup name="buttongroup_nosight"/>
+  <buttongroup name="btngBirdAge"/>
+  <buttongroup name="btngBirdBeh"/>
+  <buttongroup name="btngMammalBeh"/>
   <buttongroup name="btngAnthroQual"/>
   <buttongroup name="btngBirdQual"/>
-  <buttongroup name="btngBirdBeh"/>
-  <buttongroup name="btngMammalQual"/>
  </buttongroups>
 </ui>

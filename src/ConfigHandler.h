@@ -40,7 +40,7 @@ public:
 	bool getAppMaximized();
 	void setPreferredDatabase(const QString & database);
 	QString getPreferredDatabase();
-	void setPreferredSession(const QString & session);
+	void setSessionName(const QString & session);
 	QString getPreferredSession();
 	QStringList getDatabaseList();
 	DatabaseInfo getDatabaseInfo(const QString & id);

@@ -48,7 +48,7 @@ QString ConfigHandler::getPreferredDatabase() {
 	return value("Database/preferred","").toString();
 }
 
-void ConfigHandler::setPreferredSession(const QString & session) {
+void ConfigHandler::setSessionName(const QString & session) {
 	setValue("session", session);
 }
 

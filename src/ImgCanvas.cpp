@@ -85,6 +85,7 @@ bool ImgCanvas::loadObject(census * obj) {
     QString baseName = info.fileName();
 
     imgLayer = new QgsRasterLayer(basePath,baseName);
+    qDebug() << "yes: " << imgLayer->isValid();
     imgProvider = imgLayer->dataProvider();
 
     QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
@@ -140,14 +141,14 @@ bool ImgCanvas::loadObject(census * obj) {
         marker->setTextOffset(15,15);
 
         if (mcen == 2) {
-            marker->setFillColor(Qt::green);
+            marker->setFillColor(Qt::darkGreen);
         } else if (mcen == 1) {
             if (ccen > 1)
-                marker->setFillColor(Qt::red);
+                marker->setFillColor(Qt::darkRed);
             else
-                marker->setFillColor(Qt::gray);
+                marker->setFillColor(Qt::darkGray);
         } else {
-            marker->setFillColor(Qt::white);
+            marker->setFillColor(Qt::gray);
         }
 
         objMarkers.push_back(marker);

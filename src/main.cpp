@@ -20,8 +20,6 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication::setDesktopSettingsAware(false);
-    QApplication::setStyle("GTK+");
 	QCoreApplication::setOrganizationName("ifaoe");
 	QCoreApplication::setOrganizationDomain("ifaoe.de");
 	QCoreApplication::setApplicationName("daisi-bird-view");
@@ -29,7 +27,9 @@ int main(int argc, char *argv[])
 	QStringList theme_paths;
 	theme_paths << "/usr/share/icons/";
 	QIcon::setThemeSearchPaths(theme_paths);
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
+    QApplication::setDesktopSettingsAware(false);
+    QApplication::setStyle("GTK+");
     ConfigHandler *config = new ConfigHandler;
     config->InitSettings();
 
@@ -45,8 +45,6 @@ int main(int argc, char *argv[])
     else
     	main_window.show();
 
-    int result = a.exec();
-
     QgsApplication::exitQgis();
-    return result;
+    return app.exec();;
 }

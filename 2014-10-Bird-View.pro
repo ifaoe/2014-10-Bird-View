@@ -22,7 +22,10 @@ SOURCES += main.cpp\
         DatabaseHandler.cpp \
         QtExtension/QCategoryButton.cpp \
         QtExtension/QCategoryCheckButton.cpp \
+        QtExtension/QCollapsibleToolbox.cpp \
+        QtExtension/QFrozenRowTableWidget.cpp \
         IdSelectionDialog.cpp \
+        ObjectSelectionDialog.cpp \
         MeasurementDialog.cpp \
         QgsMapMarker.cpp
 		
@@ -34,7 +37,10 @@ HEADERS  += mainwindow.h\
 		census.hpp \
 		QtExtension/QCategoryButton.h \
 		QtExtension/QCategoryCheckButton.h \
+		QtExtension/QCollapsibleToolbox.h \
+		QtExtension/QFrozenRowTableWidget.h \
 		IdSelectionDialog.h \
+		ObjectSelectionDialog.h \
         MeasurementDialog.h \
         QgsMapMarker.h
         
@@ -46,6 +52,7 @@ FORMS    += mainwindow.ui \
 			widget_objects.ui \
 			widget_graphics.ui \
 			dialog_idselection.ui \
+			dialog_object_selection.ui \
 			dialog_measurement.ui \
 			widget_census_shared.ui
 			

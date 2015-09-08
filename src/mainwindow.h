@@ -34,6 +34,7 @@
 #include "QtExtension/QCategoryCheckButton.h"
 #include "MeasurementDialog.h"
 #include "IdSelectionDialog.h"
+#include "QtExtension/QCollapsibleToolbox.h"
 
 namespace Ui {
 class MainWindow;
@@ -63,11 +64,6 @@ private:
     QVBoxLayout *lytFrmImg;
     QWebView * geoMap;
 
-//    QPushButton * btnZoomOneOne;
-//    QPushButton * btnToggleSource;
-//    QPushButton * btnMapModeImg;
-//    QPushButton * btnMapModeGeo;
-
     QDial * dirDial;
 
     // Filter Widgets
@@ -83,20 +79,6 @@ private:
     Ui::wdgObjects * wdgObjects;
     Ui::wdgCensus * wdgCensus;
     Ui::wdgGraphics * wdgGraphics;
-
-    QFrame * frame_census;
-
-    QTreeWidgetItem* twgSession = 0;
-    QTreeWidgetItem* twgObjects = 0;
-    QTreeWidgetItem* twgCensus = 0;
-    QTreeWidgetItem* twgGraphics = 0;
-    QTreeWidgetItem* twgMultiCensus = 0;
-
-    QCategoryCheckButton* cbtSession = 0;
-    QCategoryCheckButton* cbtObjects = 0;
-    QCategoryCheckButton* cbtCensus = 0;
-    QCategoryCheckButton* cbtGraphics = 0;
-    QCategoryCheckButton* cbtMultiCensus = 0;
 
     QSet<int> sortSet;
 
@@ -131,7 +113,7 @@ private slots:
 	void handleMapToolButton();
 	void handleOneToOneZoom();
 	void handleDirDial();
-	void handleUsrSelect();
+	void handleUsrSelect(int index);
 	void handleBrightnessSlider();
 	void handleContrastSlider();
 	void handleBrightnessReset();
