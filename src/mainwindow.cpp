@@ -152,6 +152,10 @@ void MainWindow::updateTodoObjects() {
 
     wdgObjects->cmbFilterCensor->setCurrentIndex(census_index);
     wdgObjects->cmbFilterUserCensor->setCurrentIndex(censor_index);
+    int min_width_censor = wdgObjects->cmbFilterCensor->minimumSizeHint().width();
+    int min_width_user_censor = wdgObjects->cmbFilterUserCensor->minimumSizeHint().width();
+    wdgObjects->cmbFilterCensor->view()->setMinimumWidth(min_width_censor+15);
+    wdgObjects->cmbFilterUserCensor->view()->setMinimumWidth(min_width_user_censor+15);
     connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
     connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
 }
@@ -345,6 +349,26 @@ void MainWindow::initFilters() {
     cmbFilterCam->addItem(trUtf8(""), QVariant(""));
     cmbFilterCam->addItem(trUtf8("1"), QVariant(" AND cam='1'"));
     cmbFilterCam->addItem(trUtf8("2"), QVariant(" AND cam='2'"));
+
+	wdgObjects->cmbFilterCensor->clear();
+    wdgObjects->cmbFilterCensor->addItem(trUtf8(""), QVariant(""));
+    wdgObjects->cmbFilterCensor->addItem( trUtf8("Unbestimmt"),QVariant(" AND (mc=0 OR mc IS NULL)"));
+//    wdgObjects->cmbFilterCensor->setItemData( 1, QColor( Qt::white ), Qt::BackgroundRole );
+    wdgObjects->cmbFilterCensor->addItem(trUtf8("Erstbestimmt"),QVariant(" AND mc=1 AND cnt=1"));
+//    wdgObjects->cmbFilterCensor->setItemData( 2, QColor( Qt::gray ), Qt::BackgroundRole );
+    wdgObjects->cmbFilterCensor->addItem(trUtf8("Unstimmigkeiten"),QVariant(" AND mc=1 AND cnt>1"));
+//    wdgObjects->cmbFilterCensor->setItemData( 3, QColor( Qt::red ), Qt::BackgroundRole );
+    wdgObjects->cmbFilterCensor->addItem(trUtf8("Enbestimmt"),QVariant(" AND mc>1"));
+//    wdgObjects->cmbFilterCensor->setItemData( 4, QColor( Qt::green ), Qt::BackgroundRole );
+
+    wdgObjects->cmbFilterUserCensor->clear();
+    wdgObjects->cmbFilterUserCensor->addItem(trUtf8(""), QVariant(""));
+    wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Unbearbeitet"), QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
+    wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Bearbeitet"), QVariant(" AND tp IS NOT NULL"));
+
+    connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
+    connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
+
 
     connect(pteFilterImg, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
     connect(pteFilterId, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
@@ -652,8 +676,6 @@ void MainWindow::handleSessionSelection() {
         ui->toolbox_widget->getToolboxSection("Projektauswahl")->setExpanded(false);
     if (!ui->toolbox_widget->getCategoryButton("Objektauswahl")->isChecked())
     	 ui->toolbox_widget->getToolboxSection("Objektauswahl")->setExpanded(true);
-
-    updateTodoObjects();
 }
 
 void MainWindow::handleObjectSelection() {
@@ -922,7 +944,6 @@ void MainWindow::handleSaveButton() {
         wdgObjects->tblObjects->scrollTo(newIndex);
         objSelector->select(newIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
-    updateTodoObjects();
 }
 
 void MainWindow::handleLineEditFilter() {
