@@ -28,8 +28,14 @@ int main(int argc, char *argv[])
 	theme_paths << "/usr/share/icons/";
 	QIcon::setThemeSearchPaths(theme_paths);
     QApplication app(argc, argv);
-    QApplication::setDesktopSettingsAware(false);
-    QApplication::setStyle("GTK+");
+    QFile file(":qdarkstyle/style.qss");
+     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+     {
+         app.setStyleSheet(file.readAll());
+         file.close();
+     }
+//    QApplication::setDesktopSettingsAware(false);
+//    QApplication::setStyle("GTK+");
     ConfigHandler *config = new ConfigHandler;
     config->InitSettings();
 

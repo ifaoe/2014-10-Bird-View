@@ -83,6 +83,7 @@ bool DatabaseHandler::getSpeciesList(QString type, QComboBox * cmb_box) {
 	qDebug() << qstr.arg(type);
 	model->setHeaderData(0, Qt::Horizontal, "Deutscher Name");
 	model->setHeaderData(1, Qt::Horizontal, "Wissenschaftlicher Name");
+	model->setHeaderData(2, Qt::Horizontal, "EURING Code");
 	model->setHeaderData(3, Qt::Horizontal, QString::fromUtf8("Länge"));
 	cmb_box->setModel(model);
 	QTableView * view = new QTableView;
@@ -140,13 +141,14 @@ QString DatabaseHandler::getProjectPath(QString session) {
 QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QString filter, QString order) {
     // get object data for population of object list
     qDebug() << "Gettings object data for session: " + session;
-    QString otbl = "SELECT rc.rcns_id, rc.tp as pre_tp, rc.cam, rc.img, max(c.censor) as mc,"
-            " count(*) as cnt, string_agg(c.tp, ', ' ORDER BY c.fcns_id) as otp FROM raw_census as rc LEFT JOIN census"
-            " as c ON rc.rcns_id=c.rcns_id WHERE (censor>0 OR censor IS NULL) AND rc.session='" + session +
-            "' GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img";
-    QString utbl = "SELECT rcns_id, tp, censor FROM census where usr='"+user+"'";
-    QString qstr = "SELECT * FROM (" + otbl + ") as ot LEFT JOIN (" + utbl + ") as ut ON " +
-            "ot.rcns_id=ut.rcns_id " + filter + order;
+    QString otbl = QString("SELECT rc.rcns_id, rc.tp as pre_tp, rc.cam, rc.img, max(c.censor) as mc,"
+            " count(*) as cnt, string_agg(c.tp, ', ' ORDER BY c.fcns_id) as otp,"
+            " max(case when c.usr='%1' then 1 else 0 end) FROM raw_census as rc LEFT JOIN census"
+            " as c ON rc.rcns_id=c.rcns_id WHERE (censor>0 OR censor IS NULL) AND rc.session='%2'"
+            " GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img").arg(user, session);
+    QString utbl = QString("SELECT rcns_id, tp, censor FROM census where usr='%1'").arg(user);
+    QString qstr = QString("SELECT * FROM (%1) as ot LEFT JOIN (%2) as ut ON ot.rcns_id=ut.rcns_id %3 %4")
+    		.arg(otbl).arg(utbl).arg(filter).arg(order);
     qDebug() << qstr;
     QSqlQuery * query = new QSqlQuery(qstr);
     return query;

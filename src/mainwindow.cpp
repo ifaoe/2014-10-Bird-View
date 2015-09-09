@@ -444,7 +444,7 @@ QVariant MainWindow::GetComboBoxItem(QComboBox * combo_box) {
 void MainWindow::SaveComboBoxSelection(QComboBox * combo_box) {
 	int row = combo_box->currentIndex();
 	curObj->name = combo_box->model()->data(combo_box->model()->index(row,0)).toString();
-	curObj->code = combo_box->model()->data(combo_box->model()->index(row,3)).toString();
+	curObj->code = combo_box->model()->data(combo_box->model()->index(row,2)).toString();
 }
 
 QVariant MainWindow::GetButtonGroupValue(QButtonGroup * btng, QString value) {
@@ -607,21 +607,10 @@ void MainWindow::handleSessionSelection() {
 
     QSqlQuery *query = db->getObjectResult( session, config->user(), filter);
     int row = 1;
-    QMap<int, QString> usrCensus = db->getUserCensus(config->user(), session);
-    QMap<int, QString> finalCensus = db->getFinalCensus(session);
     wdgObjects->tblObjects->setRowCount(query->size() + 1);
     while(query->next()) {
-//        wdgObjects->tblObjects->insertRow( wdgObjects->tblObjects->rowCount() );
         QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
-        // Check wether or not there is a better type definition available
-        QString tstr;
-        if (finalCensus.contains(query->value(0).toInt())) {
-            tstr = finalCensus[query->value(0).toInt()];
-        } else if (usrCensus.contains(query->value(0).toInt())) {
-            tstr = usrCensus[query->value(0).toInt()];
-        } else {
-            tstr = "";
-        }
+
         QTableWidgetItem * type = new QTableWidgetItem(query->value(1).toString());
         QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
         QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
@@ -646,28 +635,19 @@ void MainWindow::handleSessionSelection() {
         wdgObjects->tblObjects->setItem(row,3,type);
         wdgObjects->tblObjects->setItem(row,4,census);
 
-
         if (query->value(4).toInt() > 1)
             colorTableRow(Qt::darkGreen, row);
         else if (query->value(4).toInt() == 1 && query->value(5).toInt() > 1)
             colorTableRow(Qt::darkRed, row);
-        else if (usrCensus.contains(query->value(0).toInt()))
+        else if (query->value(6).toInt() == 1)
             colorTableRow(Qt::darkYellow, row);
         else if (query->value(4).toInt() > 0)
             colorTableRow(Qt::darkGray, row);
-
         row++;
     }
     delete query;
-//    if (wdgObjects->tblObjects->rowCount() > 0) {
-//        wdgObjects->tblObjects->setMinimumSize(wdgObjects->tblObjects->width(), 50);
-//        wdgObjects->tblObjects->setMaximumSize(wdgObjects->tblObjects->width(),
-//                wdgObjects->tblObjects->rowHeight(0)*6);
-//        wdgObjects->wdgObjectsTable->adjustSize();
-//    } else {
-//        wdgObjects->wdgObjectsTable->adjustSize();
-//    }
 
+    wdgObjects->tblObjects->resizeColumnsToContents();
     if (!ui->toolbox_widget->getCategoryButton("Projektauswahl")->isChecked())
         ui->toolbox_widget->getToolboxSection("Projektauswahl")->setExpanded(false);
     if (!ui->toolbox_widget->getCategoryButton("Objektauswahl")->isChecked())
@@ -776,7 +756,7 @@ void MainWindow::handleSaveButton() {
     	SaveComboBoxSelection(wdgCensus->cmbBird);
     	curObj->confidence = GetButtonGroupValue(wdgCensus->btngBirdQual, "dbvalue").toInt();
     	curObj->behavior = GetButtonGroupValue(wdgCensus->btngBirdBeh, "dbvalue").toString();
-    	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();\
+    	curObj->gender = GetGroupBoxValue(wdgCensus->gbxBirdGender, wdgCensus->btngBirdSex, "dbvalue").toString();
     	if (wdgCensus->gbxBirdAge->isChecked()) {
     		curObj->age = GetButtonGroupValue(wdgCensus->btngBirdAge, "dbvalue").toString();
     		curObj->age_year = GetComboBoxItem(wdgCensus->cmb_bird_age).toInt();
@@ -866,6 +846,7 @@ void MainWindow::handleSaveButton() {
 			} case 1: {
 				qDebug() << "Erster Bestimmer.";
 				curObj->censor = 1;
+				colorTableRow(Qt::darkYellow, currentRow);
 				break;
 			} case 2: {
 				qDebug() << "Zweiter Bestimmer.";
@@ -882,6 +863,7 @@ void MainWindow::handleSaveButton() {
 					delete msgBox;
 					curObj->censor = 1;
 				}
+				colorTableRow(Qt::darkRed, currentRow);
 				break;
 			} case 3: {
 				qDebug() << "Ditter Bestimmer.";
@@ -896,6 +878,7 @@ void MainWindow::handleSaveButton() {
 					delete msgBox;
 					return;
 				}
+				colorTableRow(Qt::darkGreen, currentRow);
 				break;
 			} default: {
 				qDebug() << "Exit route on switch!";
@@ -904,6 +887,7 @@ void MainWindow::handleSaveButton() {
 		}
     } else {
     	curObj->censor = 2;
+    	colorTableRow(Qt::darkGreen, currentRow);
     }
 
 
@@ -923,11 +907,6 @@ void MainWindow::handleSaveButton() {
         delete msgBox;
         return;
     }
-    // refresh object table
-    if (curObj->censor != 1)
-        colorTableRow(Qt::green, currentRow);
-    else
-        colorTableRow(Qt::yellow, currentRow);
     if (wdgObjects->tblObjects->item(currentRow, 4)->text() == "")
         wdgObjects->tblObjects->item(currentRow, 4)->setText(curObj->type);
     else
