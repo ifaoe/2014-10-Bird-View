@@ -78,6 +78,12 @@ bool ImgCanvas::loadObject(census * obj) {
     QFileInfo info(file);
     if ( !info.isFile() || !info.isReadable() ) {
            qDebug() << "Error: Invalid Filepath: " << file;
+           QMessageBox *imgerror= new QMessageBox();
+           imgerror->setText("Fehler beim Laden des Bildes.");
+           imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+           imgerror->exec();
+           delete imgerror;
+           return false;
     } else {
         qDebug() << "Success.";
     }
@@ -85,7 +91,16 @@ bool ImgCanvas::loadObject(census * obj) {
     QString baseName = info.fileName();
 
     imgLayer = new QgsRasterLayer(basePath,baseName);
-    qDebug() << "yes: " << imgLayer->isValid();
+    if ( !imgLayer->isValid() ) {
+        qDebug() << "Warning: Imagelayer is invalid!";
+
+        QMessageBox *imgerror= new QMessageBox();
+        imgerror->setText("Fehler beim Laden des Bildes.");
+        imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
+        imgerror->exec();
+        delete imgerror;
+        return false;
+    }
     imgProvider = imgLayer->dataProvider();
 
     QgsContrastEnhancement* qgsContrastEnhRed = new QgsContrastEnhancement(QGis::UInt16);
@@ -100,16 +115,6 @@ bool ImgCanvas::loadObject(census * obj) {
     layerStack->addMapLayer("image", imgLayer, 100);
     setExtent(fullExtent());
     centerOnWorldPosition(obj->ux, obj->uy, 1.0);
-    if ( !imgLayer->isValid() ) {
-        qDebug() << "Warning: Imagelayer is invalid!";
-
-        QMessageBox *imgerror= new QMessageBox();
-        imgerror->setText("Fehler beim Laden des Bildes.");
-        imgerror->addButton(trUtf8("Abbrechen"), QMessageBox::NoRole);
-        imgerror->exec();
-        delete imgerror;
-        return false;
-    }
 
     objModel = db->getImageObjects(obj);
 

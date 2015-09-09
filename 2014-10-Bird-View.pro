@@ -66,6 +66,6 @@ DEFINES += GUI_EXPORT= CORE_EXPORT=
 unix: LIBS += -L/usr/lib/\
  -lgdal \
  -lqgis_core\
- -lqgis_gui\
- -lboost_program_options\
+ -lqgis_gui
  
+RESOURCES += ui/style.qrc

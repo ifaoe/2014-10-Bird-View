@@ -23,7 +23,7 @@
 #include <qgsrasterlayer.h>
 #include <qgsvectorlayer.h>
 #include <qgsrasterdataprovider.h>
-#include <qgsmaplayerregistry.h>
+#include <qgsproviderregistry.h>
 #include <qgsmaptoolemitpoint.h>
 #include <qgsmaptoolpan.h>
 #include <qgsgeometry.h>
@@ -61,7 +61,6 @@ private:
     Ui::MainWindow *ui = 0;
     ConfigHandler *cfg = 0;
     DatabaseHandler *db = 0;
-    QgsMapLayerRegistry *lyrRegistry = 0;
     QgsRasterLayer * imgLayer = 0;
     QgsRasterDataProvider* imgProvider = 0;
 

@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     	main_window.showMaximized();
     else
     	main_window.show();
-
+    int return_signal = app.exec();
     QgsApplication::exitQgis();
-    return app.exec();;
+    return return_signal;
 }
