@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>481</width>
-    <height>759</height>
+    <height>780</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -442,7 +442,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_11">
           <property name="bottomMargin">
-           <number>0</number>
+           <number>3</number>
           </property>
           <item row="0" column="1">
            <widget class="QRadioButton" name="rbBirdFemale">
@@ -498,7 +498,7 @@
            <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>0</number>
+           <number>3</number>
           </property>
           <item row="0" column="0">
            <widget class="QComboBox" name="combo_box_plumage"/>
@@ -528,7 +528,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <property name="bottomMargin">
-           <number>0</number>
+           <number>3</number>
           </property>
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdBehaveFly">
@@ -612,7 +612,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <property name="bottomMargin">
-           <number>0</number>
+           <number>3</number>
           </property>
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdAgeAdult">
@@ -676,7 +676,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <property name="bottomMargin">
-           <number>0</number>
+           <number>3</number>
           </property>
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbBirdQual1">
@@ -1036,33 +1036,6 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="btnMammalSizeLength">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset theme="applications-engineering">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="msmId" stdset="0">
-             <string>mammal_length</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="2">
            <widget class="QLabel" name="lblMammalSizeLength">
             <property name="sizePolicy">
@@ -1086,6 +1059,30 @@
             </property>
             <property name="text">
              <string>Körperlänge:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QToolButton" name="btnMammalSizeLength">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme="applications-engineering">
+              <normaloff/>
+             </iconset>
             </property>
            </widget>
           </item>
@@ -1470,15 +1467,15 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btng_misc_qual"/>
-  <buttongroup name="btngBirdSex"/>
-  <buttongroup name="btngMammalAge"/>
-  <buttongroup name="btngMammalQual"/>
-  <buttongroup name="buttongroup_nosight"/>
   <buttongroup name="btngBirdAge"/>
-  <buttongroup name="btngBirdBeh"/>
-  <buttongroup name="btngMammalBeh"/>
+  <buttongroup name="btngMammalAge"/>
   <buttongroup name="btngAnthroQual"/>
+  <buttongroup name="buttongroup_nosight"/>
+  <buttongroup name="btngBirdBeh"/>
+  <buttongroup name="btngBirdSex"/>
+  <buttongroup name="btng_misc_qual"/>
+  <buttongroup name="btngMammalQual"/>
+  <buttongroup name="btngMammalBeh"/>
   <buttongroup name="btngBirdQual"/>
  </buttongroups>
 </ui>

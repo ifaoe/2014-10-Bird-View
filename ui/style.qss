@@ -645,7 +645,13 @@ QComboBox
     border-style: solid;
     border: 1px solid #3A3939;
     border-radius: 2px;
-    padding: 2px;
+    padding: 1px 18px 1px 3px;
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+    background-color: rgb(80, 80, 80);
 }
 
 QPushButton:checked{

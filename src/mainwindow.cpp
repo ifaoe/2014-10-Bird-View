@@ -339,6 +339,7 @@ void MainWindow::initFilters() {
     pteFilterImg = new QLineEdit();
     pteFilterId = new QLineEdit();
 
+//    cmbFilterType->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
 
     wdgObjects->tblObjects->setCellWidget(0,0,pteFilterId);
     wdgObjects->tblObjects->setCellWidget(0,1,pteFilterImg);
@@ -366,9 +367,11 @@ void MainWindow::initFilters() {
     wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Unbearbeitet"), QVariant(" AND tp IS NULL AND (mc<2 OR mc IS NULL)"));
     wdgObjects->cmbFilterUserCensor->addItem(trUtf8("Bearbeitet"), QVariant(" AND tp IS NOT NULL"));
 
-    connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
-    connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
+    filterMap["True"] = "TRUE";
 
+    connect(wdgObjects->cmbFilterCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter()));
+    connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCensorFilter(int)));
+    connect(wdgObjects->cmbFilterUserCensor, SIGNAL(currentIndexChanged(int)), this, SLOT(handleUserCensorFilter(int)));
 
     connect(pteFilterImg, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
     connect(pteFilterId, SIGNAL(returnPressed()), this, SLOT(handleLineEditFilter()));
@@ -544,6 +547,7 @@ bool MainWindow::CheckInputValidity() {
  * Set the direction value only when dial is touched
  */
 void MainWindow::handleDirDial() {
+	if (curObj == 0) return;
     qDebug() << "Handle direction dial with value: " << dirDial->value();
     curObj->direction = (dirDial->value() + 180)%360;
     qDebug() << curObj->direction;
@@ -619,7 +623,7 @@ void MainWindow::handleSessionSelection() {
     sortSet.clear();
     wdgCensus->btnSave->setEnabled(false);
     wdgCensus->btnDelete->setEnabled(false);
-    QString filter = "WHERE TRUE" + QStringList(filterMap.values()).join("");
+    QString filter = QStringList(filterMap.values()).join(" AND ");
     session = wdgSession->cmbSession->currentText();
     config->setSessionName(session);
     currentRow = -1;
@@ -634,12 +638,10 @@ void MainWindow::handleSessionSelection() {
     wdgObjects->tblObjects->setRowCount(query->size() + 1);
     while(query->next()) {
         QTableWidgetItem * id = new QTableWidgetItem(query->value(0).toString());
-
         QTableWidgetItem * type = new QTableWidgetItem(query->value(1).toString());
         QTableWidgetItem * cam = new QTableWidgetItem(query->value(2).toString());
         QTableWidgetItem * img = new QTableWidgetItem(query->value(3).toString());
         QTableWidgetItem * census = new QTableWidgetItem(query->value(6).toString());
-
 
         id->setTextAlignment(Qt::AlignCenter);
         type->setTextAlignment(Qt::AlignCenter);
@@ -947,43 +949,54 @@ void MainWindow::handleSaveButton() {
 }
 
 void MainWindow::handleLineEditFilter() {
-    if (pteFilterImg->text().isEmpty())
-        filterMap["Img"] = " AND TRUE";
+    if (!pteFilterImg->text().isEmpty())
+        filterMap["Img"] = "img like '%" + pteFilterImg->text() + "'";
     else
-        filterMap["Img"] = " AND img like '%" + pteFilterImg->text() + "'";
-    if (pteFilterId->text().isEmpty())
-        filterMap["Id"] = " AND TRUE";
+    	filterMap.remove("Img");
+    if (!pteFilterId->text().isEmpty())
+        filterMap["Id"] = " ot.rcns_id=" + pteFilterId->text() + "";
     else
-        filterMap["Id"] = " AND ot.rcns_id=" + pteFilterId->text() + "";
+    	filterMap.remove("Id");
     handleSessionSelection();
 }
 
-void MainWindow::handleCensorFilter() {
-    filterMap["UserCensor"] = wdgObjects->cmbFilterUserCensor->itemData(
-            wdgObjects->cmbFilterUserCensor->currentIndex()).toString();
-    filterMap["Censor"] = wdgObjects->cmbFilterCensor->itemData(
-            wdgObjects->cmbFilterCensor->currentIndex()).toString();
+void MainWindow::handleCensorFilter(int index) {
+	if (index > 0)
+		filterMap["Censor"] = wdgObjects->cmbFilterCensor->itemData( index ).toString();
+	else
+		filterMap.remove("Censor");
+    handleSessionSelection();
+}
+
+void MainWindow::handleUserCensorFilter(int index) {
+	if (index > 0)
+		filterMap["UserCensor"] = wdgObjects->cmbFilterUserCensor->itemData( index ).toString();
+	else
+		filterMap.remove("UserCensor");
     handleSessionSelection();
 }
 
 void MainWindow::handleTypeFilter(int index) {
     if (index > 0)
-        filterMap["Type"] = " AND pre_tp ='" + cmbFilterType->currentText() + "'";
+        filterMap["Type"] = "pre_tp ='" + cmbFilterType->currentText() + "'";
     else
-        filterMap["Type"] = "";
+        filterMap.remove("Type");
     handleSessionSelection();
 }
 
 void MainWindow::handleCensusFilter(int index) {
     if (index > 0)
-        filterMap["Census"] = " AND otp LIKE '%" + cmbFilterCensus->currentText() + "%'";
+        filterMap["Census"] = "otp LIKE '%" + cmbFilterCensus->currentText() + "%'";
     else
-        filterMap["Census"] = "";
+        filterMap.remove("Census");
     handleSessionSelection();
 }
 
 void MainWindow::handleCamFilter(int index) {
-    filterMap["Cam"] = cmbFilterCam->itemData(index).toString();
+	if (index > 0)
+		filterMap["Cam"] = QString("cam='%1'").arg(cmbFilterCam->currentText());
+	else
+		filterMap.remove("Cam");
     handleSessionSelection();
 }
 
@@ -1093,4 +1106,13 @@ void MainWindow::HandleServerSelection() {
     cmbFilterCensus->clear();
     cmbFilterCensus->addItem(trUtf8(""), QVariant(""));
     cmbFilterCensus->addItems(db->getCensusList());
+
+    cmbFilterCam->clear();
+    cmbFilterCam->addItem(trUtf8(""), QVariant(""));
+    cmbFilterCam->addItems(db->getCamList());
+
+    cmbFilterCensus->setMinimumWidth(cmbFilterCensus->minimumSizeHint().width());
+    cmbFilterType->setMinimumWidth(cmbFilterType->minimumSizeHint().width()+18);
+    cmbFilterCam->setMinimumWidth(cmbFilterCam->minimumSizeHint().width());
+//    wdgObjects->tblObjects->resizeColumnsToContents();
 }

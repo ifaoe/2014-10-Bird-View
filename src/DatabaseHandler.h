@@ -46,6 +46,7 @@ public:
     QMap<int, QString> getFinalCensus(QString session);
     QStringList getRawTypeList();
     QStringList getCensusList();
+    QStringList getCamList();
     void deleteCensusData(QString objId, QString usr);
     bool getSessionActive(const QString & session);
     bool GetAnthroObjectList(QComboBox * cmb);

@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 	QIcon::setThemeSearchPaths(theme_paths);
     QApplication app(argc, argv);
     QFile file(":qdarkstyle/style.qss");
+//    QFile file("/home/awg/workspace/projects/2014-10-Bird-View/ui/style.qss");
      if(file.open(QIODevice::ReadOnly | QIODevice::Text))
      {
          app.setStyleSheet(file.readAll());

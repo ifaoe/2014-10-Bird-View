@@ -122,7 +122,8 @@ private slots:
 	void handleTypeFilter(int index);
 	void handleCensusFilter(int index);
 	void handleCamFilter(int index);
-	void handleCensorFilter();
+	void handleCensorFilter(int index);
+	void handleUserCensorFilter(int index);
 	void handleDeleteButton();
 	void handleSaveButton();
 	void handleSortingHeader(int section);

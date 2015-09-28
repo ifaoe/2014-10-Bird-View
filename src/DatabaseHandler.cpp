@@ -147,7 +147,7 @@ QSqlQuery * DatabaseHandler::getObjectResult(QString session, QString user, QStr
             " as c ON rc.rcns_id=c.rcns_id WHERE (censor>0 OR censor IS NULL) AND rc.session='%2'"
             " GROUP BY rc.rcns_id, rc.tp, rc.cam, rc.img").arg(user, session);
     QString utbl = QString("SELECT rcns_id, tp, censor FROM census where usr='%1'").arg(user);
-    QString qstr = QString("SELECT * FROM (%1) as ot LEFT JOIN (%2) as ut ON ot.rcns_id=ut.rcns_id %3 %4")
+    QString qstr = QString("SELECT * FROM (%1) as ot LEFT JOIN (%2) as ut ON ot.rcns_id=ut.rcns_id WHERE %3 %4")
     		.arg(otbl).arg(utbl).arg(filter).arg(order);
     qDebug() << qstr;
     QSqlQuery * query = new QSqlQuery(qstr);
@@ -451,6 +451,19 @@ QStringList DatabaseHandler::getCensusList() {
     }
     return list;
 }
+
+QStringList DatabaseHandler::getCamList() {
+    qDebug() << "Getting camera list from DB";
+    QStringList list;
+    QString qstr = "SELECT DISTINCT cam FROM raw_census";
+    qDebug() << qstr;
+    QSqlQuery query(qstr);
+    while(query.next()) {
+        list.append(query.value(0).toString());
+    }
+    return list;
+}
+
 
 void DatabaseHandler::GetBirdAgeClasses(QComboBox * cmb_box) {
 	cmb_box->clear();
